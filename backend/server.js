@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 require('dotenv').config();
 
 const app = express();
@@ -10,6 +12,9 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB
+mongoose.connect('mongodb+srv://carellaconnect:<db_password>@carellaconnect.h50ep.mongodb.net/')
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('Failed to connect to MongoDB:', err));
 
 // Simple route
 app.get('/', (req, res) => {
