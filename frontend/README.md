@@ -1,9 +1,9 @@
 # To run the project
 
-#Frontend
+#Frontend                                                                                               
 cd Frontend
-npm install
-npm start
+npm install                            
+npm start           
 
 #backend
 
