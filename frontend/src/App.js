@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; 
+import Footer from "./components/Footer";
+import Home from "./pages/Home"; 
 import axios from "axios";
 
 function App() {
@@ -11,10 +14,17 @@ function App() {
   }, []);
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>Carella Connect</h1>
-      <p>{message}</p>
-    </div>
+    <Router>
+      <div style={{ textAlign: "center", marginTop: "50px" }}> 
+        <h2>Carella Connect</h2>
+        <Routes>
+        <Route path="/" element={<Home />} />  {/* Home Page */}
+        </Routes>
+        <p>{message}</p>
+        <Footer />
+      </div>
+    </Router>
+    
   );
 }
 
