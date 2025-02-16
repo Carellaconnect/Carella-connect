@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; 
-// import Header from "./components/Header";
-// import Footer from "./components/Footer";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Home from "./Home"; 
-import Login from './Login'; // Import Login component
+import Footer from "./components/Footer";
+import Nav from "./components/Nav";
+import Home from "./pages/Home"; 
 import axios from "axios";
+import Login from "./pages/Login";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -17,16 +16,17 @@ function App() {
   }, []);
 
   return (
-    <Router> { }
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
-          <Routes>
-          <Route path="/" element={<Home />} />  {/* Home Page */}
-          <Route path="/Login" element={<Login />} /> {/* Login page route */}
+    <Router>
+        <div style={{ textAlign: "center", marginTop: "0px" }}> 
+        <Routes>
+        <Route path="/" element={<Home />} />  {/* Home Page */}
+        <Route path="/login" element={<Login />} />  {/* login Page */}
         </Routes>
         <p>{message}</p>
-        
+        <Footer />
       </div>
     </Router>
+    
   );
 }
 
