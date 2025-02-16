@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 require('dotenv').config();
 
 const app = express();
-
+app.use("/images", express.static("public/images"));
 // Middleware
 app.use(cors());
 app.use(express.json());

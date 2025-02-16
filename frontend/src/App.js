@@ -19,6 +19,7 @@ function App() {
         <div style={{ textAlign: "center", marginTop: "0px" }}> 
         <Routes>
         <Route path="/" element={<Home />} />  {/* Home Page */}
+        <Route path="/home" element={<Home />} />  {/* Home Page */}
         <Route path="/login" element={<Login />} />  {/* login Page */}
         </Routes>
         <p>{message}</p>

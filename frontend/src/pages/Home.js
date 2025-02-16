@@ -9,8 +9,8 @@ const Home = () => {
       {/* Navbar */}
       <Navbar expand="lg" className="px-4 py-3 m-0" style={{ backgroundColor: "#F7D9E1" }}>
         <Navbar.Brand href="#">
-          <img src="./Logo.png" alt="Logo" width="40" className="me-2" />
-          <strong>Carella Connect</strong>
+          <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
+          <strong style={{fontSize:"30px"}}>Carella Connect</strong> <span style={{fontSize:"12px"}}>Bridging the Gap in Healthcare!</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end">
@@ -29,7 +29,7 @@ const Home = () => {
       <Container className="mt-4 text-center">
         <Row className="align-items-center">
           <Col md={6}>
-            <img src="https://via.placeholder.com/500" alt="Doctor" className="img-fluid rounded" />
+            <img src="../images/doc.jpg" alt="Doctor" className="img-fluid rounded" />
           </Col>
           <Col md={6} className="text-md-start">
             <h2>Carella Connect – Bridging the Gap in Healthcare!</h2>
