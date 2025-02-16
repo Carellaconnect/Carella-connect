@@ -37,8 +37,8 @@ const Login = () => {
             <Card.Body>
               <h3 className="text-center mb-4">Sign In</h3>
               <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="formUsername" className="mb-3">
-                  <Form.Label className='text-start'>Username</Form.Label>
+                <Form.Group controlId="formUsername" className="mb-3 text-start">
+                  <Form.Label>Username</Form.Label>
                   <Form.Control 
                     type="text" 
                     placeholder="Enter your username" 
@@ -48,8 +48,8 @@ const Login = () => {
                   />
                 </Form.Group>
 
-                <Form.Group controlId="formPassword" className="mb-3">
-                  <Form.Label className='text-start'>Password</Form.Label>
+                <Form.Group controlId="formPassword" className="mb-3 text-start">
+                  <Form.Label>Password</Form.Label>
                   <Form.Control 
                     type="password" 
                     placeholder="Enter your password" 
