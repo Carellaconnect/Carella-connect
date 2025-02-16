@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Navbar, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { Navbar, Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Login = () => {
@@ -17,11 +18,16 @@ const Login = () => {
       {/* Navbar */}
       <Navbar expand="lg" className="px-4 py-3" style={{ backgroundColor: "#F7D9E1" }}>
         <Navbar.Brand href="#">
-          <img src="./Logo.png" alt="Logo" width="40" className="me-2" />
-          <strong>Carella Connect</strong>
+          <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
+          <strong style={{fontSize:"30px"}}>Carella Connect</strong> <span style={{fontSize:"12px"}}>Bridging the Gap in Healthcare!</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end">
+        <Nav>
+            <Link to="/home">
+              <Button variant="outline-dark" className="me-2">Home</Button>
+            </Link>
+          </Nav>
         </Navbar.Collapse>
       </Navbar>
     <Container fluid className="d-flex justify-content-center align-items-center min-vh-100">
