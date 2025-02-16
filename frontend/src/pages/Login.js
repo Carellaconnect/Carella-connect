@@ -17,7 +17,7 @@ const Login = () => {
       {/* Navbar */}
       <Navbar expand="lg" className="px-4 py-3" style={{ backgroundColor: "#F7D9E1" }}>
         <Navbar.Brand href="#">
-          <img src="./logo.png" alt="Logo" width="40" className="me-2" />
+          <img src="./Logo.png" alt="Logo" width="40" className="me-2" />
           <strong>Carella Connect</strong>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -67,10 +67,7 @@ const Login = () => {
       </Row>
     </Container>
 
-     {/* Footer */}
-     <footer className="text-center py-3 bg-light">
-        <p>&copy; 2025 Carella Connect. All rights reserved.</p>
-      </footer>
+     
     </>
   );
 };
