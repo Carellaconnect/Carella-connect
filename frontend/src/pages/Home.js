@@ -16,20 +16,20 @@ const Home = () => {
         <Navbar.Collapse className="justify-content-end">
           <Nav>
             <Link to="/signup">
-              <Button variant="outline-dark" className="me-2">SignUp</Button>
+              <Button style={{backgroundColor:"#F4A5AE", border:"0px",color:"black"}} className="me-2">SignUp</Button>
             </Link>
             <Link to="/login">
-              <Button variant="dark">Login</Button>
+              <Button style={{backgroundColor:"#A8577E", border:"0px"}}>Login</Button>
             </Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
 
       {/* Hero Section */}
-      <Container className="mt-4 text-center">
+      <Container className="mt-4 text-center" >
         <Row className="align-items-center">
           <Col md={6}>
-            <img src="../images/doc.jpg" alt="Doctor" className="img-fluid rounded" />
+            <img src="../images/doc.jpg" alt="Doctor" className="img-fluid" style={{borderRadius:"50px"}} />
           </Col>
           <Col md={6} className="text-md-start">
             <h2>Carella Connect – Bridging the Gap in Healthcare!</h2>
@@ -38,14 +38,14 @@ const Home = () => {
               Find and consult doctors, access medical records, and receive medication alerts.
             </p>
             <Link to="/login">
-              <Button variant="primary">Book Now</Button>
+              <Button style={{backgroundColor:"#A8577E", border:"0px"}}>Book Now</Button>
             </Link>
           </Col>
         </Row>
       </Container>
 
       {/* Services */}
-      <Container className="my-5 text-center">
+      <Container className="my-5 text-center" style={{boxShadow:"1px 2px 4px 4px #F4A5AE", borderRadius:"15px"}}>
           <h3>Services</h3>
           <Row className="mt-3">
             {[
@@ -86,7 +86,7 @@ const Home = () => {
                   <Card.Body>
                     <Card.Title>{service.name}</Card.Title>
                     <Card.Text>{service.description}</Card.Text>
-                    <Button variant="primary">Learn More</Button>
+                    <Button style={{backgroundColor:"#A8577E", border:"0px"}}>Learn More</Button>
                   </Card.Body>
                 </Card>
               </Col>
