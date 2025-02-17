@@ -46,21 +46,53 @@ const Home = () => {
 
       {/* Services */}
       <Container className="my-5 text-center">
-        <h3>Services</h3>
-        <Row className="mt-3">
-          {["Pharma", "Lab Services", "Nutrition", "Check-ups", "Physio"].map((service, index) => (
-            <Col md={4} lg={2} key={index} className="mb-4">
-              <Card className="shadow-sm">
-                <Card.Img variant="top" src="https://via.placeholder.com/150" />
-                <Card.Body>
-                  <Card.Title>{service}</Card.Title>
-                  <Button variant="primary">Learn More</Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </Container>
+          <h3>Services</h3>
+          <Row className="mt-3">
+            {[
+              {
+                name: "Online Appoinments",
+                description: "Easily search for doctors and hospitals and schedule appointments in just a few clicks.",
+                img: "https://via.placeholder.com/150/0000FF/808080?text=Pharma"
+              },
+              {
+                name: "Virtual Consultations",
+                description: "Connect with healthcare professionals through secure online video consultations.",
+                img: "https://via.placeholder.com/150/008000/FFFFFF?text=Lab+Services"
+              },
+              {
+                name: "Medical Records Access",
+                description: "View and manage your medical history with secure, read-only access.",
+                img: "https://via.placeholder.com/150/FFA500/FFFFFF?text=Nutrition"
+              },
+              {
+                name: "Medication & Prescription Management",
+                description: "Order medicines online and receive reminders for prescriptions and refills.",
+                img: "https://via.placeholder.com/150/FF0000/FFFFFF?text=Check-ups"
+              },
+              {
+                name: "Emergency Assistance",
+                description: "Quickly contact emergency services or locate the nearest hospital when needed.",
+                img: "https://via.placeholder.com/150/800080/FFFFFF?text=Physio"
+              },
+              {
+                name: "Health Education & Resources",
+                description: "Access expert-reviewed articles, videos, and wellness tips for a healthier life.",
+                img: "https://via.placeholder.com/150/800080/FFFFFF?text=Physio"
+              }
+            ].map((service, index) => (
+              <Col md={4} lg={2} key={index} className="mb-4">
+                <Card className="shadow-sm">
+                  <Card.Img variant="top" src={service.img} />
+                  <Card.Body>
+                    <Card.Title>{service.name}</Card.Title>
+                    <Card.Text>{service.description}</Card.Text>
+                    <Button variant="primary">Learn More</Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Container>
 
       {/* How It Works */}
       <Container className="text-center my-5">

@@ -25,7 +25,7 @@ const Login = () => {
         <Navbar.Collapse className="justify-content-end">
         <Nav>
             <Link to="/home">
-              <Button variant="outline-dark" className="me-2">Home</Button>
+              <Button variant="outline-dark" className="me-2">Back</Button>
             </Link>
           </Nav>
         </Navbar.Collapse>
@@ -72,8 +72,6 @@ const Login = () => {
         </Col>
       </Row>
     </Container>
-
-     
     </>
   );
 };
