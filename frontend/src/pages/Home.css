@@ -1,5 +1,6 @@
-home-container {
+.home-container {
     padding: 20px;
+    background-color:pink;
     border-radius: 10px;
     max-width: 600px;
     margin: 20px auto;
