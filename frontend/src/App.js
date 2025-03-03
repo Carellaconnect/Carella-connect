@@ -4,6 +4,10 @@ import Footer from "./components/Footer";
 import Home from "./pages/Home"; 
 import axios from "axios";
 import Login from "./pages/Login";
+import Admin from './pages/Admin';
+import Doctor from "./pages/Doctor";
+import Patient from "./pages/Patient";
+
 
 function App() {
   const [message, setMessage] = useState("");
@@ -21,6 +25,9 @@ function App() {
         <Route path="/" element={<Home />} />  {/* Home Page */}
         <Route path="/home" element={<Home />} />  {/* Home Page */}
         <Route path="/login" element={<Login />} />  {/* login Page */}
+        <Route path="/admin-dashboard" element={<Admin />} />
+        <Route path="/doctor-dashboard" element={<Doctor />} />
+        <Route path="/patient-dashboard" element={<Patient />} />
         </Routes>
         <p>{message}</p>
         <Footer />

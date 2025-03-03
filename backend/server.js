@@ -4,13 +4,25 @@ const cors = require('cors');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
+const { check, validationResult } = require('express-validator');
+const session = require('express-session');
+
 
 const app = express();
-app.use("/images", express.static("public/images"));
+
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000', // Make sure to match the React app's URL
+    methods: ['GET', 'POST'],
+    credentials: true // Allow cookies (if using them)
+}));
 app.use(express.json());
+app.use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true
+}));
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://carellaconnect:CarellaConnect@carellaconnect.h50ep.mongodb.net/Carella_Connect')
@@ -136,6 +148,34 @@ app.post('/register',
         res.send('New User Added at Backend!');
    // }
 });
+
+//Login API 
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+        // Find the user in the database
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        }
+  
+        // Directly compare the entered password with the stored password
+        const isMatch = password === user.password;
+  
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        }
+  
+        return res.json({ success: true, message: 'Login successful!', role:user.role });
+    } catch (error) {
+        console.error('Error during login:', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+  
+  
 
 // Start the server
 const PORT = process.env.PORT || 5000;
