@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar, Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Navigation from './Navigation';
 import axios from 'axios';
 
 const Login = () => {
@@ -45,21 +46,7 @@ const Login = () => {
 
   return (
     <>
-      <Navbar expand="lg" className="px-4 py-3" style={{ backgroundColor: "#F7D9E1" }}>
-        <Navbar.Brand href="#">
-          <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
-          <strong style={{ fontSize: "30px" }}>Carella Connect</strong>
-          <span style={{ fontSize: "12px" }}>Bridging the Gap in Healthcare!</span>
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse className="justify-content-end">
-          <Nav>
-            <Link to="/home">
-              <Button variant="outline-dark" className="me-2">Back</Button>
-            </Link>
-          </Nav>
-        </Navbar.Collapse>
-      </Navbar>
+      <Navigation></Navigation>
 
       <Container fluid className="d-flex justify-content-center align-items-center min-vh-100">
         <Row className="w-100">
