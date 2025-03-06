@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Navbar, Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from './Navigation';
 import axios from 'axios';
@@ -50,8 +49,8 @@ const Login = () => {
 
       <Container fluid className="d-flex justify-content-center align-items-center min-vh-100">
         <Row className="w-100">
-          <Col md={6} lg={4} className="mx-auto">
-            <Card className="p-4 shadow-sm">
+          <Col md={6} lg={4} className="mx-auto text-center">
+            <Card className="p-4 shadow-sm mb-5">
               <Card.Body>
                 <h3 className="text-center mb-4">Sign In</h3>
 
