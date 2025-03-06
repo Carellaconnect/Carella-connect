@@ -65,7 +65,7 @@ const Home = () => {
       </Navbar>
 
       {/* Hero Section */}
-      <Container fluid className="hero-section mt-5 pt-5" style={{ height: "72vh", objectFit: "cover" }} >
+      <Container fluid className="hero-section" style={{ height: "55vh", objectFit: "cover" }} >
       <Row className="align-items-center">
         {/* Left Image */}
         <Col md={4} className="p-0">
@@ -135,13 +135,13 @@ const Home = () => {
       {/* How It Works */}
       <Container className="text-center my-5">
         <h3>How It Works</h3>
-        <Row className="d-flex flex-column align-items-center">
+        <Row>
         {[{ id: 1, title: "Book an Appointment", text: "No more waiting for hours in a walk-in clinic or weeks to see your family doctor. Doctors on your schedule, book online.", button:"Book Now" },
           { id: 2, title: "Consult a Doctor", text: "Speak directly with doctors in Canada by phone, video, or secure messaging, on any device. You’re in control and your time is valuable.", button:"Available Doctors" },
           { id: 3, title: "Safe and Sound", text: "Receive referrals, requisitions and any other documents you need, all online. Free prescription delivery in Canada.",button:"Get Started" }]
           .map((step) => (
-            <Col key={step.id} className="m-4 p-5" style={{borderRadius:"130px",boxShadow:"2px 2px 5px 3px #bcbcbc", width:"500px"}}>
-              <span className="badge p-3" style={{backgroundColor:"#A8577E", borderRadius:"100%"}}>{step.id}</span>
+            <Col key={step.id} className="m-4 p-4" style={{borderRadius:"160px",boxShadow:"2px 2px 5px 3px #bcbcbc", width:"600px"}}>
+              <p className="badge p-3" style={{backgroundColor:"#A8577E", borderRadius:"95%", fontSize:"15px"}}>{step.id}</p>
               <h5 className='mt-3'>{step.title}</h5>
               <p>{step.text}</p>
               <Button className='mt-3 p-2' style={{backgroundColor:"#A8577E", border:"0px"}}>{step.button}</Button>
