@@ -1,7 +1,11 @@
 import React from 'react';
+import Navigation from './Navigation';
 
 const Patient = () => {
-  return <h1>Welcome, Patient!</h1>;
+  return <>
+  <Navigation />
+  <h1>Welcome, Doctor!</h1>
+  </>
 };
 
 export default Patient;

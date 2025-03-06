@@ -14,7 +14,7 @@ const app = express();
 // Middleware
 app.use(cors({
     origin: 'http://localhost:3000', // Make sure to match the React app's URL
-    methods: ['GET', 'POST'],
+    methods: ['GET', 'POST', 'PUT'],
     credentials: true // Allow cookies (if using them)
 }));
 app.use(express.json());
@@ -59,7 +59,7 @@ const User= mongoose.model('User',{
 });
 
 const DoctorsApprovalRrequests = mongoose.model ('DoctorsApprovalRrequest', {
-    "doctor_id": String,
+    "doctor_id": { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     "hospital_admin_id": String,
     "approval_status": String,
     "request_date": Date,
@@ -152,27 +152,113 @@ app.post('/register',
 //Login API 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-  
+
     try {
-        // Find the user in the database
         const user = await User.findOne({ email });
+
         if (!user) {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
-  
-        // Directly compare the entered password with the stored password
+
+        
         const isMatch = password === user.password;
-  
+
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
-  
-        return res.json({ success: true, message: 'Login successful!', role:user.role });
+
+        
+        if (user.role === 'Doctor') {
+            if (user.status === 'Pending') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Your account is pending approval. Please wait for approval from the admin.'
+                });
+            } else if (user.status === 'Rejected') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Your account has been rejected. Please contact the admin for more information.'
+                });
+            }
+        }
+
+        // Login successful
+        return res.json({
+            success: true,
+            message: 'Login successful!',
+            role: user.role,
+            status: user.status 
+        });
+
     } catch (error) {
         console.error('Error during login:', error);
         return res.status(500).json({ success: false, message: 'Server error' });
     }
 });
+
+
+//API to fetch dr registration 
+
+app.get("/doctors-approval-requests", async (req, res) => {
+    try {
+        
+        const approvalRequests = await DoctorsApprovalRrequests.find()
+          .populate('doctor_id', 'name email status')  
+          .populate('hospital_admin_id', 'name email')  
+          .exec();
+    
+        if (!approvalRequests || approvalRequests.length === 0) {
+          return res.status(404).json({ message: "No approval requests found." });
+        }
+    
+        res.json(approvalRequests);
+      } catch (error) {
+        console.error("Error fetching doctor approval requests:", error);
+        res.status(500).json({ error: "Server error while fetching approval requests." });
+      }
+    });
+
+
+// Route to update doctor approval status
+app.put('/update-doctor-approval/:id', async (req, res) => {
+    const { status } = req.body;  // 'Approved' or 'Rejected'
+
+    try {
+        // Step 1: Update the doctor's approval request in the DoctorsApprovalRequests collection
+        const updatedRequest = await DoctorsApprovalRrequests.findOneAndUpdate(
+            { _id: req.params.id },  
+            { approval_status: status, approval_date: new Date() },
+            { new: true }
+        );
+
+        if (!updatedRequest) {
+            return res.status(404).json({ message: "Approval request not found" });
+        }
+
+        // Step 2: If the doctor is approved, update the doctor's status in the User collection to 'Active'
+        if (status === 'Approved') {
+            // Find the doctor in the User collection and update their status to 'Active'
+            const doctor = await User.findOneAndUpdate(
+                { _id: updatedRequest.doctor_id },  // Assuming `doctor_id` is the user ID for the doctor
+                { status: 'Active' },  // Set the status to 'Active'
+                { new: true }  // Return the updated user document
+            );
+
+            if (!doctor) {
+                return res.status(404).json({ message: "Doctor not found in User collection" });
+            }
+
+            return res.json({ success: true, message: `Doctor approved successfully!`, updatedRequest, doctor });
+        } else if (status === 'Rejected') {
+            return res.json({ success: true, message: `Doctor rejected successfully!`, updatedRequest });
+        }
+
+    } catch (error) {
+        console.error("Error updating approval status:", error);
+        res.status(500).json({ success: false, message: "Failed to update status" });
+    }
+});
+
 
   
   
