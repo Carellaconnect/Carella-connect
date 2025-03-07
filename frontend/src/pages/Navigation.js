@@ -1,8 +1,8 @@
 
 
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Navbar, Nav, Button,} from 'react-bootstrap';
+// import { Link } from 'react-router-dom';
+import { Navbar, Nav} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navigation = () => {
@@ -17,9 +17,7 @@ const Navigation = () => {
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse className="justify-content-end">
             <Nav>
-                <Link to="/home">
-                <Button variant="outline-dark" className="me-2">Back</Button>
-                </Link>
+                <strong>Welcome!!</strong>
             </Nav>
             </Navbar.Collapse>
     </Navbar>
