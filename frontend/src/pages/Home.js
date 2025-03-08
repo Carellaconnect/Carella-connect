@@ -54,7 +54,7 @@ const Home = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end">
           <Nav>
-            <Link to="/signup">
+            <Link to="/register">
               <Button style={{backgroundColor:"#F4A5AE", border:"0px",color:"black"}} className="me-2">SignUp</Button>
             </Link>
             <Link to="/login">
