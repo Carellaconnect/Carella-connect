@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import Admin from './pages/Admin';
 import Doctor from "./pages/Doctor";
 import Patient from "./pages/Patient";
+import Register from "./pages/Register";
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
         <Route path="/" element={<Home />} />  {/* Home Page */}
         <Route path="/home" element={<Home />} />  {/* Home Page */}
         <Route path="/login" element={<Login />} />  {/* login Page */}
+        <Route path="/register" element={<Register />} />  {/* registration Page */}
         <Route path="/admin-dashboard" element={<Admin />} />
         <Route path="/doctor-dashboard" element={<Doctor />} />
         <Route path="/patient-dashboard" element={<Patient />} />

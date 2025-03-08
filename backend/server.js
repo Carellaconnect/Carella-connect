@@ -99,8 +99,20 @@ app.post('/register',
     //     res.render('order',{errors:errors.array()});
     // }else{
 
-        const newUser = new User({
-            "name": req.body.name, 
+    const email = req.body.email;
+
+    try {
+
+        let user = null;
+        let status = 'Active';
+        user = await User.findOne({ email });
+
+        if (user == null) {
+            if(req.body.role.toLowerCase() == 'doctor' || req.body.role.toLowerCase() == 'admin'){
+                status = 'Pending';
+            }
+            const newUser = new User({
+            "name": req.body.fname+' '+req.body.lname, 
             "email": req.body.email,
             "password": req.body.password,
             "role": req.body.role,    
@@ -110,42 +122,61 @@ app.post('/register',
             "city": req.body.city,
             "postcode": req.body.postcode,
             "province": req.body.province,
-            "date_of_birth": req.body.date_of_birth,  
+            "date_of_birth": req.body.dob,  
             "gender": req.body.gender,   
             "created_at": new Date(), 
             "updated_at": new Date(), 
-            "status": 'Active', 
-            "insurance_id": req.body.insurance_id,  
-            "insurance_provider": req.body.insurance_provider,
-            "hospital_id": req.body.hospital_id,
-            "doctor_identification_id": req.body.doctor_identification_id
-        });
-
-        await newUser.save().then(() => {
-            console.log('User Data saved.');
-        });
-
-        if(req.body.role == 'Doctor'){
-            const doctorData = await User.findOne({email: req.body.email});
-            const adminData = await User.aggregate([ {$match: {role:'Admin', hospital_id: doctorData.hospital_id}} ])
-            adminData.forEach(admin => {
-                 //Add the details to the doctor_approvals collection
-                 const doctorApproval = new DoctorsApprovalRrequests({
-                    "doctor_id": doctorData._id,
-                    "hospital_admin_id": admin._id,
-                    "approval_status": "Pending",
-                    "request_date": new Date(),
-                    "approval_date": "",
-                    "created_at": new Date(),
-                    "updated_at": new Date()
-                });
-                doctorApproval.save().then(() => {
-                    console.log("Data sent for Admin's approval.");
-                });
+            "status": status, 
+            "insurance_id": req.body.insuranceId,  
+            "insurance_provider": req.body.insuranceProvider,
+            "hospital_id": req.body.hospitalId,
+            "doctor_identification_id": req.body.doctorId
             });
-            
+
+            await newUser.save().then(() => {
+                console.log('User Data saved.');
+            });
+
+            if(req.body.role.toLowerCase() === 'doctor'){
+                const doctorData = await User.findOne({email: req.body.email});
+                const adminData = await User.aggregate([ {$match: {role:'Admin', hospital_id: doctorData.hospital_id}} ])
+                adminData.forEach(admin => {
+                    //Add the details to the doctor_approvals collection
+                    const doctorApproval = new DoctorsApprovalRrequests({
+                        "doctor_id": doctorData._id,
+                        "hospital_admin_id": admin._id,
+                        "approval_status": "Pending",
+                        "request_date": new Date(),
+                        "approval_date": "",
+                        "created_at": new Date(),
+                        "updated_at": new Date()
+                    });
+                    doctorApproval.save().then(() => {
+                        console.log("Data sent for Admin's approval.");
+                    });
+                });
+                
+            }
+            let message = 'Registration Successful!';
+            if(req.body.role.toLowerCase() === 'doctor' || req.body.role.toLowerCase() === 'admin'){
+                message += ' Your account is pending approval. Please wait for approval from the admin.';
+            } else {
+                message += ' Please login to your account.'
+            }
+            return res.json({
+                success: true,
+                message: message
+            });
+
+        } else {
+            return res.status(401).json({ success: false, message: 'User with the given email id already exist.' });
         }
-        res.send('New User Added at Backend!');
+
+    } catch (error) {
+        console.error('Error during registration:', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+        // res.send('New User Added at Backend!');
    // }
 });
 

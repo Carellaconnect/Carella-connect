@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from './Navigation';
 import axios from 'axios';
@@ -46,6 +46,10 @@ const Login = () => {
   return (
     <>
       <Navigation></Navigation>
+      <Nav className="ms-auto" style={{borderBottom:" 2px solid #d7d7d7"}}>
+        <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
+        <span style={{border:"1px solid #a6a6a6"}}></span>
+      </Nav>
 
       <Container fluid className="d-flex justify-content-center align-items-center min-vh-100">
         <Row className="w-100">
@@ -86,7 +90,7 @@ const Login = () => {
                 </Form>
 
                 <div className="text-center mt-3">
-                  <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+                  <p>Don't have an account? <a href="/register">Sign Up</a></p>
                 </div>
               </Card.Body>
             </Card>
