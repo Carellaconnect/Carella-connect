@@ -69,6 +69,27 @@ const DoctorsApprovalRrequests = mongoose.model ('DoctorsApprovalRrequest', {
     "updated_at": Date
 });
 
+
+const Doctors = mongoose.model ('Doctor', {
+    "doctor_id": { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    "name": String,
+    "specialty": String,
+    "location": String,
+    "languages": String,
+    "address" : String,
+    "availability": {
+        type: Map,
+        of: [{
+          startTime: String, // e.g., "09:00 AM"
+          endTime: String,   // e.g., "05:00 PM"
+          isAvailable: Boolean
+        }]
+      },
+      "createdAt": Date
+});
+
+
+
 var phoneregex = /^\(?(\d{3})\)?[\.\-\/\s]?(\d{3})[\.\-\/\s]?(\d{4})$/;
 
 function phoneCheck(val){
