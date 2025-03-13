@@ -1,6 +1,6 @@
 import React from 'react';
 import Navigation from './Navigation';
-import { Container, Nav, Button, Form, Card } from "react-bootstrap";
+import { Container, Nav, Button, Form, Card, Row, Col } from "react-bootstrap";
 import { FaStar, FaSearch, FaBell } from "react-icons/fa";
 const doctors = [
   { name: "Dr. Doctor Name1", specialty: "Specialty", feedback: 4 },
@@ -27,16 +27,39 @@ const Patient = () => {
     
 
       {/* Search Section */}
-      <Container fluid className="text-center p-5" style={{backgroundColor:"#d7d7d7"}} >
-        <h3>Find Your Doctor</h3>
-        <p>Book an appointment for consultation</p>
-        <Form className="d-flex justify-content-center">
-          <Form.Control type="search" placeholder="Search doctors..." className="w-50" />
-          <Button className="ms-2" style={{backgroundColor:"#A8577E", border:"0px"}}>
-            <FaSearch />
+      <Container fluid className="text-center p-5" style={{ backgroundColor: "#d7d7d7" }}>
+  <Row className="justify-content-center">
+    <Col md={8} className="text-center">
+      {/* Title */}
+      <h3 className="fw-bold">Find Your Doctor</h3>
+      {/* Subtitle */}
+      <p>Book an appointment for consultation</p>
+      {/* Search Fields */}
+      <Row className="justify-content-center mt-3">
+        <Col md={3}>
+          <Form.Select className="rounded-pill px-3">
+            <option>Dermatologist</option>
+            <option>Dentist</option>
+          </Form.Select>
+        </Col>
+        <Col md={3}>
+          <Form.Control type="text" placeholder="Location" className="rounded-pill px-3" />
+        </Col>
+        <Col md={3}>
+          <Form.Select className="rounded-pill px-3">
+            <option>English</option>
+            <option>French</option>
+          </Form.Select>
+        </Col>
+        <Col md={2}>
+          <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }}>
+            FIND
           </Button>
-        </Form>
-      </Container>
+        </Col>
+      </Row>
+    </Col>
+  </Row>
+</Container>
 
       {/* Completed Consultations */}
       <Container className="mt-5 text-start">
