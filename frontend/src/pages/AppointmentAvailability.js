@@ -34,45 +34,40 @@ const AppointmentAvailability = () => {
                 </Navbar.Collapse>
               </Navbar>
 
-              {/* Hero Section */}
-                    <Container fluid className="hero-section d-flex align-items-center" style={{ height: "35vh", paddingTop: "0px", paddingBottom: "0px", margin: "0" }}>
-                      <Row className="align-items-center w-100">
-                        {/* Left Text */}
-                        <Col md={6} className="text-start ps-5">
-                          <h2>Book your next medical and health care appointment</h2>
-                          <p>in a few clicks!</p>
-                        </Col>
-                        {/* Right Image */}
-                        <Col md={6} className="p-0 text-end pe-5">
-                          <img 
-                            src="/images/apptbooking_image.png" 
-                            alt="Patient Right" 
-                            className="img-fluid w-75 hero-img"
-                          />
-                        </Col>
-                      </Row>
-                    </Container> 
-              
-                  {/* Search Section */}
-                  <Container fluid className="mt-4" style={{ backgroundColor: "#F7D9E1", paddingTop: "0px"  }}>
-                      <Row className="justify-content-center">
-                        <Col md={8} className="d-flex gap-2 p-3 rounded" style={{ backgroundColor: "#F7D9E1"}}>
-              
-                        <Form.Select placeholder="Dentist" className="rounded-pill px-3" >
-                            <option>Dentist</option>
-                            <option>Dermatologist</option>
-                        </Form.Select>
-              
-                          <Form.Control type="text" placeholder="Waterloo" className="rounded-pill px-3" />
-              
-                          <Form.Select className="rounded-pill px-3" placeholder="English">
-                            <option>English</option>
-                            <option>French</option>
-                          </Form.Select>
-                          <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }}>FIND</Button>
-                        </Col>
-                      </Row>
-                    </Container>
+                         {/* Search Section */}
+                               <Container fluid className="text-center p-5" style={{ backgroundColor: "#d7d7d7" }}>
+                           <Row className="justify-content-center">
+                             <Col md={8} className="text-center">
+                               {/* Title */}
+                               <h3 className="fw-bold">Find Your Doctor</h3>
+                               {/* Subtitle */}
+                               <p>Book an appointment for consultation</p>
+                               {/* Search Fields */}
+                               <Row className="justify-content-center mt-3">
+                                 <Col md={3}>
+                                   <Form.Select className="rounded-pill px-3">
+                                     <option>Dermatologist</option>
+                                     <option>Dentist</option>
+                                   </Form.Select>
+                                 </Col>
+                                 <Col md={3}>
+                                   <Form.Control type="text" placeholder="Location" className="rounded-pill px-3" />
+                                 </Col>
+                                 <Col md={3}>
+                                   <Form.Select className="rounded-pill px-3">
+                                     <option>English</option>
+                                     <option>French</option>
+                                   </Form.Select>
+                                 </Col>
+                                 <Col md={2}>
+                                   <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }}>
+                                     FIND
+                                   </Button>
+                                 </Col>
+                               </Row>
+                             </Col>
+                           </Row>
+                         </Container>
 
                     <Container className="mt-4">
                         <h4>Find a Dentist speaking English in Waterloo</h4>

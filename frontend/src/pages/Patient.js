@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import Navigation from './Navigation';
 import { Container, Nav, Button, Form, Card, Row, Col } from "react-bootstrap";
 import { FaStar, FaSearch, FaBell } from "react-icons/fa";
@@ -7,9 +8,17 @@ const doctors = [
   { name: "Dr. Doctor Name2", specialty: "Specialty", feedback: 3 },
 ];
 
+
 const Patient = () => {
-  return <>
-  <Navigation />
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleFindClick = () => {
+    navigate('/appointment-availability'); // Redirect to Appointment Availability page
+  };
+
+  return(
+    <>
+    <Navigation />
         <Nav className="ms-auto">
          
           <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
@@ -28,7 +37,7 @@ const Patient = () => {
 
       {/* Search Section */}
       <Container fluid className="text-center p-5" style={{ backgroundColor: "#d7d7d7" }}>
-  <Row className="justify-content-center">
+    <Row className="justify-content-center">
     <Col md={8} className="text-center">
       {/* Title */}
       <h3 className="fw-bold">Find Your Doctor</h3>
@@ -52,7 +61,11 @@ const Patient = () => {
           </Form.Select>
         </Col>
         <Col md={2}>
-          <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }}>
+          <Button 
+          className="rounded-pill px-4" 
+          style={{ backgroundColor: "#A8577E", border: "none" }}
+          onClick={handleFindClick} // Call the function on click
+          >
             FIND
           </Button>
         </Col>
@@ -95,7 +108,14 @@ const Patient = () => {
           </Card>
         ))}
       </Container>
-  </>
+    </>
+  )
+
+
 };
+
+
+
+
 
 export default Patient;
