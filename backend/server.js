@@ -70,23 +70,36 @@ const DoctorsApprovalRrequests = mongoose.model ('DoctorsApprovalRrequest', {
 });
 
 
-const Doctors = mongoose.model ('Doctor', {
+const AppointmentDetails = mongoose.model ('AppointmentDetail', {
+   // "appointment_id": ObjectId,
+    "patient_id": { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     "doctor_id": { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    "name": String,
-    "specialty": String,
-    "location": String,
-    "languages": String,
-    "address" : String,
-    "availability": {
-        type: Map,
-        of: [{
-          startTime: String, // e.g., "09:00 AM"
-          endTime: String,   // e.g., "05:00 PM"
-          isAvailable: Boolean
-        }]
-      },
-      "createdAt": Date
+    "hospital_id": { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" },
+    "appointment_date": Date,
+    "status": String,
+    "reason": String,
+    "notes": String,
+    "created_at": Date,
+    "updated_at": Date
 });
+
+
+const Hospital = mongoose.model ('Hospital', {
+    //"hospital_id": ObjectId,
+    "name": String,
+    "address": String,
+    "city": String,
+    "contact_number": String,
+    "email": String,
+    "doctors": [
+        { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+    ],
+    "created_at": Date,
+    "updated_at": Date 
+});
+
+
+
 
 
 
