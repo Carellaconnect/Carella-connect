@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Navigation from './Navigation';
 import { Navbar, Nav, Button, Container, Row, Col, Card, Form } from "react-bootstrap";
+import { FaStar, FaSearch, FaBell } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
@@ -23,16 +25,21 @@ const doctors = [
 const AppointmentAvailability = () => {
     return (
         <>
-        {/* Navbar */}
-              <Navbar expand="lg" className="px-4 py-3 m-0" style={{ backgroundColor: "#F7D9E1" }}>
-                <Navbar.Brand href="#">
-                  <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
-                  <strong style={{fontSize:"30px"}}>Carella Connect</strong> <span style={{fontSize:"12px"}}>Bridging the Gap in Healthcare!</span>
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse className="justify-content-end">
-                </Navbar.Collapse>
-              </Navbar>
+       <Navigation />
+        <Nav className="ms-auto">
+         
+          <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
+          <span style={{border:"1px solid #a6a6a6"}}></span>
+          <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
+          <span style={{border:"1px solid #a6a6a6"}}></span>
+          <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
+          <span style={{border:"1px solid #a6a6a6"}}></span>
+          <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
+          <span style={{border:"1px solid #a6a6a6"}}></span>
+          
+          <FaBell size={20} className="mt-2" style={{color:"#A8577E", marginLeft:"1050px"}} />
+          
+        </Nav>
 
                          {/* Search Section */}
                                <Container fluid className="text-center p-5" style={{ backgroundColor: "#d7d7d7" }}>

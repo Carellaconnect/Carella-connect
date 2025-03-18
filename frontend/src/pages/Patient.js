@@ -74,6 +74,36 @@ const Patient = () => {
   </Row>
 </Container>
 
+{/* Upcoming Consultations */}
+<Container className="mt-5 text-start">
+        <h4 >Upcoming Consultations</h4>
+        {doctors.map((doctor, index) => (
+          <Card key={index} className="mb-3 p-3">
+            <Card.Body className="d-flex justify-content-between">
+              <div>
+              <h5>{doctor.name}</h5>
+              <p>{doctor.specialty}</p>
+              </div>
+              <div>
+              <p>
+                <strong>Date & Time:</strong> 
+              </p>
+              <p>
+                <strong>Hospital:</strong>
+              </p>
+              </div>
+              <div>
+              <div>
+              <Button className="me-2" style={{backgroundColor:"#F4A5AE", border:"0px", color:"Black"}}>Cancel Appointment</Button>
+                <Button style={{backgroundColor:"#A8577E", border:"0px"}}>Change Appointment</Button>
+              </div>
+              </div>
+            </Card.Body>
+          </Card>
+        ))}
+      </Container>
+
+
       {/* Completed Consultations */}
       <Container className="mt-5 text-start">
         <h4 >Completed Consultations</h4>

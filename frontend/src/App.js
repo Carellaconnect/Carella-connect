@@ -10,6 +10,8 @@ import Doctor from "./pages/Doctor";
 import Patient from "./pages/Patient";
 import Register from "./pages/Register";
 import AppointmentAvailability from "./pages/AppointmentAvailability";
+import CancelAppointment from "./pages/CancelAppointment";
+import UpdateAppointment from "./pages/UpdateAppointment";
 
 
 
@@ -34,6 +36,8 @@ function App() {
         <Route path="/doctor-dashboard" element={<Doctor />} />
         <Route path="/patient-dashboard" element={<Patient />} />
         <Route path="/appointment-availability" element={<AppointmentAvailability />} />
+        <Route path="/cancel-appointment" element={<CancelAppointment />} />
+        <Route path="/update-appointment" element={<UpdateAppointment />} />
         </Routes>
         <p>{message}</p>
         <Footer />
