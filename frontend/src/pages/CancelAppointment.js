@@ -1,31 +1,19 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import Navigation from './Navigation';
-import { Navbar, Nav, Button, Container, Row, Col, Card, Form } from "react-bootstrap";
-import { FaStar, FaSearch, FaBell } from "react-icons/fa";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+import React from "react";
+import { Modal, Button } from "react-bootstrap";
 
-const CancelAppointment = () => {
-    return (
-        <>
-        <Navigation />
-                <Nav className="ms-auto">
-                 
-                  <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-                  <span style={{border:"1px solid #a6a6a6"}}></span>
-                  <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
-                  <span style={{border:"1px solid #a6a6a6"}}></span>
-                  <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
-                  <span style={{border:"1px solid #a6a6a6"}}></span>
-                  <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
-                  <span style={{border:"1px solid #a6a6a6"}}></span>
-                  
-                  <FaBell size={20} className="mt-2" style={{color:"#A8577E", marginLeft:"1050px"}} />
-                </Nav>
-        </>
-    );
+const CancelAppointment = ({ show, onClose, onConfirm }) => {
+  return (
+    <Modal show={show} onHide={onClose} centered>
+      <Modal.Body className="text-center">
+        <h4 className="mb-3">Cancel Appointment</h4>
+        <p>Are you sure you want to cancel the appointment with Dr. [Name] on [Date] at [Time]?</p>
+        <div className="d-flex justify-content-around mt-3">
+          <Button variant="success" size="lg" onClick={onConfirm}>Yes</Button>
+          <Button variant="danger" size="lg" onClick={onClose}>No</Button>
+        </div>
+      </Modal.Body>
+    </Modal>
+  );
 };
 
 export default CancelAppointment;

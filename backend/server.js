@@ -36,27 +36,54 @@ app.get('/', (req, res) => {
 
 // const { check, validationResult } = require('express-validator');
 
-const User= mongoose.model('User',{
-    "name": String,
-    "email": String,
-    "password": String,
-    "role": String,
-    "profile_picture": String,
-    "phone": String,
-    "address": String,
-    "city": String,
-    "postcode": String,
-    "province": String,
-    "date_of_birth": Date,
-    "gender": String,
+/*const User= mongoose.model('User',{
+    "name": String,//
+    "email": String,//
+    "password": String,//
+    "role": String, //
+    "profile_picture": String, //
+    "phone": String, //
+    "address": String, //
+    "city": String, //
+    "postcode": String, //
+    "province": String, //
+    "date_of_birth": Date, //
+    "gender": String, //
     "created_at": Date,
     "updated_at": Date,
-    "status": String,
-    "insurance_id": String,
-    "insurance_provider": String,
-    "hospital_id": String,
+    "status": String, //
+    "insurance_id": String,//
+    "insurance_provider": String,//
+    "hospital_id": String,//
     "doctor_identification_id": String
+});*/
+
+const UserSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    password: String,
+    role: String,
+    profile_picture: String,
+    phone: String,
+    address: String,
+    city: String,
+    postcode: String,
+    province: String,
+    date_of_birth: Date,
+    gender: String,
+    status: String,
+    insurance_id: String,
+    insurance_provider: String,
+    hospital_id: { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" },
+    doctor_identification_id: String,
+    created_at: Date,
+    updated_at: Date,
 });
+
+const User = mongoose.model("User", UserSchema);
+module.exports = User;
+
+
 
 const DoctorsApprovalRrequests = mongoose.model ('DoctorsApprovalRrequest', {
     "doctor_id": { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -70,37 +97,61 @@ const DoctorsApprovalRrequests = mongoose.model ('DoctorsApprovalRrequest', {
 });
 
 
-const AppointmentDetails = mongoose.model ('AppointmentDetail', {
-   // "appointment_id": ObjectId,
-    "patient_id": { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    "doctor_id": { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    "hospital_id": { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" },
-    "appointment_date": Date,
-    "status": String,
-    "reason": String,
-    "notes": String,
-    "created_at": Date,
-    "updated_at": Date
+//Appointment Details Colection
+const AppointmentDetailsSchema = new mongoose.Schema({
+    patient_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    doctor_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    hospital_id: { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" },
+    appointment_date: Date,
+    status: String,
+    reason: String
 });
 
+const AppointmentDetails = mongoose.model ("AppointmentDetails", AppointmentDetailsSchema);
+module.exports = AppointmentDetails;
 
-const Hospital = mongoose.model ('Hospital', {
-    //"hospital_id": ObjectId,
-    "name": String,
-    "address": String,
-    "city": String,
-    "contact_number": String,
-    "email": String,
-    "doctors": [
-        { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+
+//Hospital colection
+const HospitalSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    address: String,
+    city: String,
+    contact_number: String,
+    email: { type: String, required: true, unique: true },
+    doctors: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }] // Reference to Users (doctors)
+});
+
+const Hospital = mongoose.model("Hospital", HospitalSchema);
+module.exports = Hospital;
+
+
+
+//Doctor Profile collections
+const DoctorProfileSchema = new mongoose.Schema({
+    doctor_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    speciality: { type: String, required: true },
+    languages: [
+        {
+            language_name: String,
+            language_code: String
+        }
     ],
-    "created_at": Date,
-    "updated_at": Date 
+    availability: [
+        {
+            date: Date,
+            time_slots: [
+                {
+                    start_time: Date,
+                    end_time: Date,
+                    status: String
+                }
+            ]
+        }
+    ]
 });
 
-
-
-
+const DoctorProfile = mongoose.model ("DoctorProfile", DoctorProfileSchema);
+module.exports = DoctorProfile;
 
 
 var phoneregex = /^\(?(\d{3})\)?[\.\-\/\s]?(\d{3})[\.\-\/\s]?(\d{4})$/;

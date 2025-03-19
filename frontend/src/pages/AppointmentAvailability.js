@@ -58,9 +58,6 @@ const AppointmentAvailability = () => {
                                    </Form.Select>
                                  </Col>
                                  <Col md={3}>
-                                   <Form.Control type="text" placeholder="Location" className="rounded-pill px-3" />
-                                 </Col>
-                                 <Col md={3}>
                                    <Form.Select className="rounded-pill px-3">
                                      <option>English</option>
                                      <option>French</option>
