@@ -37,7 +37,7 @@ function App() {
         <Route path="/book-appointment" element={<BookAppointment />} />
         <Route path="/appointment-availability" element={<AppointmentAvailability />} />
         </Routes>
-        <p>{message}</p>
+        
         <Footer />
       </div>
     </Router>

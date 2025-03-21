@@ -6,26 +6,30 @@ const jwt = require("jsonwebtoken");
 require('dotenv').config();
 const { check, validationResult } = require('express-validator');
 const session = require('express-session');
-
+const nodemailer = require("nodemailer");
+const sendEmail = require("./emailService");
+const twilio = require('twilio');
+require('dotenv').config();
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 const app = express();
 
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:3000', // Make sure to match the React app's URL
+    origin: 'http://localhost:3000', 
     methods: ['GET', 'POST', 'PUT'],
-    credentials: true // Allow cookies (if using them)
+    credentials: true 
 }));
 app.use(express.json());
-app.use(session({
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: true
-}));
+// app.use(session({
+//     secret: 'secret',
+//     resave: false,
+//     saveUninitialized: true
+// }));
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://carellaconnect:CarellaConnect@carellaconnect.h50ep.mongodb.net/Carella_Connect')
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('Failed to connect to MongoDB:', err));
 
@@ -88,6 +92,22 @@ const Doctors = mongoose.model ('Doctor', {
       "createdAt": Date
 });
 
+
+const EmergencyRequest = mongoose.model('EmergencyRequest', {
+    name: String,
+    emergencyType: String,
+    location: String,
+    details: String,
+    urgency: String,
+    phoneNumber: String,
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, 
+    status: {
+        type: String,
+        enum: ['Pending', 'In Progress', 'Resolved'],
+        default: 'Pending',
+      },
+    createdAt: { type: Date, default: Date.now }
+});
 
 
 var phoneregex = /^\(?(\d{3})\)?[\.\-\/\s]?(\d{3})[\.\-\/\s]?(\d{4})$/;
@@ -272,13 +292,13 @@ app.get("/doctors-approval-requests", async (req, res) => {
 
 
 // Route to update doctor approval status
+
 app.put('/update-doctor-approval/:id', async (req, res) => {
-    const { status } = req.body;  // 'Approved' or 'Rejected'
+    const { status } = req.body;
 
     try {
-        // Step 1: Update the doctor's approval request in the DoctorsApprovalRequests collection
         const updatedRequest = await DoctorsApprovalRrequests.findOneAndUpdate(
-            { _id: req.params.id },  
+            { _id: req.params.id },
             { approval_status: status, approval_date: new Date() },
             { new: true }
         );
@@ -287,23 +307,35 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
             return res.status(404).json({ message: "Approval request not found" });
         }
 
-        // Step 2: If the doctor is approved, update the doctor's status in the User collection to 'Active'
-        if (status === 'Approved') {
-            // Find the doctor in the User collection and update their status to 'Active'
-            const doctor = await User.findOneAndUpdate(
-                { _id: updatedRequest.doctor_id },  // Assuming `doctor_id` is the user ID for the doctor
-                { status: 'Active' },  // Set the status to 'Active'
-                { new: true }  // Return the updated user document
-            );
+        let doctor = await User.findOne({ _id: updatedRequest.doctor_id });
 
-            if (!doctor) {
-                return res.status(404).json({ message: "Doctor not found in User collection" });
-            }
-
-            return res.json({ success: true, message: `Doctor approved successfully!`, updatedRequest, doctor });
-        } else if (status === 'Rejected') {
-            return res.json({ success: true, message: `Doctor rejected successfully!`, updatedRequest });
+        if (!doctor) {
+            return res.status(404).json({ message: "Doctor not found in User collection" });
         }
+
+        if (status === 'Approved') {
+            doctor = await User.findOneAndUpdate(
+                { _id: updatedRequest.doctor_id },
+                { status: 'Active' },
+                { new: true }
+            );
+        }
+
+       
+        const emailSubject = status === "Approved" ? "Doctor Approval - Accepted" : "Doctor Approval - Rejected";
+        const emailMessage = status === "Approved"
+            ? `Dear ${doctor.name},\n\nYour account has been approved! You can now access the system.\n\nBest Regards,\nCarella Connect`
+            : `Dear ${doctor.name},\n\nWe regret to inform you that your account has been rejected.\n\nBest Regards,\nCarella Connect`;
+
+        await sendEmail(doctor.email, emailSubject, emailMessage);
+
+       
+        return res.json({ 
+            success: true, 
+            message: `Doctor ${status.toLowerCase()} successfully!`, 
+            updatedRequest, 
+            doctor 
+        });
 
     } catch (error) {
         console.error("Error updating approval status:", error);
@@ -311,9 +343,107 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
     }
 });
 
+//Api for emergency request Form
 
-  
-  
+app.post('/api/emergency', async (req, res) => {
+    try {
+        const { name, emergencyType, location, details, urgency, phoneNumber, userId } = req.body;
+
+        if (!emergencyType || !location || !urgency || !phoneNumber) {
+            return res.status(400).json({ success: false, message: "Required fields are missing!" });
+        }
+
+        
+        let responseMessage = "";
+        if (urgency === "High") {
+            responseMessage = "Your request is serious! A team member will call you from (519)-6893-456 within 30 minutes.";
+        } else if (urgency === "Medium") {
+            responseMessage = "Your request has been recorded. Expect a call from (519)-6893-456 within 2 hours.";
+        } else {
+            responseMessage = "Your request has been noted. We will reach out from (519)-6893-456 within 24 hours.";
+        }
+
+        const newRequest = new EmergencyRequest({
+            name: userId ? null : name, 
+            emergencyType,
+            location,
+            details,
+            urgency,
+            phoneNumber,
+            userId: userId || null,
+        });
+
+        await newRequest.save();
+        return res.status(201).json({ success: true, message: responseMessage });
+
+    } catch (error) {
+        console.error("Error submitting emergency request:", error);
+        res.status(500).json({ success: false, message: "Server error while submitting request." });
+    }
+});
+
+// Get all emergency requests
+app.get('/api/emergency-requests', async (req, res) => {
+    try {
+        const emergencyRequests = await EmergencyRequest.find().populate('userId', 'name email'); // Populate user details if available
+        res.json({ success: true, data: emergencyRequests });
+    } catch (error) {
+        console.error("Error fetching emergency requests:", error);
+        res.status(500).json({ success: false, message: "Server error while fetching emergency requests." });
+    }
+});
+
+
+app.put('/api/emergency-requests/:id', async (req, res) => {
+    const { status } = req.body;
+
+    if (!status || !['In Progress', 'Resolved'].includes(status)) {
+        return res.status(400).json({ success: false, message: "Invalid status. Valid statuses are 'In Progress' or 'Resolved'." });
+    }
+
+    try {
+        
+        const updatedEmergency = await EmergencyRequest.findByIdAndUpdate(
+            req.params.id,
+            { status: status, updatedAt: new Date() },
+            { new: true }
+        );
+
+        if (!updatedEmergency) {
+            return res.status(404).json({ success: false, message: "Emergency request not found" });
+        }
+
+        
+        if (updatedEmergency.phoneNumber) {
+            const message = status === 'In Progress'
+                ? `Your emergency request is now being processed. \nTeam Carella Connect.`
+                : `Your emergency request has been resolved. Thank you for your patience. \nTeam Carella Connect`;
+
+            try {
+                // Send SMS using Twilio
+                await client.messages.create({
+                    body: message,
+                    from: process.env.TWILIO_PHONE_NUMBER, 
+                    to: updatedEmergency.phoneNumber, 
+                });
+                console.log(`SMS sent to ${updatedEmergency.phoneNumber}`);
+            } catch (smsError) {
+                console.error("Error sending SMS:", smsError);
+                return res.status(500).json({ success: false, message: "Failed to send SMS" });
+            }
+        }
+
+        return res.json({
+            success: true,
+            message: `Emergency request updated to '${status}' successfully.`,
+            updatedEmergency
+        });
+
+    } catch (error) {
+        console.error("Error updating emergency request:", error);
+        return res.status(500).json({ success: false, message: "Server error while updating the emergency request." });
+    }
+});
 
 // Start the server
 const PORT = process.env.PORT || 5000;
