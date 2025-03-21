@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Navbar, Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Navigation from './Navigation';
+//import Navigation from './Navigation';
 import axios from 'axios';
 
 const Login = () => {
@@ -11,6 +11,8 @@ const Login = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
+
+   
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -63,7 +65,16 @@ const Login = () => {
 
   return (
     <>
-      <Navigation></Navigation>
+     
+      <Navbar expand="lg" className="px-4 py-3 m-0" style={{ backgroundColor: "#F7D9E1" }}>
+            <Navbar.Brand href="#">
+              <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
+              <strong style={{fontSize:"30px"}}>Carella Connect</strong> <span style={{fontSize:"12px"}}>Bridging the Gap in Healthcare!</span>
+            </Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse className="justify-content-end">
+            </Navbar.Collapse>
+    </Navbar>
       <Nav className="ms-auto" style={{borderBottom:" 2px solid #d7d7d7"}}>
         <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
         <span style={{border:"1px solid #a6a6a6"}}></span>

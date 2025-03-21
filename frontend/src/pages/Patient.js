@@ -12,6 +12,10 @@ const Patient = () => {
   const handleFindClick = () => {
     navigate('/appointment-availability'); // Redirect to Appointment Availability page
   };
+
+  // State for dropdown selections
+  const [specialty, setSpecialty] = useState('');
+  const [language, setLanguage] = useState('');
   
   const [appointments, setAppointments] = useState([]);
   const [pastappointments, setpastAppointments] = useState([]);
@@ -89,17 +93,25 @@ const Patient = () => {
       {/* Search Fields */}
       <Row className="justify-content-center mt-3">
         <Col md={3}>
-          <Form.Select className="rounded-pill px-3">
-            <option>Dermatologist</option>
-            <option>Dentist</option>
-          </Form.Select>
+        <Form.Select
+                  className="rounded-pill px-3"
+                  value={specialty}
+                  onChange={(e) => setSpecialty(e.target.value)}>
+                  <option value="">Select Specialty</option>
+                  <option value="Dermatologist">Dermatologist</option>
+                  <option value="Dentist">Dentist</option>
+        </Form.Select>
         </Col>
         
         <Col md={3}>
-          <Form.Select className="rounded-pill px-3">
-            <option>English</option>
-            <option>French</option>
-          </Form.Select>
+        <Form.Select
+                  className="rounded-pill px-3"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}>
+                  <option value="">Select Language</option>
+                  <option value="English">English</option>
+                  <option value="French">French</option>
+                </Form.Select>
         </Col>
         <Col md={2}>
           <Button 
@@ -133,8 +145,8 @@ const Patient = () => {
                     <p><strong>Time:</strong> {new Date(appt.appointment_date).toLocaleTimeString()}</p>
                   </Col>
                   <Col md={3} className="text-end">
-                    <Button className="me-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}>Change Appt</Button>
-                    <Button style={{ backgroundColor: "#E32037", border: "none" }}>Cancel Appt</Button>
+                    <Button className="me-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}>Change</Button>
+                    <Button style={{ backgroundColor: "#E32037", border: "none" }}>Cancel</Button>
                   </Col>
                 </Row>
               </Card>
