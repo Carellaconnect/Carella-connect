@@ -10,6 +10,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -20,22 +21,39 @@ const Login = () => {
         const response = await axios.post('http://localhost:5000/login', { email, password });
         console.log(response.data);
 
-        setSuccess(response.data.message);
-        setLoading(false);
+        if (response.data.success) {
+            setSuccess(response.data.message);
+            setLoading(false);
 
-      if (response.data.role === 'Admin') {
-          window.location.href = '/admin-dashboard';
-      } else if (response.data.role === 'Doctor') {
-          window.location.href = '/doctor-dashboard';
-      } else if (response.data.role === 'Patient') {
-          window.location.href = '/patient-dashboard';
-      } else {
-          window.location.href = '/';
-      }
+            // Save user details in localStorage
+            const user = {
+                id: response.data.user_id, // Ensure backend sends `user_id`
+                name: response.data.name, // Include user name for display
+                role: response.data.role,
+                email: email,
+                status: response.data.status
+            };
+
+            localStorage.setItem("user", JSON.stringify(user));
+
+            // Redirect based on role
+            if (user.role === 'Admin') {
+                window.location.href = '/admin-dashboard';
+            } else if (user.role === 'Doctor') {
+                window.location.href = '/doctor-dashboard';
+            } else if (user.role === 'Patient') {
+                window.location.href = '/patient-dashboard';
+            } else {
+                window.location.href = '/';
+            }
+        } else {
+            setError(response.data.message);
+            setLoading(false);
+        }
     } catch (error) {
         setLoading(false);
         if (error.response && error.response.data.message) {
-            setError(error.response.data.message); // Display the error message
+            setError(error.response.data.message);
         } else {
             setError('An error occurred. Please try again.');
         }

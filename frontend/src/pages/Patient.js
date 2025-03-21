@@ -1,12 +1,9 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import { Container, Nav, Button, Form, Card, Row, Col } from "react-bootstrap";
-import { FaStar, FaSearch, FaBell } from "react-icons/fa";
-const doctors = [
-  { name: "Dr. Doctor Name1", specialty: "Specialty", feedback: 4 },
-  { name: "Dr. Doctor Name2", specialty: "Specialty", feedback: 3 },
-];
+import { FaStar, FaBell } from "react-icons/fa";
+import axios from "axios";
 
 
 const Patient = () => {
@@ -15,12 +12,60 @@ const Patient = () => {
   const handleFindClick = () => {
     navigate('/appointment-availability'); // Redirect to Appointment Availability page
   };
+  
+  const [appointments, setAppointments] = useState([]);
+  const [pastappointments, setpastAppointments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  
+
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem('user')); // Get logged-in user
+        if (!userData || !userData.id) {
+          setError('User not found. Please log in again.');
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get(`http://localhost:5000/patient-dashboard/${userData.id}`);
+        setAppointments(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch appointments.');
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
+
+  useEffect(() => {
+    const fetchPastAppointments = async () => {
+      try {
+        const userData = JSON.parse(localStorage.getItem('user'));
+        if (!userData || !userData.id) {
+          setError('User not found. Please log in again.');
+          return;
+        }
+        const response = await axios.get(`http://localhost:5000/patient-dashboard/${userData.id}/past-appointments`);
+        setpastAppointments(response.data);
+      } catch (err) {
+        setError('Failed to fetch past appointments.');
+      }
+    };
+  
+    fetchPastAppointments();
+  }, []);
 
   return(
     <>
     <Navigation />
+          {/* Menu section */}
         <Nav className="ms-auto">
-         
           <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
           <span style={{border:"1px solid #a6a6a6"}}></span>
           <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
@@ -29,9 +74,7 @@ const Patient = () => {
           <span style={{border:"1px solid #a6a6a6"}}></span>
           <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
           <span style={{border:"1px solid #a6a6a6"}}></span>
-          
           <FaBell size={20} className="mt-2" style={{color:"#A8577E", marginLeft:"1050px"}} />
-          
         </Nav>
     
 
@@ -72,77 +115,72 @@ const Patient = () => {
   </Row>
 </Container>
 
+
 {/* Upcoming Consultations */}
 <Container className="mt-5 text-start">
-        <h4 >Upcoming Consultations</h4>
-        {doctors.map((doctor, index) => (
-          <Card key={index} className="mb-3 p-3">
-            <Card.Body className="d-flex justify-content-between">
-              <div>
-              <h5>{doctor.name}</h5>
-              <p>{doctor.specialty}</p>
-              </div>
-              <div>
-              <p>
-                <strong>Date & Time:</strong> 
-              </p>
-              <p>
-                <strong>Hospital:</strong>
-              </p>
-              </div>
-              <div>
-              <div>
-              <Button className="me-2" style={{backgroundColor:"#F4A5AE", border:"0px", color:"Black"}}>Cancel Appointment</Button>
-                <Button style={{backgroundColor:"#A8577E", border:"0px"}}>Change Appointment</Button>
-              </div>
-              </div>
-            </Card.Body>
-          </Card>
-        ))}
+        <h2>Upcoming Consultations</h2>
+        {loading ? <p>Loading...</p> : error ? <p>{error}</p> : (
+          appointments.length > 0 ? (
+            appointments.map((appt) => (
+              <Card className="p-3 mb-3 shadow-sm" key={appt._id}>
+                <Row>
+                  <Col md={6}>
+                    <h5><strong>Dr. {appt.doctor_name}</strong></h5>
+                    <p><strong>Hospital:</strong> {appt.hospital_name}</p>
+                  </Col>
+                  <Col md={3}>
+                    <p><strong>Date:</strong> {new Date(appt.appointment_date).toLocaleDateString()}</p>
+                    <p><strong>Time:</strong> {new Date(appt.appointment_date).toLocaleTimeString()}</p>
+                  </Col>
+                  <Col md={3} className="text-end">
+                    <Button className="me-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}>Change Appt</Button>
+                    <Button style={{ backgroundColor: "#E32037", border: "none" }}>Cancel Appt</Button>
+                  </Col>
+                </Row>
+              </Card>
+            ))
+          ) : (
+            <p>No upcoming consultations.</p>
+          )
+        )}
       </Container>
 
 
-      {/* Completed Consultations */}
-      <Container className="mt-5 text-start">
-        <h4 >Completed Consultations</h4>
-        {doctors.map((doctor, index) => (
-          <Card key={index} className="mb-3 p-3">
-            <Card.Body className="d-flex justify-content-between">
-              <div>
-              <h5>{doctor.name}</h5>
-              <p>{doctor.specialty}</p>
-              </div>
-              <div>
-              <p>
-                <strong>Date & Time:</strong> [Insert Date] - Patient Name
-              </p>
-              <p>
-                <strong>Symptoms:</strong> Fever, Headache...
-              </p>
-              </div>
-              <div>
-                <div className='mb-4 text-center'>
-                <strong>Your Feedback:</strong>{" "}
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <FaStar key={i} color={i < doctor.feedback ? "gold" : "gray"} />
-                  ))}
-                </div>
-                <div>
-                  <Button className="me-2" style={{backgroundColor:"#F4A5AE", border:"0px", color:"Black"}}>View Records</Button>
-                  <Button style={{backgroundColor:"#A8577E", border:"0px"}}>Book Follow-up</Button>
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        ))}
+
+  {/* Completed Consultations */}
+  <Container className="mt-5 text-start">
+        <h2>Completed Consultations</h2>
+        {loading ? <p>Loading...</p> : error ? <p>{error}</p> : (
+          pastappointments.length > 0 ? (
+            pastappointments.map((pastappt) => (
+              <Card className="p-3 mb-3 shadow-sm" key={pastappt._id}>
+                <Row>
+                  <Col md={6}>
+                    <h5><strong>Dr. {pastappt.doctor_name}</strong></h5>
+                    <p><strong>Hospital:</strong> {pastappt.hospital_name}</p>
+                  </Col>
+                  <Col md={3}>
+                    <p><strong>Date:</strong> {new Date(pastappt.appointment_date).toLocaleDateString()}</p>
+                    <p><strong>Time:</strong> {new Date(pastappt.appointment_date).toLocaleTimeString()}</p>
+                  </Col>
+                  <Col md={3} className="text-end">
+                    <p className="mb-1"><strong>Your Feedback:</strong> 
+                      <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="lightgray" />
+                    </p>
+                    <Button className="me-2" style={{ backgroundColor: "#F28D8D", border: "none" }}>View Records</Button>
+                    <Button style={{ backgroundColor: "#8D5B8F", border: "none" }}>Book Follow-up</Button>
+                  </Col>
+                </Row>
+              </Card>
+            ))
+          ) : (
+            <p>No past consultations.</p>
+          )
+        )}
       </Container>
-    </>
+</>
   )
-
-
 };
-
-
 
 
 
