@@ -9,9 +9,9 @@ import axios from "axios";
 const Patient = () => {
   const navigate = useNavigate(); // Initialize useNavigate
 
-  const handleFindClick = () => {
+ /* const handleFindClick = () => {
     navigate('/appointment-availability'); // Redirect to Appointment Availability page
-  };
+  };*/
 
   // State for dropdown selections
   const [specialty, setSpecialty] = useState('');
@@ -23,7 +23,15 @@ const Patient = () => {
   const [error, setError] = useState('');
 
   
+  const handleSearch = () => {
+    if (!specialty || !language) {
+      alert("Please select both Specialty and Language.");
+      return;
+    }
 
+    // Navigate to the AppointmentAvailability page with selected values as URL parameters
+    navigate(`/appointment-availability?specialty=${encodeURIComponent(specialty)}&language=${encodeURIComponent(language)}`);
+  };
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -114,11 +122,8 @@ const Patient = () => {
                 </Form.Select>
         </Col>
         <Col md={2}>
-          <Button 
-          className="rounded-pill px-4" 
-          style={{ backgroundColor: "#A8577E", border: "none" }}
-          onClick={handleFindClick} // Call the function on click
-          >
+        {/* Search Button */}
+        <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }} onClick={handleSearch}>
             FIND
           </Button>
         </Col>
