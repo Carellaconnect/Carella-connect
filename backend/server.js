@@ -28,8 +28,8 @@ app.use(session({
 
 // Connect to MongoDB
 mongoose.connect('mongodb+srv://carellaconnect:CarellaConnect@carellaconnect.h50ep.mongodb.net/Carella_Connect')
-.then(() => console.log('Connected to MongoDB'))
-.catch((err) => console.error('Failed to connect to MongoDB:', err));
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => console.error('Failed to connect to MongoDB:', err));
 
 // Simple route
 app.get('/', (req, res) => {
@@ -87,7 +87,7 @@ module.exports = User;
 
 
 
-const DoctorsApprovalRrequests = mongoose.model ('DoctorsApprovalRrequest', {
+const DoctorsApprovalRrequests = mongoose.model('DoctorsApprovalRrequest', {
     "doctor_id": { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     "hospital_admin_id": String,
     "approval_status": String,
@@ -109,7 +109,7 @@ const AppointmentDetailsSchema = new mongoose.Schema({
     reason: String
 });
 
-const AppointmentDetails = mongoose.model ("AppointmentDetails", AppointmentDetailsSchema);
+const AppointmentDetails = mongoose.model("AppointmentDetails", AppointmentDetailsSchema);
 module.exports = AppointmentDetails;
 
 
@@ -152,17 +152,17 @@ const DoctorProfileSchema = new mongoose.Schema({
     ]
 });
 
-const DoctorProfile = mongoose.model ("DoctorProfile", DoctorProfileSchema);
+const DoctorProfile = mongoose.model("DoctorProfile", DoctorProfileSchema);
 module.exports = DoctorProfile;
 
 
 var phoneregex = /^\(?(\d{3})\)?[\.\-\/\s]?(\d{3})[\.\-\/\s]?(\d{4})$/;
 
-function phoneCheck(val){
-    if(val == null) {
-    throw new Error('Phone number required');
+function phoneCheck(val) {
+    if (val == null) {
+        throw new Error('Phone number required');
     }
-    if( !regCheck(val,phoneregex)){
+    if (!regCheck(val, phoneregex)) {
         throw new Error('Invalid phone number');
     }
     return true;
@@ -179,93 +179,93 @@ app.post('/register',
     // check('province', 'Please select the province').notEmpty(),
     // check('gender', 'Please select a gender').notEmpty(),
     // check('date_of_birth', 'Please ente the date of birth').notEmpty()
-//],
-async(req, res) => {
-    // const errors = validationResult(req);
-    // if(!errors.isEmpty()){
-    //     res.render('order',{errors:errors.array()});
-    // }else{
+    //],
+    async (req, res) => {
+        // const errors = validationResult(req);
+        // if(!errors.isEmpty()){
+        //     res.render('order',{errors:errors.array()});
+        // }else{
 
-    const email = req.body.email;
+        const email = req.body.email;
 
-    try {
+        try {
 
-        let user = null;
-        let status = 'Active';
-        user = await User.findOne({ email });
+            let user = null;
+            let status = 'Active';
+            user = await User.findOne({ email });
 
-        if (user == null) {
-            if(req.body.role.toLowerCase() == 'doctor' || req.body.role.toLowerCase() == 'admin'){
-                status = 'Pending';
-            }
-            const newUser = new User({
-            "name": req.body.fname+' '+req.body.lname, 
-            "email": req.body.email,
-            "password": req.body.password,
-            "role": req.body.role,    
-            "profile_picture": req.body.profile_pic,  
-            "phone": req.body.phone,
-            "address": req.body.address,
-            "city": req.body.city,
-            "postcode": req.body.postcode,
-            "province": req.body.province,
-            "date_of_birth": req.body.dob,  
-            "gender": req.body.gender,   
-            "created_at": new Date(), 
-            "updated_at": new Date(), 
-            "status": status, 
-            "insurance_id": req.body.insuranceId,  
-            "insurance_provider": req.body.insuranceProvider,
-            "hospital_id": req.body.hospitalId,
-            "doctor_identification_id": req.body.doctorId
-            });
-
-            await newUser.save().then(() => {
-                console.log('User Data saved.');
-            });
-
-            if(req.body.role.toLowerCase() === 'doctor'){
-                const doctorData = await User.findOne({email: req.body.email});
-                const adminData = await User.aggregate([ {$match: {role:'Admin', hospital_id: doctorData.hospital_id}} ])
-                adminData.forEach(admin => {
-                    //Add the details to the doctor_approvals collection
-                    const doctorApproval = new DoctorsApprovalRrequests({
-                        "doctor_id": doctorData._id,
-                        "hospital_admin_id": admin._id,
-                        "approval_status": "Pending",
-                        "request_date": new Date(),
-                        "approval_date": "",
-                        "created_at": new Date(),
-                        "updated_at": new Date()
-                    });
-                    doctorApproval.save().then(() => {
-                        console.log("Data sent for Admin's approval.");
-                    });
+            if (user == null) {
+                if (req.body.role.toLowerCase() == 'doctor' || req.body.role.toLowerCase() == 'admin') {
+                    status = 'Pending';
+                }
+                const newUser = new User({
+                    "name": req.body.fname + ' ' + req.body.lname,
+                    "email": req.body.email,
+                    "password": req.body.password,
+                    "role": req.body.role,
+                    "profile_picture": req.body.profile_pic,
+                    "phone": req.body.phone,
+                    "address": req.body.address,
+                    "city": req.body.city,
+                    "postcode": req.body.postcode,
+                    "province": req.body.province,
+                    "date_of_birth": req.body.dob,
+                    "gender": req.body.gender,
+                    "created_at": new Date(),
+                    "updated_at": new Date(),
+                    "status": status,
+                    "insurance_id": req.body.insuranceId,
+                    "insurance_provider": req.body.insuranceProvider,
+                    "hospital_id": req.body.hospitalId,
+                    "doctor_identification_id": req.body.doctorId
                 });
-                
-            }
-            let message = 'Registration Successful!';
-            if(req.body.role.toLowerCase() === 'doctor' || req.body.role.toLowerCase() === 'admin'){
-                message += ' Your account is pending approval. Please wait for approval from the admin.';
+
+                await newUser.save().then(() => {
+                    console.log('User Data saved.');
+                });
+
+                if (req.body.role.toLowerCase() === 'doctor') {
+                    const doctorData = await User.findOne({ email: req.body.email });
+                    const adminData = await User.aggregate([{ $match: { role: 'Admin', hospital_id: doctorData.hospital_id } }])
+                    adminData.forEach(admin => {
+                        //Add the details to the doctor_approvals collection
+                        const doctorApproval = new DoctorsApprovalRrequests({
+                            "doctor_id": doctorData._id,
+                            "hospital_admin_id": admin._id,
+                            "approval_status": "Pending",
+                            "request_date": new Date(),
+                            "approval_date": "",
+                            "created_at": new Date(),
+                            "updated_at": new Date()
+                        });
+                        doctorApproval.save().then(() => {
+                            console.log("Data sent for Admin's approval.");
+                        });
+                    });
+
+                }
+                let message = 'Registration Successful!';
+                if (req.body.role.toLowerCase() === 'doctor' || req.body.role.toLowerCase() === 'admin') {
+                    message += ' Your account is pending approval. Please wait for approval from the admin.';
+                } else {
+                    message += ' Please login to your account.'
+                }
+                return res.json({
+                    success: true,
+                    message: message
+                });
+
             } else {
-                message += ' Please login to your account.'
+                return res.status(401).json({ success: false, message: 'User with the given email id already exist.' });
             }
-            return res.json({
-                success: true,
-                message: message
-            });
 
-        } else {
-            return res.status(401).json({ success: false, message: 'User with the given email id already exist.' });
+        } catch (error) {
+            console.error('Error during registration:', error);
+            return res.status(500).json({ success: false, message: 'Server error' });
         }
-
-    } catch (error) {
-        console.error('Error during registration:', error);
-        return res.status(500).json({ success: false, message: 'Server error' });
-    }
         // res.send('New User Added at Backend!');
-// }
-});
+        // }
+    });
 
 //Login API 
 app.post('/login', async (req, res) => {
@@ -278,14 +278,14 @@ app.post('/login', async (req, res) => {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
 
-        
+
         const isMatch = password === user.password;
 
         if (!isMatch) {
             return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
 
-        
+
         if (user.role === 'Doctor') {
             if (user.status === 'Pending') {
                 return res.status(403).json({
@@ -321,22 +321,22 @@ app.post('/login', async (req, res) => {
 
 app.get("/doctors-approval-requests", async (req, res) => {
     try {
-        
+
         const approvalRequests = await DoctorsApprovalRrequests.find()
-        .populate('doctor_id', 'name email status')  
-        .populate('hospital_admin_id', 'name email')  
-        .exec();
-    
+            .populate('doctor_id', 'name email status')
+            .populate('hospital_admin_id', 'name email')
+            .exec();
+
         if (!approvalRequests || approvalRequests.length === 0) {
-        return res.status(404).json({ message: "No approval requests found." });
+            return res.status(404).json({ message: "No approval requests found." });
         }
-    
+
         res.json(approvalRequests);
     } catch (error) {
         console.error("Error fetching doctor approval requests:", error);
         res.status(500).json({ error: "Server error while fetching approval requests." });
     }
-    });
+});
 
 
 // Route to update doctor approval status
@@ -346,7 +346,7 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
     try {
         // Step 1: Update the doctor's approval request in the DoctorsApprovalRequests collection
         const updatedRequest = await DoctorsApprovalRrequests.findOneAndUpdate(
-            { _id: req.params.id },  
+            { _id: req.params.id },
             { approval_status: status, approval_date: new Date() },
             { new: true }
         );
@@ -405,28 +405,52 @@ app.get('/doctors', async (req, res) => {
 // API to fetch doctors filtered according to speciality and language for appointment booking from patient's side
 app.get('/filtered-doctors', async (req, res) => {
     try {
-        const { specialty, language } = req.query;
-
-        if (!specialty || !language) {
-            return res.status(400).json({ error: "Specialty and language are required" });
-        }
-
-        const doctors = await DoctorProfile.find({
-            speciality: specialty,
-            languages: { $elemMatch: { language_name: language } }
-        }).populate({
-            path: 'doctor_id',
-            select: 'name hospital_id'
-        }).populate({
-            path: 'doctor_id.hospital_id',
-            select: 'name address'
-        });
-
-        res.json(doctors);
+      const { specialty, language } = req.query;
+  
+      if (!specialty || !language) {
+        return res.status(400).json({ error: "Specialty and language are required" });
+      }
+  
+      const doctorProfiles = await DoctorProfile.find({
+        speciality: specialty,
+        languages: { $elemMatch: { language_name: language } }
+      }).populate({
+        path: 'doctor_id',
+        select: 'name hospital_id'
+      });
+  
+      const enrichedDoctors = await Promise.all(
+        doctorProfiles.map(async (profile) => {
+          let hospital = null;
+  
+          if (profile.doctor_id.hospital_id) {
+            hospital = await Hospital.findById(profile.doctor_id.hospital_id).select('name');
+          }
+  
+          return {
+            doctor_name: profile.doctor_id.name,
+            speciality: profile.speciality,
+            languages: profile.languages.map(lang => lang.language_name),
+            hospital_name: hospital ? hospital.name : "N/A",
+            hospital_address: hospital ? hospital.address : "N/A" ,
+            availability: profile.availability.map(avail => ({
+                date: avail.date.toISOString().split('T')[0],  // Format Date (YYYY-MM-DD)
+                time_slots: avail.time_slots.map(slot => ({
+                    start_time: new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    end_time: new Date(slot.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    status: slot.status
+                }))
+            }))
+          };
+        })
+      );
+  
+      res.json(enrichedDoctors);
     } catch (error) {
-        res.status(500).json({ error: "Internal Server Error" });
+      console.error("Error in /filtered-doctors:", error);
+      res.status(500).json({ error: "Internal Server Error" });
     }
-});
+  });
 
 
 //Fetch upcoming appointments
@@ -439,9 +463,9 @@ app.get('/patient-dashboard/:id', async (req, res) => {
             patient_id: patientId,
             appointment_date: { $gte: today }  // Fetch only future appointments
         })
-        .populate('doctor_id', 'name')  // Fetch doctor name
-        .populate('hospital_id', 'name') // Fetch hospital name
-        .exec();
+            .populate('doctor_id', 'name')  // Fetch doctor name
+            .populate('hospital_id', 'name') // Fetch hospital name
+            .exec();
 
         const formattedAppointments = appointments.map(appt => ({
             _id: appt._id,
@@ -469,9 +493,9 @@ app.get('/patient-dashboard/:id/past-appointments', async (req, res) => {
             patient_id: patientId,
             appointment_date: { $lt: today }  // Fetch only past appointments
         })
-        .populate('doctor_id', 'name')  // Fetch doctor name
-        .populate('hospital_id', 'name') // Fetch hospital name
-        .exec();
+            .populate('doctor_id', 'name')  // Fetch doctor name
+            .populate('hospital_id', 'name') // Fetch hospital name
+            .exec();
 
         const formattedpastAppointments = pastappointments.map(pastappt => ({
             _id: pastappt._id,

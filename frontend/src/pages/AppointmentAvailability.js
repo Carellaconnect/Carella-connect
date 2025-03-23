@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import { Navbar, Nav, Button, Container, Row, Col, Card, Form } from "react-bootstrap";
@@ -7,6 +7,7 @@ import axios from 'axios';
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+//import DoctorProfile from '../../../backend/server';
 
 
 
@@ -59,9 +60,10 @@ const AppointmentAvailability = () => {
 
       </Nav>
 
+      {/* Section to display the list of doctors for selected specialty and language */}
       <Container className="mt-4">
         <h4>
-          {specialty && language ? `Find a ${specialty} speaking ${language} in Waterloo` : "Find a Doctor"}
+          {specialty && language ? `Find a ${specialty} speaking ${language}` : "Find a Doctor"}
         </h4>
         <Row>
           {doctors.length > 0 ? (
@@ -70,17 +72,52 @@ const AppointmentAvailability = () => {
                 <Card className="shadow-sm p-3">
                   <Card.Body>
                     <Row>
-                      <Col md={8}>
-                        <h5>
-                          <Link to="#" className="text-decoration-none text-primary">
-                            {doctor.doctor_id.name}
-                          </Link>
-                        </h5>
-                        <p className="text-muted">{doctor.speciality}</p>
-                        <p><strong>Hospital:</strong> {doctor.doctor_id.hospital_id?.name || "N/A"}</p>
+                      {/*Left section*/}
+                      <Col md={4}>
+
+                        <p><strong>Doctor:</strong>
+                          {doctor.doctor_name}
+                        </p>
+
+                        <p><strong>Speciality:</strong> {doctor.speciality}</p>
+                        <p><strong>Languages:</strong> {doctor.languages.join(", ")}</p>
+                        <p><strong>Hospital:</strong> {doctor.hospital_name || "N/A"} </p>
+                        <p><strong>Address:</strong> {doctor.hospital_address || "N/A"} </p>
                       </Col>
+
+                      {/*Middle section*/}
+                      <Col md={4}>
+                        <p><strong>Availability:</strong></p>
+
+                        {doctor.availability.length > 0 ? (
+                          doctor.availability.map((avail, index) => (
+                            <div key={index}>
+                              <strong>Date:</strong> {avail.date} <br />
+                               {avail.time_slots.length > 0 ? (
+                                avail.time_slots.map((slot, i) => (
+                                  <div key={i}>
+                                    {slot.start_time} - {slot.end_time} ({slot.status})
+                                  </div>
+                                ))
+                              ) : (
+                                <li>No available slots</li>
+                              )}
+
+                            </div>
+                          ))
+                        ) : (
+                          <li>Not Available</li>
+                        )}
+                      </Col>
+
+                      {/*Right section*/}
                       <Col md={4} className="text-end">
-                        <p><strong>Languages:</strong> {doctor.languages.map(lang => lang.language_name).join(", ")}</p>
+                      {/* Book Appointment button */}
+                        <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }}>
+                          Book Appointment
+                        </Button>
+
+
                       </Col>
                     </Row>
                   </Card.Body>
@@ -92,8 +129,6 @@ const AppointmentAvailability = () => {
           )}
         </Row>
       </Container>
-
-
 
 
 
