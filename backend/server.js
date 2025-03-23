@@ -402,7 +402,6 @@ app.get('/doctors', async (req, res) => {
 });
 
 // API to fetch doctors filtered according to speciality and language for appointment booking from patient's side
-
 app.get('/filtered-doctors', async (req, res) => {
     try {
         const { specialty, language } = req.query;
@@ -411,21 +410,22 @@ app.get('/filtered-doctors', async (req, res) => {
             return res.status(400).json({ error: "Specialty and language are required" });
         }
 
+        const today = new Date(); // Get current date and time
+
         // Fetch doctor profiles matching specialty & language
         const doctorProfiles = await DoctorProfile.find({
             speciality: specialty,
             languages: { $elemMatch: { language_name: language } }
         }).populate({
             path: 'doctor_id',
-            select: 'name'  // Only fetching doctor's name from Users
+            select: 'name'
         });
 
         // Process each doctor and fetch their hospital details
         const enrichedDoctors = await Promise.all(
             doctorProfiles.map(async (profile) => {
-                // Find hospital where the doctor is listed in the 'doctors' array
                 const hospital = await Hospital.findOne({ doctors: profile.doctor_id._id })
-                                               .select('name address');
+                    .select('name address');
 
                 return {
                     doctor_name: profile.doctor_id.name,
@@ -433,14 +433,19 @@ app.get('/filtered-doctors', async (req, res) => {
                     languages: profile.languages.map(lang => lang.language_name),
                     hospital_name: hospital ? hospital.name : "N/A",
                     hospital_address: hospital ? hospital.address : "N/A",
-                    availability: profile.availability.map(avail => ({
-                        date: avail.date.toISOString().split('T')[0],  // Format Date (YYYY-MM-DD)
-                        time_slots: avail.time_slots.map(slot => ({
-                            start_time: new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                            end_time: new Date(slot.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                            status: slot.status
+                    availability: profile.availability
+                        .filter(avail => new Date(avail.date) >= today) // Filter past dates
+                        .map(avail => ({
+                            date: avail.date.toISOString().split('T')[0],
+                            time_slots: avail.time_slots
+                                .filter(slot => new Date(slot.start_time) > today && slot.status === "Available") // Future and available slots only
+                                .map(slot => ({
+                                    start_time: new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                    end_time: new Date(slot.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                    status: slot.status
+                                }))
                         }))
-                    }))
+                        .filter(avail => avail.time_slots.length > 0) // Remove empty availability entries
                 };
             })
         );
@@ -451,6 +456,8 @@ app.get('/filtered-doctors', async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
+
 
 
 

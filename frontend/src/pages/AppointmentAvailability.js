@@ -7,7 +7,6 @@ import axios from 'axios';
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-//import DoctorProfile from '../../../backend/server';
 
 
 
@@ -88,21 +87,23 @@ const AppointmentAvailability = () => {
                       {/*Middle section*/}
                       <Col md={4}>
                         <p><strong>Availability:</strong></p>
-
                         {doctor.availability.length > 0 ? (
                           doctor.availability.map((avail, index) => (
                             <div key={index}>
                               <strong>Date:</strong> {avail.date} <br />
-                               {avail.time_slots.length > 0 ? (
-                                avail.time_slots.map((slot, i) => (
-                                  <div key={i}>
-                                    {slot.start_time} - {slot.end_time} ({slot.status})
-                                  </div>
-                                ))
-                              ) : (
-                                <li>No available slots</li>
-                              )}
-
+                              <div className="time-slot-container">
+                                {avail.time_slots.length > 0 ? (
+                                  avail.time_slots.map((slot, i) => (
+                                    <div key={i} className="time-slot-box">
+                                      {(slot.start_time)} - {(slot.end_time)}
+                                      <br />
+                                      <span className={`status ${slot.status.toLowerCase()}`}>{slot.status}</span>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <li>No available slots</li>
+                                )}
+                              </div>
                             </div>
                           ))
                         ) : (
@@ -112,7 +113,7 @@ const AppointmentAvailability = () => {
 
                       {/*Right section*/}
                       <Col md={2} className="text-end">
-                      {/* Book Appointment button */}
+                        {/* Book Appointment button */}
                         <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }}>
                           Book Appointment
                         </Button>
@@ -129,7 +130,47 @@ const AppointmentAvailability = () => {
           )}
         </Row>
       </Container>
+      {/* ✅ Custom CSS for time slots */}
+      <style>
+        {`
+          .time-slot-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+          }
 
+          .time-slot-box {
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 100px;
+          }
+
+          .status {
+            font-size: 12px;
+            font-weight: normal;
+            display: block;
+            margin-top: 5px;
+          }
+
+          .status.available {
+            color: green;
+          }
+
+          .status.booked {
+            color: red;
+          }
+
+          .status.pending {
+            color: orange;
+          }
+        `}
+      </style>
 
 
     </>
