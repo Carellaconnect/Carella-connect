@@ -18,6 +18,8 @@ const Patient = () => {
           <span style={{border:"1px solid #a6a6a6"}}></span>
           <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
           <span style={{border:"1px solid #a6a6a6"}}></span>
+          <Nav.Link href="/virtual-health-resources" className='text-dark'>Virtual Health Resources</Nav.Link>
+          <span style={{border:"1px solid #a6a6a6"}}></span>
           <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
           <span style={{border:"1px solid #a6a6a6"}}></span>
           

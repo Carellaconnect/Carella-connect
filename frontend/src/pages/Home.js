@@ -107,7 +107,6 @@ const Home = ({ user }) => {
           </Col>
         </Row>
       </Container>
-
       {/* Emergency Request Button */}
       <Container className="text-center my-5">
         <Button onClick={() => setShowEmergencyModal(true)} style={{ backgroundColor: "#A8577E", border: "0px", padding: "12px 24px", fontSize: "1.2rem" }}>
