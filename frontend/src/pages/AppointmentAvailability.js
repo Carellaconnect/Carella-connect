@@ -73,7 +73,7 @@ const AppointmentAvailability = () => {
                   <Card.Body>
                     <Row>
                       {/*Left section*/}
-                      <Col md={4}>
+                      <Col md={6}>
 
                         <p><strong>Doctor:</strong>
                           {doctor.doctor_name}
@@ -111,7 +111,7 @@ const AppointmentAvailability = () => {
                       </Col>
 
                       {/*Right section*/}
-                      <Col md={4} className="text-end">
+                      <Col md={2} className="text-end">
                       {/* Book Appointment button */}
                         <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }}>
                           Book Appointment
