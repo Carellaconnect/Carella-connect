@@ -11,18 +11,57 @@ import "swiper/css/pagination";
 
 const BookAppointment = () => {
     const location = useLocation();
-    const { doctorId, doctorName, specialty, languages, hospital, address, date, startTime, endTime } = location.state || {};
-
     const navigate = useNavigate();
+
+    // Extract appointment details from location state
+    const { doctorId, doctorName, specialty, languages, hospitalId, hospital, address, date, startTime, endTime } = location.state || {};
+
+
+    // Get logged-in user's patient_id (Assuming stored in localStorage after login)
+    const patientId = localStorage.getItem("user._id"); 
+
+    // State to store reason input
+    const [reason, setReason] = useState("");
+
     useEffect(() => {
         if (!location.state) {
             navigate("/appointment-availability"); // Redirect if no data is passed
         }
     }, [location, navigate]);
 
-    if (!date || !startTime || !endTime) {
+    /*if (!date || !startTime || !endTime) {
         return <p>No appointment selected. Please go back and select a time slot.</p>;
-    }
+    }*/
+
+
+    // Function to handle appointment confirmation
+    const handleConfirmAppointment = async () => {
+        try {
+            const appointmentData = {
+                //patient_id: patientId,
+                //doctor_id: doctorId,
+                //hospital_id: hospitalId,
+                appointment_date: new Date(`${date} ${startTime}`),
+                status: "Scheduled",
+                reason: reason
+            };
+
+            console.log("Sending appointment data:", appointmentData); // Log before sending
+
+            // Send data to backend API
+            const response = await axios.post("http://localhost:5000/appointments", appointmentData, {
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (response.status === 201) {
+                alert("Appointment booked successfully!");
+                navigate("/patient-dashboard"); // Redirect to patient dashboard
+            }
+        } catch (error) {
+            console.error("Error booking appointment:",  error.response ? error.response.data : error.message);
+            alert("Failed to book appointment. Please try again.");
+        }
+    };
 
 
     return (
@@ -53,10 +92,11 @@ const BookAppointment = () => {
                 {/* Reason Input */}
                 <Form.Group controlId="reason" className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px" }}>
                     <Form.Label className="d-block text-center"><strong>Reason:</strong></Form.Label>
-                    <Form.Control  className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px", marginRight: "10px", padding: "10px"}}placeholder="Enter the reason for your appointment..." required/>
+                    <Form.Control  className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px", marginRight: "10px", padding: "10px"}} value={reason}
+                        onChange={(e) => setReason(e.target.value)} placeholder="Enter the reason for your appointment..." required/>
                 </Form.Group>
                 <button className="rounded-pill px-4"
-                    style={{ backgroundColor: "#00FF00", border: "none" }}>Confirm Appointment</button>
+                    style={{ backgroundColor: "#00FF00", border: "none" }} onClick={handleConfirmAppointment}>Confirm Appointment</button>
 
                 <button className="rounded-pill px-4"
                     style={{ backgroundColor: "#FF0000", border: "none" }} onClick={() => navigate("/patient-dashboard")}>Go back</button>

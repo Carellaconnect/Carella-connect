@@ -99,7 +99,7 @@ const DoctorsApprovalRrequests = mongoose.model('DoctorsApprovalRrequest', {
 });
 
 
-//Appointment Details Colection
+//Appointment Details Collection
 const AppointmentDetailsSchema = new mongoose.Schema({
     patient_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     doctor_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -113,7 +113,7 @@ const AppointmentDetails = mongoose.model("AppointmentDetails", AppointmentDetai
 module.exports = AppointmentDetails;
 
 
-//Hospital colection
+//Hospital Collection
 const HospitalSchema = new mongoose.Schema({
     name: { type: String, required: true },
     address: String,
@@ -458,7 +458,44 @@ app.get('/filtered-doctors', async (req, res) => {
 });
 
 
+// API to create a new appointment - after confirming the appointment on /book-appointment page
+app.post('/appointments', async (req, res) => {
+    try {
+        console.log("Received appointment data:", req.body); // Log what the server receives
 
+        //const { patient_id, doctor_id, hospital_id, appointment_date, status, reason } = req.body;
+        const { appointment_date, status, reason } = req.body;
+
+        /* Validate required fields
+        if (!patient_id || !doctor_id || !hospital_id || !appointment_date || !status || !reason) {
+            return res.status(400).json({ success: false, message: "All fields are required" });
+        }*/
+
+        // Validate required fields
+        if ( !appointment_date || !status || !reason) {
+            return res.status(400).json({ success: false, message: "All fields are required" });
+        }
+
+        // Create new appointment- Save appointment to database
+        const newAppointment = new AppointmentDetails({
+            //patient_id,
+            //doctor_id,
+            //hospital_id,
+            appointment_date,
+            status,
+            reason
+        });
+
+        // Save to database
+        await newAppointment.save();
+
+        res.status(201).json({ success: true, message: "Appointment created successfully", appointment: newAppointment });
+
+    } catch (error) {
+        console.error("Error creating appointment:", error);
+        res.status(500).json({ success: false, message: "Server error while creating appointment" });
+    }
+});
 
 
 //Fetch upcoming appointments
