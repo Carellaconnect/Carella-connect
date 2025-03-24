@@ -49,6 +49,12 @@ const BookAppointment = () => {
                 <p><strong>Address:</strong> {address}</p>
                 <p><strong>Appointment Date:</strong> {date}</p>
                 <p><strong>Time Slot:</strong> {startTime} - {endTime}</p>
+
+                {/* Reason Input */}
+                <Form.Group controlId="reason" className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px" }}>
+                    <Form.Label className="d-block text-center"><strong>Reason:</strong></Form.Label>
+                    <Form.Control  className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px", marginRight: "10px", padding: "10px"}}placeholder="Enter the reason for your appointment..." required/>
+                </Form.Group>
                 <button className="rounded-pill px-4"
                     style={{ backgroundColor: "#00FF00", border: "none" }}>Confirm Appointment</button>
 
