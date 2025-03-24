@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from "react-router-dom";
 import Navigation from './Navigation';
 import { Navbar, Nav, Button, Container, Row, Col, Card, Form } from "react-bootstrap";
-import { FaStar, FaSearch, FaBell } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 import axios from 'axios';
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-
-
 
 const AppointmentAvailability = () => {
   const location = useLocation();
@@ -21,6 +16,7 @@ const AppointmentAvailability = () => {
   const [specialty, setSpecialty] = useState(initialSpecialty);
   const [language, setLanguage] = useState(initialLanguage);
   const [doctors, setDoctors] = useState([]);
+  const [selectedSlots, setSelectedSlots] = useState({}); // Stores selected slot per doctor
 
   useEffect(() => {
     if (specialty && language) {
@@ -37,29 +33,54 @@ const AppointmentAvailability = () => {
     }
   };
 
-  const handleFindClick = () => {
-    navigate(`/appointment-availability?specialty=${specialty}&language=${language}`);
+  // Handle dropdown selection
+  const handleSlotSelection = (doctorId, slotValue) => {
+    setSelectedSlots(prev => ({
+      ...prev,
+      [doctorId]: slotValue,
+    }));
+  };
+
+  const handleBookAppointment = (doctor) => {
+    if (!selectedSlots[doctor._id]) {
+      alert("Please select a time slot before booking.");
+      return;
+    }
+  
+    // Extract selected slot details
+    const [date, startTime, endTime] = selectedSlots[doctor._id].split("|");
+  
+    // Navigate to the booking page with all details
+    navigate("/book-appointment", {
+      state: {
+        doctorId: doctor._id,
+        doctorName: doctor.doctor_name,
+        specialty: doctor.speciality,
+        languages: doctor.languages.join(", "),
+        hospital: doctor.hospital_name,
+        address: doctor.hospital_address,
+        date,
+        startTime,
+        endTime,
+      },
+    });
   };
 
   return (
     <>
       <Navigation />
       <Nav className="ms-auto">
-
         <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
         <span style={{ border: "1px solid #a6a6a6" }}></span>
         <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
         <span style={{ border: "1px solid #a6a6a6" }}></span>
         <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
         <span style={{ border: "1px solid #a6a6a6" }}></span>
-        <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
+        <Nav.Link href="/Home" className='text-dark'>Log Out</Nav.Link>
         <span style={{ border: "1px solid #a6a6a6" }}></span>
-
         <FaBell size={20} className="mt-2" style={{ color: "#A8577E", marginLeft: "1050px" }} />
-
       </Nav>
 
-      {/* Section to display the list of doctors for selected specialty and language */}
       <Container className="mt-4">
         <h4>
           {specialty && language ? `Find a ${specialty} speaking ${language}` : "Find a Doctor"}
@@ -71,54 +92,50 @@ const AppointmentAvailability = () => {
                 <Card className="shadow-sm p-3">
                   <Card.Body>
                     <Row>
-                      {/*Left section*/}
+                      {/* Left Section */}
                       <Col md={6}>
-
-                        <p><strong>Doctor:</strong>
-                          {doctor.doctor_name}
-                        </p>
-
-                        <p><strong>Speciality:</strong> {doctor.speciality}</p>
+                        <p><strong>Doctor:</strong> {doctor.doctor_name}</p>
+                        <p><strong>Specialty:</strong> {doctor.speciality}</p>
                         <p><strong>Languages:</strong> {doctor.languages.join(", ")}</p>
-                        <p><strong>Hospital:</strong> {doctor.hospital_name || "N/A"} </p>
-                        <p><strong>Address:</strong> {doctor.hospital_address || "N/A"} </p>
+                        <p><strong>Hospital:</strong> {doctor.hospital_name || "N/A"}</p>
+                        <p><strong>Address:</strong> {doctor.hospital_address || "N/A"}</p>
                       </Col>
 
-                      {/*Middle section*/}
+                      {/* Middle Section */}
                       <Col md={4}>
                         <p><strong>Availability:</strong></p>
                         {doctor.availability.length > 0 ? (
-                          doctor.availability.map((avail, index) => (
-                            <div key={index}>
-                              <strong>Date:</strong> {avail.date} <br />
-                              <div className="time-slot-container">
-                                {avail.time_slots.length > 0 ? (
-                                  avail.time_slots.map((slot, i) => (
-                                    <div key={i} className="time-slot-box">
-                                      {(slot.start_time)} - {(slot.end_time)}
-                                      <br />
-                                      <span className={`status ${slot.status.toLowerCase()}`}>{slot.status}</span>
-                                    </div>
-                                  ))
-                                ) : (
-                                  <li>No available slots</li>
-                                )}
-                              </div>
-                            </div>
-                          ))
+                          <Form.Select
+                            onChange={(e) => handleSlotSelection(doctor._id, e.target.value)}
+                            value={selectedSlots[doctor._id] || ""}
+                          >
+                            <option value="">Select a Date & Time</option>
+                            {doctor.availability.map((avail) =>
+                              avail.time_slots.map((slot, i) => (
+                                <option
+                                  key={`${avail.date}-${i}`}
+                                  value={`${avail.date}|${slot.start_time}|${slot.end_time}`}
+                                >
+                                  {avail.date} | {slot.start_time} - {slot.end_time}
+                                </option>
+                              ))
+                            )}
+                          </Form.Select>
                         ) : (
-                          <li>Not Available</li>
+                          <p>No available slots</p>
                         )}
                       </Col>
 
-                      {/*Right section*/}
+                      {/* Right Section */}
                       <Col md={2} className="text-end">
-                        {/* Book Appointment button */}
-                        <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }}>
+                        <Button
+                          className="rounded-pill px-4"
+                          style={{ backgroundColor: "#A8577E", border: "none" }}
+                          onClick={() => handleBookAppointment(doctor)}
+                          disabled={!selectedSlots[doctor._id]}
+                        >
                           Book Appointment
                         </Button>
-
-
                       </Col>
                     </Row>
                   </Card.Body>
@@ -130,49 +147,6 @@ const AppointmentAvailability = () => {
           )}
         </Row>
       </Container>
-      {/* ✅ Custom CSS for time slots */}
-      <style>
-        {`
-          .time-slot-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-          }
-
-          .time-slot-box {
-            padding: 8px 12px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
-            font-size: 14px;
-            font-weight: bold;
-            min-width: 100px;
-          }
-
-          .status {
-            font-size: 12px;
-            font-weight: normal;
-            display: block;
-            margin-top: 5px;
-          }
-
-          .status.available {
-            color: green;
-          }
-
-          .status.booked {
-            color: red;
-          }
-
-          .status.pending {
-            color: orange;
-          }
-        `}
-      </style>
-
-
     </>
   );
 };

@@ -11,6 +11,7 @@ import Patient from "./pages/Patient";
 import Register from "./pages/Register";
 import AppointmentAvailability from "./pages/AppointmentAvailability";
 import UpdateAppointment from "./pages/UpdateAppointment";
+import BookAppointment from "./pages/BookAppointment";
 
 
 
@@ -36,6 +37,7 @@ function App() {
         <Route path="/patient-dashboard" element={<Patient />} />
         <Route path="/appointment-availability" element={<AppointmentAvailability />} />
         <Route path="/update-appointment" element={<UpdateAppointment />} />
+        <Route path="/book-appointment" element={<BookAppointment />} />
         </Routes>
         <p>{message}</p>
         <Footer />
