@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Navbar, Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -26,27 +26,49 @@ const Register = () => {
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
     const [isDoctor, setIsDoctor] = useState(false);
+    const [isPatient, setIsPatient] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [licenseNumber, setLicenseNumber] = useState("");
+    const [hospitalsList, setHospitalsList] = useState([]);
     const [formData, setFormData] = useState('');
 
+    useEffect(() => {
+      fetch("http://localhost:5000/api/hospital-data")
+        .then((response) => response.json())
+        .then((data) => {
+          setHospitalsList(data);
+          //console.log('Hospital List >> '+hospitalsList);
+        })
+        .catch((error) =>
+          console.error("Error fetching hospital list:", error)
+        );
+    }, []);
 
   // Handler function for dropdown change event
   const handleRoleChange = (event) => {
     setSelectedRole(event.target.value);
     console.log(event.target.value);
     if(event.target.value.toLowerCase() === 'doctor'){
+      setIsPatient(false);
       setIsDoctor(true);
+      setIsAdmin(false);
     } else if(event.target.value.toLowerCase() === 'admin') {
+      setIsPatient(false);
       setIsDoctor(false);
       setIsAdmin(true);
     } else {
       setIsDoctor(false);
       setIsAdmin(false);
+      setIsPatient(true);
     }
   };
 
   const handleGenderChange = (event) => {
     setGender(event.target.value);
+  };
+
+  const handleHospitalIdChange = (event) => {
+    setHospitalId(event.target.value);
   };
 
     // Validation function
@@ -101,7 +123,8 @@ const Register = () => {
             hospitalId,
             doctorId,
             gender,
-            isDoctor
+            isDoctor,
+            licenseNumber
           };
 
           setFormData(formData);
@@ -325,44 +348,53 @@ const Register = () => {
                                   </Form.Group>
                                 </Col>
                               </Row>
-                              <Row>
-                                <Col>
-                                  <Form.Group controlId="formInsuranceId" className="mb-3 text-start">
-                                    <Form.Label>Insurance ID</Form.Label>
-                                    <Form.Control
-                                      type="text"
-                                      placeholder="Enter your insurance ID"
-                                      value={insuranceId}
-                                      onChange={(e) => setInsuranceId(e.target.value)}
-                                    />
-                                  </Form.Group>
-                                </Col>
-                                <Col>
-                                  <Form.Group controlId="formInsurance Provider" className="mb-3 text-start">
-                                    <Form.Label>Insurance Provider</Form.Label>
-                                    <Form.Control
-                                      type="text"
-                                      placeholder="Enter your insurance provider"
-                                      value={insuranceProvider}
-                                      onChange={(e) => setInsuranceProvider(e.target.value)}
-                                    />
-                                  </Form.Group>
-                                </Col>
-                              </Row>
+                              {isPatient && (
+                                <>
+                                <Row>
+                                  <Col>
+                                    <Form.Group controlId="formInsuranceId" className="mb-3 text-start">
+                                      <Form.Label>Insurance ID</Form.Label>
+                                      <Form.Control
+                                        type="text"
+                                        placeholder="Enter your insurance ID"
+                                        value={insuranceId}
+                                        onChange={(e) => setInsuranceId(e.target.value)}
+                                      />
+                                    </Form.Group>
+                                  </Col>
+                                  <Col>
+                                    <Form.Group controlId="formInsurance Provider" className="mb-3 text-start">
+                                      <Form.Label>Insurance Provider</Form.Label>
+                                      <Form.Control
+                                        type="text"
+                                        placeholder="Enter your insurance provider"
+                                        value={insuranceProvider}
+                                        onChange={(e) => setInsuranceProvider(e.target.value)}
+                                      />
+                                    </Form.Group>
+                                  </Col>
+                                </Row>
+                                </>
+                              )}
                               
                               {isDoctor && (
                                 <>
                                 <Row>
                                   <Col>
                                     <Form.Group controlId="formHospitalId" className="mb-3 text-start">
-                                      <Form.Label>Hospital ID</Form.Label>
+                                      <Form.Label>Select Hospital</Form.Label>
                                       <Form.Control
-                                        type="text"
-                                        placeholder="Enter your hospital ID"
-                                        value={hospitalId}
-                                        onChange={(e) => setHospitalId(e.target.value)}
-                                        required
-                                      />
+                                      as="select"
+                                      value={hospitalId}
+                                      onChange={handleHospitalIdChange}
+                                      required>
+                                        <option value="">--Select an option--</option>
+                                        {hospitalsList.map((option) => (
+                                          <option key={option._id} value={option._id}>
+                                            {option.name}
+                                          </option>
+                                        ))}
+                                      </Form.Control>
                                     </Form.Group>
                                   </Col>
                                   <Col>
@@ -378,6 +410,21 @@ const Register = () => {
                                     </Form.Group>
                                   </Col>
                                 </Row>
+                                <Row>
+                                  <Col>
+                                    <Form.Group controlId="formLicenseNumber" className="mb-3 text-start">
+                                      <Form.Label>License Number</Form.Label>
+                                      <Form.Control
+                                        type="text"
+                                        placeholder="Enter the doctor's license number."
+                                        value={licenseNumber}
+                                        onChange={(e) => setLicenseNumber(e.target.value)}
+                                        required
+                                      />
+                                    </Form.Group>
+                                  </Col>
+                                  <Col></Col>
+                                </Row>
                               </>
                               )}
 
@@ -385,16 +432,21 @@ const Register = () => {
                                 <>
                                   <Row>
                                     <Col>
-                                      <Form.Group controlId="formHospitalId" className="mb-3 text-start">
-                                        <Form.Label>Hospital ID</Form.Label>
-                                        <Form.Control
-                                          type="text"
-                                          placeholder="Enter your hospital ID"
-                                          value={hospitalId}
-                                          onChange={(e) => setHospitalId(e.target.value)}
-                                          required
-                                        />
-                                      </Form.Group>
+                                    <Form.Group controlId="formHospitalId" className="mb-3 text-start">
+                                      <Form.Label>Select Hospital</Form.Label>
+                                      <Form.Control
+                                        as="select"
+                                        value={hospitalId}
+                                        onChange={handleHospitalIdChange}
+                                        required>
+                                          <option value="">--Select an option--</option>
+                                          {hospitalsList.map((option) => (
+                                            <option key={option._id} value={option._id}>
+                                              {option.name}
+                                            </option>
+                                          ))}
+                                      </Form.Control>
+                                    </Form.Group>
                                     </Col>
                                     <Col></Col>
                                   </Row>
@@ -402,7 +454,7 @@ const Register = () => {
                               )}
 
                               <Button variant="primary" type="submit" disabled={loading}>
-                                {loading ? 'Signing In...' : 'Sign In'}
+                                {loading ? 'Please wait..' : 'Register'}
                               </Button>
                             </Form>
             
