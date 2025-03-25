@@ -40,12 +40,12 @@ const BookAppointment = () => {
 
             // Get logged-in user's patient_id (Assuming stored in localStorage after login)
             const userData = JSON.parse(localStorage.getItem('user'));
-            //const patientId = localStorage.getItem("userData.id"); 
+            
 
             
 
             const appointmentData = {
-                //patient_id: userData.id,//
+                patient_id: userData.id,
                 //doctor_id: doctor._id,
                 //hospital_id: hospitalId,
                 appointment_date: new Date(`${date} ${startTime}`),
