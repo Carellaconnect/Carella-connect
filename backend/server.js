@@ -73,6 +73,14 @@ const DoctorsApprovalRrequests = mongoose.model ('DoctorsApprovalRrequest', {
     "updated_at": Date
 });
 
+const HospitalsList = mongoose.model ('Hospitals', {
+    "id": String,
+    "name": String,
+    "address": String,
+    "contact_number": String,
+    "email": String
+});
+
 
 const Doctors = mongoose.model ('Doctor', {
     "doctor_id": { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -171,7 +179,8 @@ app.post('/register',
             "insurance_id": req.body.insuranceId,  
             "insurance_provider": req.body.insuranceProvider,
             "hospital_id": req.body.hospitalId,
-            "doctor_identification_id": req.body.doctorId
+            "doctor_identification_id": req.body.doctorId,
+            "license_number": req.body.licenseNumber
             });
 
             await newUser.save().then(() => {
@@ -443,6 +452,23 @@ app.put('/api/emergency-requests/:id', async (req, res) => {
         console.error("Error updating emergency request:", error);
         return res.status(500).json({ success: false, message: "Server error while updating the emergency request." });
     }
+});
+
+app.get('/api/hospital-data', async (req, res) => {
+
+    try {
+        
+        const hospitalsList = await HospitalsList.find().exec();
+    
+        if (!hospitalsList || hospitalsList.length === 0) {
+          return res.status(404).json({ message: "No hospitals found." });
+        }
+    
+        res.json(hospitalsList);
+      } catch (error) {
+        console.error("Error fetching list of hospitals:", error);
+        res.status(500).json({ error: "Server error while fetching hospitals list." });
+      }
 });
 
 // Start the server
