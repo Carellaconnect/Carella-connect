@@ -453,7 +453,7 @@ const Register = () => {
                                 </>
                               )}
 
-                              <Button variant="primary" type="submit" disabled={loading}>
+                              <Button variant="primary" type="submit" disabled={loading} style={{ backgroundColor: "#F4A5AE", border: "0px", color: "black" }}>
                                 {loading ? 'Please wait..' : 'Register'}
                               </Button>
                             </Form>
