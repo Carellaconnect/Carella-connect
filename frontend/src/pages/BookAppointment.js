@@ -45,7 +45,7 @@ const BookAppointment = () => {
             
 
             const appointmentData = {
-                patient_id: userData.id,
+                //patient_id: userData.id,//
                 //doctor_id: doctor._id,
                 //hospital_id: hospitalId,
                 appointment_date: new Date(`${date} ${startTime}`),
