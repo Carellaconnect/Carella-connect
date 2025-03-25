@@ -9,7 +9,7 @@ const session = require('express-session');
 const app = express();
 const router = express.Router(); // Define router
 
-app.use(cors());
+//app.use(cors());
 app.use(express.json());  // Middleware to parse JSON
 
 
@@ -464,7 +464,7 @@ app.post('/appointments', async (req, res) => {
         console.log("Received appointment data:", req.body); // Log what the server receives
 
         //const { patient_id, doctor_id, hospital_id, appointment_date, status, reason } = req.body;
-        const { appointment_date, status, reason } = req.body;
+        const { patient_id, appointment_date, status, reason } = req.body;
 
         /* Validate required fields
         if (!patient_id || !doctor_id || !hospital_id || !appointment_date || !status || !reason) {
@@ -472,13 +472,13 @@ app.post('/appointments', async (req, res) => {
         }*/
 
         // Validate required fields
-        if ( !appointment_date || !status || !reason) {
+        if ( !patient_id || !appointment_date || !status || !reason) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
         // Create new appointment- Save appointment to database
         const newAppointment = new AppointmentDetails({
-            //patient_id,
+            patient_id,
             //doctor_id,
             //hospital_id,
             appointment_date,

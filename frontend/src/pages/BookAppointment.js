@@ -17,8 +17,7 @@ const BookAppointment = () => {
     const { doctorId, doctorName, specialty, languages, hospitalId, hospital, address, date, startTime, endTime } = location.state || {};
 
 
-    // Get logged-in user's patient_id (Assuming stored in localStorage after login)
-    const patientId = localStorage.getItem("user._id"); 
+
 
     // State to store reason input
     const [reason, setReason] = useState("");
@@ -29,6 +28,7 @@ const BookAppointment = () => {
         }
     }, [location, navigate]);
 
+
     /*if (!date || !startTime || !endTime) {
         return <p>No appointment selected. Please go back and select a time slot.</p>;
     }*/
@@ -37,9 +37,16 @@ const BookAppointment = () => {
     // Function to handle appointment confirmation
     const handleConfirmAppointment = async () => {
         try {
+
+            // Get logged-in user's patient_id (Assuming stored in localStorage after login)
+            const userData = JSON.parse(localStorage.getItem('user'));
+            //const patientId = localStorage.getItem("userData.id"); 
+
+            
+
             const appointmentData = {
-                //patient_id: patientId,
-                //doctor_id: doctorId,
+                patient_id: userData.id,
+                //doctor_id: doctor._id,
                 //hospital_id: hospitalId,
                 appointment_date: new Date(`${date} ${startTime}`),
                 status: "Scheduled",
@@ -58,7 +65,7 @@ const BookAppointment = () => {
                 navigate("/patient-dashboard"); // Redirect to patient dashboard
             }
         } catch (error) {
-            console.error("Error booking appointment:",  error.response ? error.response.data : error.message);
+            console.error("Error booking appointment:", error.response ? error.response.data : error.message);
             alert("Failed to book appointment. Please try again.");
         }
     };
@@ -92,8 +99,8 @@ const BookAppointment = () => {
                 {/* Reason Input */}
                 <Form.Group controlId="reason" className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px" }}>
                     <Form.Label className="d-block text-center"><strong>Reason:</strong></Form.Label>
-                    <Form.Control  className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px", marginRight: "10px", padding: "10px"}} value={reason}
-                        onChange={(e) => setReason(e.target.value)} placeholder="Enter the reason for your appointment..." required/>
+                    <Form.Control className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px", marginRight: "10px", padding: "10px" }} value={reason}
+                        onChange={(e) => setReason(e.target.value)} placeholder="Enter the reason for your appointment..." required />
                 </Form.Group>
                 <button className="rounded-pill px-4"
                     style={{ backgroundColor: "#00FF00", border: "none" }} onClick={handleConfirmAppointment}>Confirm Appointment</button>
