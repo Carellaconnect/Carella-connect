@@ -1,11 +1,19 @@
-
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 // import { Link } from 'react-router-dom';
 import { Navbar, Nav} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const Navigation = () => {
+
+  const [userName, setUserName] = useState('');
+
+    useEffect(() => {
+        // Retrieve user details from localStorage
+        const userData = JSON.parse(localStorage.getItem('user'));
+        if (userData && userData.name) {
+            setUserName(userData.name);
+        }
+    }, []);
 
     return (
         <>
@@ -16,6 +24,11 @@ const Navigation = () => {
             </Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse className="justify-content-end">
+            {userName && (
+                        <Nav className="ms-auto">
+                            <span className="me-3 fw-bold">Welcome, {userName}!</span>
+                        </Nav>
+                    )}
             </Navbar.Collapse>
     </Navbar>
     </>

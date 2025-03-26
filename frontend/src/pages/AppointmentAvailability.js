@@ -1,112 +1,154 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import Navigation from './Navigation';
 import { Navbar, Nav, Button, Container, Row, Col, Card, Form } from "react-bootstrap";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-
-const doctors = [
-    {
-      name: "Dr. John Doe",
-      specialty: "Dentist",
-      address: "50 University Ave East, N2J 2V8, Waterloo",
-      nextAppointment: "17-03-2025"
-    },
-    {
-      name: "Dr. Michael Brown",
-      specialty: "Dentist",
-      address: "108 University Avenue East, N2J 2V8, Waterloo",
-      nextAppointment: "18-03-2025"
-    }
-  ];
+import { FaBell } from "react-icons/fa";
+import axios from 'axios';
 
 const AppointmentAvailability = () => {
-    return (
-        <>
-        {/* Navbar */}
-              <Navbar expand="lg" className="px-4 py-3 m-0" style={{ backgroundColor: "#F7D9E1" }}>
-                <Navbar.Brand href="#">
-                  <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
-                  <strong style={{fontSize:"30px"}}>Carella Connect</strong> <span style={{fontSize:"12px"}}>Bridging the Gap in Healthcare!</span>
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                <Navbar.Collapse className="justify-content-end">
-                </Navbar.Collapse>
-              </Navbar>
+  const location = useLocation();
+  const navigate = useNavigate();
 
-              {/* Hero Section */}
-                    <Container fluid className="hero-section d-flex align-items-center" style={{ height: "35vh", paddingTop: "0px", paddingBottom: "0px", margin: "0" }}>
-                      <Row className="align-items-center w-100">
-                        {/* Left Text */}
-                        <Col md={6} className="text-start ps-5">
-                          <h2>Book your next medical and health care appointment</h2>
-                          <p>in a few clicks!</p>
-                        </Col>
-                        {/* Right Image */}
-                        <Col md={6} className="p-0 text-end pe-5">
-                          <img 
-                            src="/images/apptbooking_image.png" 
-                            alt="Patient Right" 
-                            className="img-fluid w-75 hero-img"
-                          />
-                        </Col>
-                      </Row>
-                    </Container> 
-              
-                  {/* Search Section */}
-                  <Container fluid className="mt-4" style={{ backgroundColor: "#F7D9E1", paddingTop: "0px"  }}>
-                      <Row className="justify-content-center">
-                        <Col md={8} className="d-flex gap-2 p-3 rounded" style={{ backgroundColor: "#F7D9E1"}}>
-              
-                        <Form.Select placeholder="Dentist" className="rounded-pill px-3" >
-                            <option>Dentist</option>
-                            <option>Dermatologist</option>
-                        </Form.Select>
-              
-                          <Form.Control type="text" placeholder="Waterloo" className="rounded-pill px-3" />
-              
-                          <Form.Select className="rounded-pill px-3" placeholder="English">
-                            <option>English</option>
-                            <option>French</option>
+  const searchParams = new URLSearchParams(location.search);
+  const initialSpecialty = searchParams.get("specialty") || "";
+  const initialLanguage = searchParams.get("language") || "";
+
+  const [specialty, setSpecialty] = useState(initialSpecialty);
+  const [language, setLanguage] = useState(initialLanguage);
+  const [doctors, setDoctors] = useState([]);
+  const [selectedSlots, setSelectedSlots] = useState({}); // Stores selected slot per doctor
+
+  useEffect(() => {
+    if (specialty && language) {
+      fetchDoctors();
+    }
+  }, [specialty, language]);
+
+  const fetchDoctors = async () => {
+    try {
+      const response = await axios.get(`/filtered-doctors?specialty=${specialty}&language=${language}`);
+      setDoctors(response.data);
+    } catch (error) {
+      console.error("Error fetching doctors:", error);
+    }
+  };
+
+  // Handle dropdown selection
+  const handleSlotSelection = (doctorId, slotValue) => {
+    setSelectedSlots(prev => ({
+      ...prev,
+      [doctorId]: slotValue,
+    }));
+  };
+
+  const handleBookAppointment = (doctor) => {
+    if (!selectedSlots[doctor._id]) {
+      alert("Please select a time slot before booking.");
+      return;
+    }
+  
+    // Extract selected slot details
+    const [date, startTime, endTime] = selectedSlots[doctor._id].split("|");
+  
+    // Navigate to the booking page with all details
+    navigate("/book-appointment", {
+      state: {
+        doctorId: doctor._id,
+        doctorName: doctor.doctor_name,
+        specialty: doctor.speciality,
+        languages: doctor.languages.join(", "),
+        hospital: doctor.hospital_name,
+        address: doctor.hospital_address,
+        date,
+        startTime,
+        endTime,
+      },
+    });
+  };
+
+  return (
+    <>
+      <Navigation />
+      <Nav className="ms-auto">
+        <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <Nav.Link href="/Home" className='text-dark'>Log Out</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <FaBell size={20} className="mt-2" style={{ color: "#A8577E", marginLeft: "1050px" }} />
+      </Nav>
+
+      <Container className="mt-4">
+        <h4>
+          {specialty && language ? `Find a ${specialty} speaking ${language}` : "Find a Doctor"}
+        </h4>
+        <Row>
+          {doctors.length > 0 ? (
+            doctors.map((doctor) => (
+              <Col md={12} key={doctor._id} className="mb-3">
+                <Card className="shadow-sm p-3">
+                  <Card.Body>
+                    <Row>
+                      {/* Left Section */}
+                      <Col md={6}>
+                        <p><strong>Doctor:</strong> {doctor.doctor_name}</p>
+                        <p><strong>Specialty:</strong> {doctor.speciality}</p>
+                        <p><strong>Languages:</strong> {doctor.languages.join(", ")}</p>
+                        <p><strong>Hospital:</strong> {doctor.hospital_name || "N/A"}</p>
+                        <p><strong>Address:</strong> {doctor.hospital_address || "N/A"}</p>
+                      </Col>
+
+                      {/* Middle Section */}
+                      <Col md={4}>
+                        <p><strong>Availability:</strong></p>
+                        {doctor.availability.length > 0 ? (
+                          <Form.Select
+                            onChange={(e) => handleSlotSelection(doctor._id, e.target.value)}
+                            value={selectedSlots[doctor._id] || ""}
+                          >
+                            <option value="">Select a Date & Time</option>
+                            {doctor.availability.map((avail) =>
+                              avail.time_slots.map((slot, i) => (
+                                <option
+                                  key={`${avail.date}-${i}`}
+                                  value={`${avail.date}|${slot.start_time}|${slot.end_time}`}
+                                >
+                                  {avail.date} | {slot.start_time} - {slot.end_time}
+                                </option>
+                              ))
+                            )}
                           </Form.Select>
-                          <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }}>FIND</Button>
-                        </Col>
-                      </Row>
-                    </Container>
+                        ) : (
+                          <p>No available slots</p>
+                        )}
+                      </Col>
 
-                    <Container className="mt-4">
-                        <h4>Find a Dentist speaking English in Waterloo</h4>
-                        <Row>
-                            {doctors.map((doctor, index) => (
-                            <Col md={12} key={index} className="mb-3">
-                            <Card className="shadow-sm p-3">
-                            <Card.Body>
-                            <Row>
-                            <Col md={8}>
-                            <h5>
-                            <Link to="#" className="text-decoration-none text-primary">
-                            {doctor.name}
-                            </Link>
-                            </h5>
-                            <p className="text-muted">{doctor.specialty}</p>
-                            <p>{doctor.address}</p>
-                            </Col>
-                            <Col md={4} className="text-end">
-                            <p className="text-muted">Next appointment on:</p>
-                            <Link to="#" className="text-decoration-none text-primary">
-                      {doctor.nextAppointment}
-                        </Link>
-                        </Col>
-                        </Row>
-                    </Card.Body>
-                    </Card>
-                    </Col>
-                    ))}
+                      {/* Right Section */}
+                      <Col md={2} className="text-end">
+                        <Button
+                          className="rounded-pill px-4"
+                          style={{ backgroundColor: "#A8577E", border: "none" }}
+                          onClick={() => handleBookAppointment(doctor)}
+                          disabled={!selectedSlots[doctor._id]}
+                        >
+                          Book Appointment
+                        </Button>
+                      </Col>
                     </Row>
-                    </Container>
-        
-        </>
-    );
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))
+          ) : (
+            <p>No doctors found for the selected criteria.</p>
+          )}
+        </Row>
+      </Container>
+    </>
+  );
 };
 
 export default AppointmentAvailability;
