@@ -83,14 +83,6 @@ const DoctorsApprovalRrequests = mongoose.model('DoctorsApprovalRrequest', {
     "updated_at": Date
 });
 
-const HospitalsList = mongoose.model ('Hospitals', {
-    "id": String,
-    "name": String,
-    "address": String,
-    "contact_number": String,
-    "email": String
-});
-
 
 //Appointment Details Collection
 const AppointmentDetailsSchema = new mongoose.Schema({
