@@ -10,7 +10,6 @@ import Doctor from "./pages/Doctor";
 import Patient from "./pages/Patient";
 import Register from "./pages/Register";
 import AppointmentAvailability from "./pages/AppointmentAvailability";
-import UpdateAppointment from "./pages/UpdateAppointment";
 import BookAppointment from "./pages/BookAppointment";
 import VirtualHealthResources from "./pages/VirtualHealthResources";
 
@@ -37,7 +36,6 @@ function App() {
         <Route path="/doctor-dashboard" element={<Doctor />} />
         <Route path="/patient-dashboard" element={<Patient />} />
         <Route path="/appointment-availability" element={<AppointmentAvailability />} />
-        <Route path="/update-appointment" element={<UpdateAppointment />} />
         <Route path="/book-appointment" element={<BookAppointment />} />
         <Route path="/virtual-health-resources" element={<VirtualHealthResources/>}  />
         </Routes>

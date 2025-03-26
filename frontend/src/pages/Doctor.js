@@ -8,6 +8,13 @@ import { Container, Nav, Row, Col, Card, Button, Form } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const Doctor = () => {
+
+  //Logout fucntionality
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Remove user data from localStorage
+    window.location.href = "/login"; // Redirect to login page
+  };
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   return <>
   <Navigation />
@@ -18,7 +25,7 @@ const Doctor = () => {
         <span style={{border:"1px solid #a6a6a6"}}></span>
         <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
         <span style={{border:"1px solid #a6a6a6"}}></span>
-        <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
+        <Nav.Link href="/Home" className='text-dark' onClick={handleLogout} >Log Out</Nav.Link>
         <span style={{border:"1px solid #a6a6a6"}}></span>
         <FaBell size={20} className="mt-2" style={{color:"#A8577E", marginLeft:"1050px"}} />
       </Nav>

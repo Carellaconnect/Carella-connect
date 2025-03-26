@@ -3,7 +3,7 @@ import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from './Navigation';
 import { Table, Button } from 'react-bootstrap';
-import {Nav,  Form, Card, Modal } from "react-bootstrap";
+import { Nav, Form, Card, Modal } from "react-bootstrap";
 import { FaStar, FaSearch, FaBell } from "react-icons/fa";
 
 const AdminDashboard = () => {
@@ -14,6 +14,11 @@ const AdminDashboard = () => {
   const [selectedEmergency, setSelectedEmergency] = useState(null);
   const [newStatus, setNewStatus] = useState("");
 
+  //Logout functionality
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Remove user data from localStorage
+    window.location.href = "/login"; // Redirect to login page
+  };
 
   useEffect(() => {
     fetch("http://localhost:5000/doctors-approval-requests")
@@ -25,13 +30,13 @@ const AdminDashboard = () => {
         console.error("Error fetching approval requests:", error)
       );
   }, []);
-   // Fetch Emergency Requests
-   useEffect(() => {
+  // Fetch Emergency Requests
+  useEffect(() => {
     fetch("http://localhost:5000/api/emergency-requests")
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
-          setEmergencyRequests(data.data); 
+          setEmergencyRequests(data.data);
         } else {
           console.error("Failed to fetch emergency requests");
         }
@@ -44,7 +49,7 @@ const AdminDashboard = () => {
     fetch(`http://localhost:5000/update-doctor-approval/${requestId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "Approved" }),  
+      body: JSON.stringify({ status: "Approved" }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -67,7 +72,7 @@ const AdminDashboard = () => {
     fetch(`http://localhost:5000/update-doctor-approval/${requestId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "Rejected" }),  
+      body: JSON.stringify({ status: "Rejected" }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -119,80 +124,80 @@ const AdminDashboard = () => {
 
   return (
     <>
-  
-      
+
+
       <Navigation />
-        <Nav className="ms-auto">
-         
-          <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          
-  
-          
-        </Nav>
+      <Nav className="ms-auto">
 
-         {/* Show notification if message is set */}
-    {notification.message && (
-      <div className={`alert alert-${notification.type}`} role="alert">
-        {notification.message}
-      </div>
-    )}
-    
-                <h3 className="text-center mb-4">Admin Dashboard</h3>
-                <p className="text-center mb-4">Welcome to Admin Page</p>
+        <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <Nav.Link href="/Home" className='text-dark' onClick={handleLogout} >Log Out</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
 
-                <h5 className="mb-4">Doctor Registration Approval Requests</h5>
 
-                <Table bordered hover responsive>
-                  <thead className="thead-dark">
-                    <tr>
-                      <th>Doctor Name</th>
-                      <th>Doctor Email</th>
-                      <th>Doctore ID</th>
-                      
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {approvalRequests.map((request) => (
-                      <tr key={request._id}>
-                        <td>{request.doctor_id ? request.doctor_id.name : "Loading..."}</td>
-                        <td>{request.doctor_id ? request.doctor_id.email : "Loading..."}</td>
-                        
-                        <td>{request.approval_status}</td>
-                        <td>
-                          {request.approval_status === "Pending" && (
-                            <div>
-                              <Button
-                                variant="success"
-                                size="sm"
-                                className="mr-2"
-                                onClick={() => handleApprove(request._id)}
-                              >
-                                Approve
-                              </Button>
-                              <Button
-                                variant="danger"
-                                size="sm"
-                                onClick={() => handleReject(request._id)}
-                              >
-                                Reject
-                              </Button>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
 
-                {/* Emergency Requests */}
+      </Nav>
+
+      {/* Show notification if message is set */}
+      {notification.message && (
+        <div className={`alert alert-${notification.type}`} role="alert">
+          {notification.message}
+        </div>
+      )}
+
+      <h3 className="text-center mb-4">Admin Dashboard</h3>
+      <p className="text-center mb-4">Welcome to Admin Page</p>
+
+      <h5 className="mb-4">Doctor Registration Approval Requests</h5>
+
+      <Table bordered hover responsive>
+        <thead className="thead-dark">
+          <tr>
+            <th>Doctor Name</th>
+            <th>Doctor Email</th>
+            <th>Doctore ID</th>
+
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {approvalRequests.map((request) => (
+            <tr key={request._id}>
+              <td>{request.doctor_id ? request.doctor_id.name : "Loading..."}</td>
+              <td>{request.doctor_id ? request.doctor_id.email : "Loading..."}</td>
+
+              <td>{request.approval_status}</td>
+              <td>
+                {request.approval_status === "Pending" && (
+                  <div>
+                    <Button
+                      variant="success"
+                      size="sm"
+                      className="mr-2"
+                      onClick={() => handleApprove(request._id)}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleReject(request._id)}
+                    >
+                      Reject
+                    </Button>
+                  </div>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+
+      {/* Emergency Requests */}
       <h5 className="mb-4">Emergency Requests</h5>
       <Table bordered hover responsive>
         <thead className="thead-dark">
@@ -232,8 +237,8 @@ const AdminDashboard = () => {
           ))}
         </tbody>
       </Table>
-  {/* Modal for Updating Emergency Status */}
-  <Modal show={showModal} onHide={() => setShowModal(false)}>
+      {/* Modal for Updating Emergency Status */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Update Emergency Status</Modal.Title>
         </Modal.Header>
