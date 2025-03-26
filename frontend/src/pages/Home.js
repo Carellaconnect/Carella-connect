@@ -1,8 +1,6 @@
-// src/Home.js
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar, Nav, Button, Container, Row, Col, Card } from "react-bootstrap";
+import { Navbar, Nav, Button, Container, Row, Col, Card, Modal, Form, Alert } from "react-bootstrap";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -10,100 +8,221 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 const services = [
-  {
-    name: "Online Appointments",
-    description: "Easily search for doctors and hospitals and schedule appointments in just a few clicks.",
-    img: "/images/online.jpg"
-  },
-  {
-    name: "Virtual Consultations",
-    description: "Connect with healthcare professionals through secure online video consultations.",
-    img: "/images/virtual.jpg"
-  },
-  {
-    name: "Medical Records Access",
-    description: "View and manage your medical history with secure, read-only access.",
-    img: "/images/medical.jpg"
-  },
-  {
-    name: "Prescription Management",
-    description: "Order medicines online and receive reminders for prescriptions and refills.",
-    img: "/images/medication.jpg"
-  },
-  {
-    name: "Emergency Assistance",
-    description: "Quickly contact emergency services or locate the nearest hospital when needed.",
-    img: "/images/emergency.jpg"
-  },
-  {
-    name: "Health Education & Resources",
-    description: "Access expert-reviewed articles, videos, and wellness tips for a healthier life.",
-    img: "/images/education.jpg"
-  }
+  { name: "Online Appointments", description: "Easily search for doctors and hospitals and schedule appointments in just a few clicks.", img: "/images/online.jpg" },
+  { name: "Virtual Consultations", description: "Connect with healthcare professionals through secure online video consultations.", img: "/images/virtual.jpg" },
+  { name: "Medical Records Access", description: "View and manage your medical history with secure, read-only access.", img: "/images/medical.jpg" },
+  { name: "Prescription Management", description: "Order medicines online and receive reminders for prescriptions and refills.", img: "/images/medication.jpg" },
+  { name: "Emergency Assistance", description: "Quickly contact emergency services or locate the nearest hospital when needed.", img: "/images/emergency.jpg" },
+  { name: "Health Education & Resources", description: "Access expert-reviewed articles, videos, and wellness tips for a healthier life.", img: "/images/education.jpg" }
 ];
 
-const Home = () => {
+const Home = ({ user }) => {
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+  const [emergencyDetails, setEmergencyDetails] = useState({
+    name: '',
+    emergencyType: '',
+    location: '',
+    details: '',
+    urgency: '',
+    phoneNumber: ''
+  });
+  const [responseMessage, setResponseMessage] = useState(""); // State for response message
+  const [formSubmitted, setFormSubmitted] = useState(false); // State to track form submission
+
+  useEffect(() => {
+    if (user && user.phoneNumber) {
+      setEmergencyDetails((prev) => ({ ...prev, phoneNumber: user.phoneNumber }));
+    }
+  }, [user]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setEmergencyDetails({ ...emergencyDetails, [name]: value });
+  };
+
+  const handleEmergencySubmit = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/emergency', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...emergencyDetails,
+          userId: user ? user._id : null
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setResponseMessage(data.message); // Set the response message
+        setFormSubmitted(true); // Mark form as submitted
+      } else {
+        setResponseMessage("Error: " + data.message);
+        setFormSubmitted(true);
+      }
+    } catch (error) {
+      console.error("Error submitting emergency request:", error);
+      setResponseMessage("Failed to submit request.");
+      setFormSubmitted(true);
+    }
+  };
+
   return (
     <>
       {/* Navbar */}
-      <Navbar expand="lg" className="px-4 py-3 m-0" style={{ backgroundColor: "#F7D9E1" }}>
+      <Navbar expand="lg" className="px-4 py-3" style={{ backgroundColor: "#F7D9E1" }}>
         <Navbar.Brand href="#">
           <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
-          <strong style={{fontSize:"30px"}}>Carella Connect</strong> <span style={{fontSize:"12px"}}>Bridging the Gap in Healthcare!</span>
+          <strong style={{ fontSize: "30px" }}>Carella Connect</strong> <span style={{ fontSize: "12px" }}>Bridging the Gap in Healthcare!</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end">
           <Nav>
             <Link to="/register">
-              <Button style={{backgroundColor:"#F4A5AE", border:"0px",color:"black"}} className="me-2">SignUp</Button>
+              <Button style={{ backgroundColor: "#F4A5AE", border: "0px", color: "black" }} className="me-2">SignUp</Button>
             </Link>
             <Link to="/login">
-              <Button style={{backgroundColor:"#A8577E", border:"0px"}}>Login</Button>
+              <Button style={{ backgroundColor: "#A8577E", border: "0px" }}>Login</Button>
             </Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
 
       {/* Hero Section */}
-      <Container fluid className="hero-section" style={{ height: "55vh", objectFit: "cover" }} >
-      <Row className="align-items-center">
-        {/* Left Image */}
-        <Col md={4} className="p-0">
-          <img 
-            src="/images/drhand.png" 
-            alt="Doctor Left" 
-            className="img-fluid w-100 hero-img"
-          />
-        </Col>
+      <Container fluid className="hero-section" style={{ height: "55vh", objectFit: "cover" }}>
+        <Row className="align-items-center">
+          <Col md={4} className="p-0">
+            <img src="/images/drhand.png" alt="Doctor Left" className="img-fluid w-100 hero-img" />
+          </Col>
+          <Col md={4} className="text-center py-5">
+            <h2>Carella Connect – Bridging the Gap in Healthcare!</h2>
+            <p>Bringing quality healthcare closer to you. Find doctors, access medical records, and receive medication alerts.</p>
+            <Link to="/login">
+              <Button style={{ backgroundColor: "#A8577E", border: "none", padding: "10px 20px", fontSize: "1.2rem" }}>
+                Book Now
+              </Button>
+            </Link>
+          </Col>
+          <Col md={4} className="p-0">
+            <img src="/images/pthand.png" alt="Patient Right" className="img-fluid w-100 hero-img" />
+          </Col>
+        </Row>
+      </Container>
+      {/* Emergency Request Button */}
+      <Container className="text-center my-5">
+        <Button onClick={() => setShowEmergencyModal(true)} style={{ backgroundColor: "#A8577E", border: "0px", padding: "12px 24px", fontSize: "1.2rem" }}>
+          Request Emergency Help
+        </Button>
+      </Container>
 
-        {/* Center Text */}
-        <Col md={4} className="text-center py-5">
-          <h2>Carella Connect – Bridging the Gap in Healthcare!</h2>
-          <p>
-            Bringing quality healthcare closer to you.  
-            Find doctors, access medical records, and receive medication alerts.
-          </p>
-          <Link to="/login">
-            <Button style={{ backgroundColor: "#A8577E", border: "none", padding: "10px 20px", fontSize: "1.2rem" }}>
-              Book Now
-            </Button>
-          </Link>
-        </Col>
+      {/* Emergency Request Modal */}
+      <Modal show={showEmergencyModal} onHide={() => setShowEmergencyModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>🚨 Emergency Request</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {formSubmitted ? (
+            <div>
+              {/* Response Message */}
+              <Alert variant="info" className="text-center">
+                {responseMessage}
+              </Alert>
+              <Button variant="primary" onClick={() => setShowEmergencyModal(false)}>
+                Close
+              </Button>
+            </div>
+          ) : (
+            <Form onSubmit={(e) => { e.preventDefault(); handleEmergencySubmit(); }}>
+              {!user && ( // Show the Name field only if the user is NOT logged in
+                <Form.Group controlId="name">
+                  <Form.Label>Your Name *</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="name"
+                    placeholder="Enter your name"
+                    value={emergencyDetails.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </Form.Group>
+              )}
 
-        {/* Right Image */}
-        <Col md={4} className="p-0">
-          <img 
-            src="/images/pthand.png" 
-            alt="Patient Right" 
-            className="img-fluid w-100 hero-img"
-          />
-        </Col>
-      </Row>
-    </Container>
+              <Form.Group controlId="emergencyType">
+                <Form.Label>Emergency Type *</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="emergencyType"
+                  value={emergencyDetails.emergencyType}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="" disabled>Select Emergency Type</option>
+                  <option value="Medical">🚑 Medical</option>
+                  <option value="Fire">🔥 Fire</option>
+                  <option value="Safety">🔒 Safety</option>
+                </Form.Control>
+              </Form.Group>
 
-      {/* Services */}
+              <Form.Group controlId="location">
+                <Form.Label>Location/Room *</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="location"
+                  placeholder="e.g., Room 305, Lobby"
+                  value={emergencyDetails.location}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+
+              <Form.Group controlId="details">
+                <Form.Label>Additional Details</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  name="details"
+                  rows={3}
+                  placeholder="Describe the situation..."
+                  value={emergencyDetails.details}
+                  onChange={handleChange}
+                />
+              </Form.Group>
+
+              <Form.Group controlId="urgency">
+                <Form.Label>Urgency Level *</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="urgency"
+                  value={emergencyDetails.urgency}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select Urgency Level</option>
+                  <option value="High">🔴 High</option>
+                  <option value="Medium">🟠 Medium</option>
+                  <option value="Low">🟢 Low</option>
+                </Form.Control>
+              </Form.Group>
+
+              <Form.Group controlId="phoneNumber">
+                <Form.Label>Callback Phone Number *</Form.Label>
+                <Form.Control
+                  type="tel"
+                  name="phoneNumber"
+                  placeholder="Enter your phone number"
+                  value={emergencyDetails.phoneNumber}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+
+              <Button variant="primary" type="submit">Submit Request</Button>
+            </Form>
+          )}
+        </Modal.Body>
+      </Modal>
+
+     {/* Services */}
       
-      <Container className="my-5 text-center p-5 pt-3 pb-3" style={{ borderRadius: "15px", boxShadow: "2px 2px 5px 3px #bcbcbc" }}>
+     <Container className="my-5 text-center p-5 pt-3 pb-3" style={{ borderRadius: "15px", boxShadow: "2px 2px 5px 3px #bcbcbc" }}>
       <h3 className='mt-0 pt-0 pb-3'>Services</h3>
       <Swiper
         modules={[Navigation, Pagination]}

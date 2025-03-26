@@ -9,9 +9,6 @@ import axios from "axios";
 const Patient = () => {
   const navigate = useNavigate(); // Initialize useNavigate
 
- /* const handleFindClick = () => {
-    navigate('/appointment-availability'); // Redirect to Appointment Availability page
-  };*/
 
   // State for dropdown selections
   const [specialty, setSpecialty] = useState('');
@@ -83,6 +80,8 @@ const Patient = () => {
           <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
           <span style={{border:"1px solid #a6a6a6"}}></span>
           <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
+          <span style={{border:"1px solid #a6a6a6"}}></span>
+          <Nav.Link href="/virtual-health-resources" className='text-dark'>Virtual Health Resources</Nav.Link>
           <span style={{border:"1px solid #a6a6a6"}}></span>
           <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
           <span style={{border:"1px solid #a6a6a6"}}></span>

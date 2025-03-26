@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar, Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-//import Navigation from './Navigation';
 import axios from 'axios';
 
 const Login = () => {

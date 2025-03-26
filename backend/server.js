@@ -6,6 +6,12 @@ const jwt = require("jsonwebtoken");
 require('dotenv').config();
 const { check, validationResult } = require('express-validator');
 const session = require('express-session');
+const nodemailer = require("nodemailer");
+const sendEmail = require("./emailService");
+const twilio = require('twilio');
+require('dotenv').config();
+const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 const app = express();
 const router = express.Router(); // Define router
 
@@ -15,18 +21,21 @@ app.use(express.json());  // Middleware to parse JSON
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:3000', // Make sure to match the React app's URL
+    origin: 'http://localhost:3000', 
     methods: ['GET', 'POST', 'PUT'],
-    credentials: true // Allow cookies (if using them)
+    credentials: true 
 }));
 app.use(express.json());
-app.use(session({
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: true
-}));
+// app.use(session({
+//     secret: 'secret',
+//     resave: false,
+//     saveUninitialized: true
+// }));
 
 // Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('Failed to connect to MongoDB:', err));
 mongoose.connect('mongodb+srv://carellaconnect:CarellaConnect@carellaconnect.h50ep.mongodb.net/Carella_Connect')
     .then(() => console.log('Connected to MongoDB'))
     .catch((err) => console.error('Failed to connect to MongoDB:', err));
@@ -98,6 +107,14 @@ const DoctorsApprovalRrequests = mongoose.model('DoctorsApprovalRrequest', {
     "updated_at": Date
 });
 
+const HospitalsList = mongoose.model ('Hospitals', {
+    "id": String,
+    "name": String,
+    "address": String,
+    "contact_number": String,
+    "email": String
+});
+
 
 //Appointment Details Collection
 const AppointmentDetailsSchema = new mongoose.Schema({
@@ -154,6 +171,22 @@ const DoctorProfileSchema = new mongoose.Schema({
 const DoctorProfile = mongoose.model("DoctorProfile", DoctorProfileSchema);
 module.exports = DoctorProfile;
 
+const EmergencyRequest = mongoose.model('EmergencyRequest', {
+    name: String,
+    emergencyType: String,
+    location: String,
+    details: String,
+    urgency: String,
+    phoneNumber: String,
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, 
+    status: {
+        type: String,
+        enum: ['Pending', 'In Progress', 'Resolved'],
+        default: 'Pending',
+      },
+    createdAt: { type: Date, default: Date.now }
+});
+
 
 var phoneregex = /^\(?(\d{3})\)?[\.\-\/\s]?(\d{3})[\.\-\/\s]?(\d{4})$/;
 
@@ -193,31 +226,32 @@ app.post('/register',
             let status = 'Active';
             user = await User.findOne({ email });
 
-            if (user == null) {
-                if (req.body.role.toLowerCase() == 'doctor' || req.body.role.toLowerCase() == 'admin') {
-                    status = 'Pending';
-                }
-                const newUser = new User({
-                    "name": req.body.fname + ' ' + req.body.lname,
-                    "email": req.body.email,
-                    "password": req.body.password,
-                    "role": req.body.role,
-                    "profile_picture": req.body.profile_pic,
-                    "phone": req.body.phone,
-                    "address": req.body.address,
-                    "city": req.body.city,
-                    "postcode": req.body.postcode,
-                    "province": req.body.province,
-                    "date_of_birth": req.body.dob,
-                    "gender": req.body.gender,
-                    "created_at": new Date(),
-                    "updated_at": new Date(),
-                    "status": status,
-                    "insurance_id": req.body.insuranceId,
-                    "insurance_provider": req.body.insuranceProvider,
-                    "hospital_id": req.body.hospitalId,
-                    "doctor_identification_id": req.body.doctorId
-                });
+        if (user == null) {
+            if(req.body.role.toLowerCase() == 'doctor' || req.body.role.toLowerCase() == 'admin'){
+                status = 'Pending';
+            }
+            const newUser = new User({
+            "name": req.body.fname+' '+req.body.lname, 
+            "email": req.body.email,
+            "password": req.body.password,
+            "role": req.body.role,    
+            "profile_picture": req.body.profile_pic,  
+            "phone": req.body.phone,
+            "address": req.body.address,
+            "city": req.body.city,
+            "postcode": req.body.postcode,
+            "province": req.body.province,
+            "date_of_birth": req.body.dob,  
+            "gender": req.body.gender,   
+            "created_at": new Date(), 
+            "updated_at": new Date(), 
+            "status": status, 
+            "insurance_id": req.body.insuranceId,  
+            "insurance_provider": req.body.insuranceProvider,
+            "hospital_id": req.body.hospitalId,
+            "doctor_identification_id": req.body.doctorId,
+            "license_number": req.body.licenseNumber
+            });
 
                 await newUser.save().then(() => {
                     console.log('User Data saved.');
@@ -339,11 +373,11 @@ app.get("/doctors-approval-requests", async (req, res) => {
 
 
 // Route to update doctor approval status
+
 app.put('/update-doctor-approval/:id', async (req, res) => {
-    const { status } = req.body;  // 'Approved' or 'Rejected'
+    const { status } = req.body;
 
     try {
-        // Step 1: Update the doctor's approval request in the DoctorsApprovalRequests collection
         const updatedRequest = await DoctorsApprovalRrequests.findOneAndUpdate(
             { _id: req.params.id },
             { approval_status: status, approval_date: new Date() },
@@ -354,23 +388,35 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
             return res.status(404).json({ message: "Approval request not found" });
         }
 
-        // Step 2: If the doctor is approved, update the doctor's status in the User collection to 'Active'
-        if (status === 'Approved') {
-            // Find the doctor in the User collection and update their status to 'Active'
-            const doctor = await User.findOneAndUpdate(
-                { _id: updatedRequest.doctor_id },  // Assuming `doctor_id` is the user ID for the doctor
-                { status: 'Active' },  // Set the status to 'Active'
-                { new: true }  // Return the updated user document
-            );
+        let doctor = await User.findOne({ _id: updatedRequest.doctor_id });
 
-            if (!doctor) {
-                return res.status(404).json({ message: "Doctor not found in User collection" });
-            }
-
-            return res.json({ success: true, message: `Doctor approved successfully!`, updatedRequest, doctor });
-        } else if (status === 'Rejected') {
-            return res.json({ success: true, message: `Doctor rejected successfully!`, updatedRequest });
+        if (!doctor) {
+            return res.status(404).json({ message: "Doctor not found in User collection" });
         }
+
+        if (status === 'Approved') {
+            doctor = await User.findOneAndUpdate(
+                { _id: updatedRequest.doctor_id },
+                { status: 'Active' },
+                { new: true }
+            );
+        }
+
+       
+        const emailSubject = status === "Approved" ? "Doctor Approval - Accepted" : "Doctor Approval - Rejected";
+        const emailMessage = status === "Approved"
+            ? `Dear ${doctor.name},\n\nYour account has been approved! You can now access the system.\n\nBest Regards,\nCarella Connect`
+            : `Dear ${doctor.name},\n\nWe regret to inform you that your account has been rejected.\n\nBest Regards,\nCarella Connect`;
+
+        await sendEmail(doctor.email, emailSubject, emailMessage);
+
+       
+        return res.json({ 
+            success: true, 
+            message: `Doctor ${status.toLowerCase()} successfully!`, 
+            updatedRequest, 
+            doctor 
+        });
 
     } catch (error) {
         console.error("Error updating approval status:", error);
@@ -378,184 +424,124 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
     }
 });
 
+//Api for emergency request Form
 
-// Route to fetch doctors with their profile details
-app.get('/doctors', async (req, res) => {
+app.post('/api/emergency', async (req, res) => {
     try {
-        const doctors = await User.aggregate([
-            { $match: { role: 'doctor' } }, // Filter only doctors
-            {
-                $lookup: {
-                    from: 'doctorprofiles',
-                    localField: '_id',
-                    foreignField: 'doctor_id',
-                    as: 'profile'
-                }
-            },
-            { $unwind: '$profile' } // Unwind profile details
-        ]);
+        const { name, emergencyType, location, details, urgency, phoneNumber, userId } = req.body;
 
-        res.json(doctors);
+        if (!emergencyType || !location || !urgency || !phoneNumber) {
+            return res.status(400).json({ success: false, message: "Required fields are missing!" });
+        }
+
+        
+        let responseMessage = "";
+        if (urgency === "High") {
+            responseMessage = "Your request is serious! A team member will call you from (519)-6893-456 within 30 minutes.";
+        } else if (urgency === "Medium") {
+            responseMessage = "Your request has been recorded. Expect a call from (519)-6893-456 within 2 hours.";
+        } else {
+            responseMessage = "Your request has been noted. We will reach out from (519)-6893-456 within 24 hours.";
+        }
+
+        const newRequest = new EmergencyRequest({
+            name: userId ? null : name, 
+            emergencyType,
+            location,
+            details,
+            urgency,
+            phoneNumber,
+            userId: userId || null,
+        });
+
+        await newRequest.save();
+        return res.status(201).json({ success: true, message: responseMessage });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Error submitting emergency request:", error);
+        res.status(500).json({ success: false, message: "Server error while submitting request." });
     }
 });
 
-// API to fetch doctors filtered according to speciality and language for appointment booking from patient's side
-app.get('/filtered-doctors', async (req, res) => {
+// Get all emergency requests
+app.get('/api/emergency-requests', async (req, res) => {
     try {
-        const { specialty, language } = req.query;
+        const emergencyRequests = await EmergencyRequest.find().populate('userId', 'name email'); // Populate user details if available
+        res.json({ success: true, data: emergencyRequests });
+    } catch (error) {
+        console.error("Error fetching emergency requests:", error);
+        res.status(500).json({ success: false, message: "Server error while fetching emergency requests." });
+    }
+});
 
-        if (!specialty || !language) {
-            return res.status(400).json({ error: "Specialty and language are required" });
-        }
 
-        const today = new Date(); // Get current date and time
+app.put('/api/emergency-requests/:id', async (req, res) => {
+    const { status } = req.body;
 
-        // Fetch doctor profiles matching specialty & language
-        const doctorProfiles = await DoctorProfile.find({
-            speciality: specialty,
-            languages: { $elemMatch: { language_name: language } }
-        }).populate({
-            path: 'doctor_id',
-            select: 'name'
-        });
+    if (!status || !['In Progress', 'Resolved'].includes(status)) {
+        return res.status(400).json({ success: false, message: "Invalid status. Valid statuses are 'In Progress' or 'Resolved'." });
+    }
 
-        // Process each doctor and fetch their hospital details
-        const enrichedDoctors = await Promise.all(
-            doctorProfiles.map(async (profile) => {
-                const hospital = await Hospital.findOne({ doctors: profile.doctor_id._id })
-                    .select('name address');
-
-                return {
-                    doctor_name: profile.doctor_id.name,
-                    speciality: profile.speciality,
-                    languages: profile.languages.map(lang => lang.language_name),
-                    hospital_name: hospital ? hospital.name : "N/A",
-                    hospital_address: hospital ? hospital.address : "N/A",
-                    availability: profile.availability
-                        .filter(avail => new Date(avail.date) >= today) // Filter past dates
-                        .map(avail => ({
-                            date: avail.date.toISOString().split('T')[0],
-                            time_slots: avail.time_slots
-                                .filter(slot => new Date(slot.start_time) > today && slot.status === "Available") // Future and available slots only
-                                .map(slot => ({
-                                    start_time: new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                    end_time: new Date(slot.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                                    status: slot.status
-                                }))
-                        }))
-                        .filter(avail => avail.time_slots.length > 0) // Remove empty availability entries
-                };
-            })
+    try {
+        
+        const updatedEmergency = await EmergencyRequest.findByIdAndUpdate(
+            req.params.id,
+            { status: status, updatedAt: new Date() },
+            { new: true }
         );
 
-        res.json(enrichedDoctors);
-    } catch (error) {
-        console.error("Error in /filtered-doctors:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
-
-
-// API to create a new appointment - after confirming the appointment on /book-appointment page
-app.post('/appointments', async (req, res) => {
-    try {
-        console.log("Received appointment data:", req.body); // Log what the server receives
-
-        //const { patient_id, doctor_id, hospital_id, appointment_date, status, reason } = req.body;
-        const { patient_id, appointment_date, status, reason } = req.body;
-
-        /* Validate required fields
-        if (!patient_id || !doctor_id || !hospital_id || !appointment_date || !status || !reason) {
-            return res.status(400).json({ success: false, message: "All fields are required" });
-        }*/
-
-        // Validate required fields
-        if ( !patient_id || !appointment_date || !status || !reason) {
-            return res.status(400).json({ success: false, message: "All fields are required" });
+        if (!updatedEmergency) {
+            return res.status(404).json({ success: false, message: "Emergency request not found" });
         }
 
-        // Create new appointment- Save appointment to database
-        const newAppointment = new AppointmentDetails({
-            patient_id,
-            //doctor_id,
-            //hospital_id,
-            appointment_date,
-            status,
-            reason
+        
+        if (updatedEmergency.phoneNumber) {
+            const message = status === 'In Progress'
+                ? `Your emergency request is now being processed. \nTeam Carella Connect.`
+                : `Your emergency request has been resolved. Thank you for your patience. \nTeam Carella Connect`;
+
+            try {
+                // Send SMS using Twilio
+                await client.messages.create({
+                    body: message,
+                    from: process.env.TWILIO_PHONE_NUMBER, 
+                    to: updatedEmergency.phoneNumber, 
+                });
+                console.log(`SMS sent to ${updatedEmergency.phoneNumber}`);
+            } catch (smsError) {
+                console.error("Error sending SMS:", smsError);
+                return res.status(500).json({ success: false, message: "Failed to send SMS" });
+            }
+        }
+
+        return res.json({
+            success: true,
+            message: `Emergency request updated to '${status}' successfully.`,
+            updatedEmergency
         });
 
-        // Save to database
-        await newAppointment.save();
-
-        res.status(201).json({ success: true, message: "Appointment created successfully", appointment: newAppointment });
-
     } catch (error) {
-        console.error("Error creating appointment:", error);
-        res.status(500).json({ success: false, message: "Server error while creating appointment" });
+        console.error("Error updating emergency request:", error);
+        return res.status(500).json({ success: false, message: "Server error while updating the emergency request." });
     }
 });
 
+app.get('/api/hospital-data', async (req, res) => {
 
-//Fetch upcoming appointments
-app.get('/patient-dashboard/:id', async (req, res) => {
     try {
-        const patientId = req.params.id;
-        const today = new Date();
-
-        const appointments = await AppointmentDetails.find({
-            patient_id: patientId,
-            appointment_date: { $gte: today }  // Fetch only future appointments
-        })
-            .populate('doctor_id', 'name')  // Fetch doctor name
-            .populate('hospital_id', 'name') // Fetch hospital name
-            .exec();
-
-        const formattedAppointments = appointments.map(appt => ({
-            _id: appt._id,
-            appointment_date: appt.appointment_date,
-            doctor_name: appt.doctor_id.name,
-            hospital_name: appt.hospital_id.name,
-        }));
-
-        res.json(formattedAppointments);
-    } catch (error) {
-        console.error("Error fetching appointments:", error);
-        res.status(500).json({ error: 'Server error' });
-    }
+        
+        const hospitalsList = await HospitalsList.find().exec();
+    
+        if (!hospitalsList || hospitalsList.length === 0) {
+          return res.status(404).json({ message: "No hospitals found." });
+        }
+    
+        res.json(hospitalsList);
+      } catch (error) {
+        console.error("Error fetching list of hospitals:", error);
+        res.status(500).json({ error: "Server error while fetching hospitals list." });
+      }
 });
-
-
-//Fetch past appointments
-app.get('/patient-dashboard/:id/past-appointments', async (req, res) => {
-    try {
-        const patientId = req.params.id;
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);  // Ensure full day is considered
-
-        const pastappointments = await AppointmentDetails.find({
-            patient_id: patientId,
-            appointment_date: { $lt: today }  // Fetch only past appointments
-        })
-            .populate('doctor_id', 'name')  // Fetch doctor name
-            .populate('hospital_id', 'name') // Fetch hospital name
-            .exec();
-
-        const formattedpastAppointments = pastappointments.map(pastappt => ({
-            _id: pastappt._id,
-            appointment_date: pastappt.appointment_date,
-            doctor_name: pastappt.doctor_id.name,
-            hospital_name: pastappt.hospital_id.name,
-        }));
-
-        res.json(formattedpastAppointments);
-    } catch (error) {
-        console.error("Error fetching appointments:", error);
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
 
 // Start the server
 const PORT = process.env.PORT || 5000;

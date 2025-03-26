@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import AppointmentAvailability from "./pages/AppointmentAvailability";
 import UpdateAppointment from "./pages/UpdateAppointment";
 import BookAppointment from "./pages/BookAppointment";
+import VirtualHealthResources from "./pages/VirtualHealthResources";
 
 
 
@@ -38,8 +39,9 @@ function App() {
         <Route path="/appointment-availability" element={<AppointmentAvailability />} />
         <Route path="/update-appointment" element={<UpdateAppointment />} />
         <Route path="/book-appointment" element={<BookAppointment />} />
+        <Route path="/virtual-health-resources" element={<VirtualHealthResources/>}  />
         </Routes>
-        <p>{message}</p>
+        
         <Footer />
       </div>
     </Router>
