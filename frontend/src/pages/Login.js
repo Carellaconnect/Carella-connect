@@ -38,11 +38,11 @@ const Login = () => {
             localStorage.setItem("user", JSON.stringify(user));
 
             // Redirect based on role
-            if (user.role === 'Admin') {
+            if (user.role === 'Admin' || user.role === 'admin' ) {
                 window.location.href = '/admin-dashboard';
-            } else if (user.role === 'Doctor') {
+            } else if (user.role === 'Doctor' || user.role ===  'doctor') {
                 window.location.href = '/doctor-dashboard';
-            } else if (user.role === 'Patient') {
+            } else if (user.role === 'Patient' || user.role ===  'patient') {
                 window.location.href = '/patient-dashboard';
             } else {
                 window.location.href = '/';

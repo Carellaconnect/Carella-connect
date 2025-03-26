@@ -13,7 +13,6 @@ const Patient = () => {
   // State for dropdown selections
   const [specialty, setSpecialty] = useState('');
   const [language, setLanguage] = useState('');
-  
   const [appointments, setAppointments] = useState([]);
   const [pastappointments, setpastAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
