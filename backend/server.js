@@ -36,9 +36,9 @@ app.use(express.json());
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('Failed to connect to MongoDB:', err));
-mongoose.connect('mongodb+srv://carellaconnect:CarellaConnect@carellaconnect.h50ep.mongodb.net/Carella_Connect')
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('Failed to connect to MongoDB:', err));
+// mongoose.connect('mongodb+srv://carellaconnect:CarellaConnect@carellaconnect.h50ep.mongodb.net/Carella_Connect')
+//     .then(() => console.log('Connected to MongoDB'))
+//     .catch((err) => console.error('Failed to connect to MongoDB:', err));
 
 // Simple route
 app.get('/', (req, res) => {
@@ -354,23 +354,22 @@ app.post('/login', async (req, res) => {
 
 app.get("/doctors-approval-requests", async (req, res) => {
     try {
-
+        
         const approvalRequests = await DoctorsApprovalRrequests.find()
-            .populate('doctor_id', 'name email status')
-            .populate('hospital_admin_id', 'name email')
-            .exec();
-
+          .populate('doctor_id', 'name email status')  
+          .populate('hospital_admin_id', 'name email')  
+          .exec();
+    
         if (!approvalRequests || approvalRequests.length === 0) {
-            return res.status(404).json({ message: "No approval requests found." });
+          return res.status(404).json({ message: "No approval requests found." });
         }
-
+    
         res.json(approvalRequests);
-    } catch (error) {
+      } catch (error) {
         console.error("Error fetching doctor approval requests:", error);
         res.status(500).json({ error: "Server error while fetching approval requests." });
-    }
-});
-
+      }
+    });
 
 // Route to update doctor approval status
 
@@ -466,6 +465,8 @@ app.post('/api/emergency', async (req, res) => {
 // Get all emergency requests
 app.get('/api/emergency-requests', async (req, res) => {
     try {
+        const { userId } = req.params;
+        
         const emergencyRequests = await EmergencyRequest.find().populate('userId', 'name email'); // Populate user details if available
         res.json({ success: true, data: emergencyRequests });
     } catch (error) {
@@ -526,6 +527,8 @@ app.put('/api/emergency-requests/:id', async (req, res) => {
     }
 });
 
+
+
 app.get('/api/hospital-data', async (req, res) => {
 
     try {
@@ -542,6 +545,60 @@ app.get('/api/hospital-data', async (req, res) => {
         res.status(500).json({ error: "Server error while fetching hospitals list." });
       }
 });
+
+
+app.get('/api/upcoming-appointments/:doctorId', async (req, res) => {
+    try {
+      const { doctorId } = req.params; // Get doctor ID from the request
+  
+      if (!doctorId) {
+        return res.status(400).json({ message: 'Doctor ID is required' });
+      }
+  
+      const appointments = await AppointmentDetails.find({ 
+          doctor_id: doctorId,  // Filter by doctor ID
+          status: 'Scheduled' 
+        })
+        .populate('patient_id', 'name email phone gender') // Populate patient details
+        .exec();
+  
+      if (appointments.length === 0) {
+        return res.status(200).json({ data: [] }); // ✅ Return an empty array instead of 404
+      }
+  
+      res.json({ data: appointments });
+  
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      res.status(500).json({ message: 'Error fetching appointments' });
+    }
+});
+// Route to cancel (discard) an appointment
+app.put('/api/appointments/cancel/:id', async (req, res) => {
+    try {
+      const appointmentId = req.params.id;
+  
+      // Update the status of the appointment to 'Cancelled'
+      const updatedAppointment = await AppointmentDetails.findByIdAndUpdate(
+        appointmentId,
+        { status: 'Cancelled' }, // Change the status to 'Cancelled'
+        { new: true } // Return the updated appointment
+      );
+  
+      if (!updatedAppointment) {
+        return res.status(404).json({ message: 'Appointment not found' });
+      }
+  
+      // Respond with the updated appointment
+      res.json({ message: 'Appointment cancelled successfully', data: updatedAppointment });
+    } catch (error) {
+      console.error('Error cancelling appointment:', error);
+      res.status(500).json({ message: 'Error cancelling appointment' });
+    }
+  });  
+
+
+  
 
 // Start the server
 const PORT = process.env.PORT || 5000;

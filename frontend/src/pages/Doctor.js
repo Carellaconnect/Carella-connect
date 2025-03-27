@@ -1,43 +1,144 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navigation from './Navigation';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import moment from "moment";
 import { FaBell,FaSearch } from "react-icons/fa";
-import { Container, Nav, Row, Col, Card, Button, Form } from "react-bootstrap";
+import { Container, Nav, Row, Col, Table, Card, Button, Form, Modal } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
-const Doctor = () => {
+const Doctor = ({ onSelectPatient }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [appointments, setAppointments] = useState([]);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+ 
+    useEffect(() => {
+      const fetchAppointments = async () => {
+        try {
+          const userData = JSON.parse(localStorage.getItem("user"));
+    
+          if (!userData || !userData.id) {
+            setError("User not found. Please log in again.");
+            setLoading(false);
+            return;
+          }
+    
+          const response = await axios.get(
+            `http://localhost:5000/api/upcoming-appointments/${userData.id}`
+          );
+    
+          if (response.data.message) {
+            // If there is an error message from the backend (e.g., doctor not found)
+            setError(response.data.message);  // Show error message
+            setAppointments([]);
+          } else {
+            setAppointments(response.data.data);  // Otherwise, show the appointments
+          }
+    
+        } catch (err) {
+          setError("Failed to fetch appointments.");
+        } finally {
+          setLoading(false);
+        }
+      };
+    
+      fetchAppointments();
+    }, []);
+    
+    
+  
+
+  const handleSelect = (appt) => {
+    setSelectedAppointment(appt);
+  };
+  const handleView = () => {
+    setShowModal(true);
+  };
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+  const handleDiscard = (appointmentId) => {
+    axios.put(`http://localhost:5000/api/appointments/cancel/${appointmentId}`)
+      .then(() => {
+        setAppointments(appointments.filter(appt => appt._id !== appointmentId));
+        alert("Appointment cancelled successfully.");
+      })
+      .catch(error => console.error("Error cancelling appointment:", error));
+  };
   return <>
   <Navigation />
-      <Nav className="ms-auto" style={{borderBottom:" 2px solid #d7d7d7"}}>
-        <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-        <span style={{border:"1px solid #a6a6a6"}}></span>
-        <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
-        <span style={{border:"1px solid #a6a6a6"}}></span>
-        <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
-        <span style={{border:"1px solid #a6a6a6"}}></span>
-        <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
-        <span style={{border:"1px solid #a6a6a6"}}></span>
-        <FaBell size={20} className="mt-2" style={{color:"#A8577E", marginLeft:"1050px"}} />
-      </Nav>
     
     <Container fluid className="p-4">
         <Row>
           {/* Appointments Section */}
           <Col md={6} className='h-50'>
-            <Card className="mb-4 p-3 shadow-sm h-95">
-              <h5>Appointments</h5>
-              {["Patient Name1", "Patient Name2", "Patient Name3"].map((patient, index) => (
-                <div key={index} className="d-flex justify-content-between align-items-center my-2">
-                  <span>{patient} - Condition - Date & Time</span>
-                  <div>
-                    <Button style={{backgroundColor:"#A8577E", border:"0px"}} className="me-2">Accept</Button>
-                    <Button variant="secondary">Cancel</Button>
-                  </div>
-                </div>
-              ))}
+          <Card className="mb-4 p-3 shadow-sm">
+              <h5>Upcoming Appointments</h5>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>Select</th>
+                    <th>Patient Name</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {appointments.map(appt => (
+                    <tr key={appt._id}>
+                      <td>
+                        <Form.Check
+                          type="radio"
+                          name="selectedAppointment"
+                          onChange={() => handleSelect(appt)}
+                          checked={selectedAppointment?._id === appt._id}
+                        />
+                      </td>
+                      <td>{appt.patient_id.name}</td>
+                      <td>{moment(appt.appointment_date).format("DD MMM YYYY")}</td>
+                      <td>{moment(appt.appointment_date).format("HH:mm")}</td>
+                      <td>
+                        <Button style={{backgroundColor:"#A8577E", border:"0px"} } onClick={handleView}>View</Button>
+                        <Button style={{ backgroundColor: "#F4A5AE", border: "0px", color: "black" }} onClick={() => handleDiscard(appt._id)}>Discard</Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+                 {/* Modal for Viewing Appointment Details */}
+                <Modal show={showModal} onHide={handleCloseModal}>
+                  <Modal.Header closeButton>
+                    <Modal.Title>Appointment Details</Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body>
+                    {selectedAppointment ? (
+                      <>
+                        <h5>Patient Name: {selectedAppointment.patient_id.name}</h5>
+                        <p>Patient Email: {selectedAppointment.patient_id.email}</p>
+                        <p>Patient Phone No: {selectedAppointment.patient_id.phone}:</p>
+                        <p>Patient Gender: {selectedAppointment.patient_id.gender}</p>
+                        <p>Reason : {selectedAppointment.reason}</p>
+                        <p>Date: {moment(selectedAppointment.appointment_date).format("DD MMM YYYY")}</p>
+                        <p>Time: {moment(selectedAppointment.appointment_date).format("HH:mm")}</p>
+                        <p>Status: {selectedAppointment.status}</p>
+                        
+                        {/* Add more details as necessary */}
+                      </>
+                    ) : (
+                      <p>No appointment selected</p>
+                    )}
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>
+                      Close
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
             </Card>
           </Col>
 

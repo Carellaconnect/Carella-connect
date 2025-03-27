@@ -116,27 +116,23 @@ const AdminDashboard = () => {
       console.error("Error updating status:", error);
     }
   };
+  const totalDoctors = approvalRequests.length;
+const approvedDoctors = approvalRequests.filter(req => req.approval_status === "Approved").length;
+const rejectedDoctors = approvalRequests.filter(req => req.approval_status === "Rejected").length;
+const pendingDoctors = approvalRequests.filter(req => req.approval_status === "Pending").length; // New
+
+const totalEmergencies = emergencyRequests.length;
+const inProgressEmergencies = emergencyRequests.filter(req => req.status === "In Progress").length;
+const resolvedEmergencies = emergencyRequests.filter(req => req.status === "Resolved").length;
+const pendingEmergencies = emergencyRequests.filter(req => req.status === "Pending").length; // New
+
 
   return (
     <>
   
       
       <Navigation />
-        <Nav className="ms-auto">
-         
-          <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          
-  
-          
-        </Nav>
-
+       
          {/* Show notification if message is set */}
     {notification.message && (
       <div className={`alert alert-${notification.type}`} role="alert">
@@ -144,8 +140,75 @@ const AdminDashboard = () => {
       </div>
     )}
     
+                
                 <h3 className="text-center mb-4">Admin Dashboard</h3>
-                <p className="text-center mb-4">Welcome to Admin Page</p>
+                                <div className="container mt-4">
+                                  <div className="row">
+                                    {/* Doctor Approval Stats Table */}
+                                    <div className="col-md-6 mb-4">
+                                      <h5>Doctor Approval Stats</h5>
+                                      <Table bordered hover responsive style={{ width: '100%' }}>
+                                        <thead className="thead-dark">
+                                          <tr>
+                                            <th style={{backgroundColor:"#A8577E"}
+                                            }>Stat</th>
+                                            <th style={{backgroundColor:"#A8577E"}
+                                            }>Count</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Total Doctors</td>
+                                            <td>{totalDoctors}</td>
+                                          </tr>
+                                          <tr>
+                                            <td>Approved Doctors</td>
+                                            <td>{approvedDoctors}</td>
+                                          </tr>
+                                          <tr>
+                                            <td>Pending Approvals</td>
+                                            <td>{pendingDoctors}</td>
+                                          </tr>
+                                          <tr>
+                                            <td>Rejected Doctors</td>
+                                            <td>{rejectedDoctors}</td>
+                                          </tr>
+                                        </tbody>
+                                      </Table>
+                                    </div>
+                
+                                    {/* Emergency Request Stats Table */}
+                                    <div className="col-md-6 mb-4">
+                                      <h5>Emergency Request Stats</h5>
+                                      <Table bordered hover responsive style={{ width: '100%' }}>
+                                        <thead className="thead-dark">
+                                          <tr>
+                                            <th style={{backgroundColor:"#A8577E"}} >Stat</th>
+                                            <th style={{backgroundColor:"#A8577E"}}>Count</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td>Total Emergencies</td>
+                                            <td>{totalEmergencies}</td>
+                                          </tr>
+                                          <tr>
+                                            <td>Pending Emergencies</td>
+                                            <td>{pendingEmergencies}</td>
+                                          </tr>
+                                          <tr>
+                                            <td>In Progress Emergencies</td>
+                                            <td>{inProgressEmergencies}</td>
+                                          </tr>
+                                          <tr>
+                                            <td>Resolved Emergencies</td>
+                                            <td>{resolvedEmergencies}</td>
+                                          </tr>
+                                        </tbody>
+                                      </Table>
+                                    </div>
+                                  </div>
+                                </div>
 
                 <h5 className="mb-4">Doctor Registration Approval Requests</h5>
 

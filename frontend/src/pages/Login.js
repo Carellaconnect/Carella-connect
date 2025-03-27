@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Navbar, Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
@@ -10,8 +10,6 @@ const Login = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-
-   
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -19,66 +17,62 @@ const Login = () => {
     setLoading(true);
 
     try {
-        const response = await axios.post('http://localhost:5000/login', { email, password });
-        console.log(response.data);
+      const response = await axios.post('http://localhost:5000/login', { email, password });
+      console.log(response.data);
 
-        if (response.data.success) {
-            setSuccess(response.data.message);
-            setLoading(false);
-
-            // Save user details in localStorage
-            const user = {
-                id: response.data.user_id, // Ensure backend sends `user_id`
-                name: response.data.name, // Include user name for display
-                role: response.data.role,
-                email: email,
-                status: response.data.status
-            };
-
-            localStorage.setItem("user", JSON.stringify(user));
-
-            // Redirect based on role
-            if (user.role === 'Admin') {
-                window.location.href = '/admin-dashboard';
-            } else if (user.role === 'Doctor') {
-                window.location.href = '/doctor-dashboard';
-            } else if (user.role === 'Patient') {
-                window.location.href = '/patient-dashboard';
-            } else {
-                window.location.href = '/';
-            }
-        } else {
-            setError(response.data.message);
-            setLoading(false);
-        }
-    } catch (error) {
+      if (response.data.success) {
+        setSuccess(response.data.message);
         setLoading(false);
-        if (error.response && error.response.data.message) {
-            setError(error.response.data.message);
-        } else {
-            setError('An error occurred. Please try again.');
-        }
-    }
-};
 
+        // Save user details in localStorage
+        const user = {
+          id: response.data.user_id, // Ensure backend sends `user_id`
+          name: response.data.name, // Include user name for display
+          role: response.data.role,
+          email: email,
+          status: response.data.status
+        };
+
+        localStorage.setItem("user", JSON.stringify(user));
+        const role = user.role.toLowerCase(); // Use `role` consistently
+
+        // Redirect based on role
+        if (role === 'admin') {
+          window.location.href = '/admin-dashboard';
+        } else if (role === 'doctor') {
+          window.location.href = '/doctor-dashboard';
+        } else if (role === 'patient') {
+          window.location.href = '/patient-dashboard';
+        } else {
+          window.location.href = '/';
+        }
+      } else {
+        setError(response.data.message);
+        setLoading(false);
+      }
+    } catch (error) {
+      setLoading(false);
+      setError(error.response?.data?.message || 'An error occurred. Please try again.');
+    }
+  };
 
   return (
     <>
-     
+      {/* Navbar */}
       <Navbar expand="lg" className="px-4 py-3 m-0" style={{ backgroundColor: "#F7D9E1" }}>
-            <Navbar.Brand href="#">
-              <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
-              <strong style={{fontSize:"30px"}}>Carella Connect</strong> <span style={{fontSize:"12px"}}>Bridging the Gap in Healthcare!</span>
-            </Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse className="justify-content-end">
-            </Navbar.Collapse>
-    </Navbar>
-      <Nav className="ms-auto" style={{borderBottom:" 2px solid #d7d7d7"}}>
+        <Navbar.Brand href="/">
+          <img src="/images/Logo.png" alt="Logo" width="100" className="me-2" />
+          <strong style={{ fontSize: "30px" }}>Carella Connect</strong> 
+          <span style={{ fontSize: "12px" }}>Bridging the Gap in Healthcare!</span>
+        </Navbar.Brand>
+      </Navbar>
+
+      {/* Navigation Links */}
+      <Nav className="ms-auto" style={{ borderBottom: "2px solid #d7d7d7" }}>
         <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-        <span style={{border:"1px solid #a6a6a6"}}></span>
       </Nav>
 
+      {/* Login Form */}
       <Container fluid className="d-flex justify-content-center align-items-center min-vh-100">
         <Row className="w-100">
           <Col md={6} lg={4} className="mx-auto text-center">
@@ -93,7 +87,7 @@ const Login = () => {
                   <Form.Group controlId="formEmail" className="mb-3 text-start">
                     <Form.Label>Email</Form.Label>
                     <Form.Control
-                      type="text"
+                      type="email"
                       placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}

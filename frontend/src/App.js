@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"; 
 import Footer from "./components/Footer";
-import Navigation from "./pages/Navigation";
+import Navigation from './pages/Navigation';
 import Home from "./pages/Home"; 
 import axios from "axios";
 import Login from "./pages/Login";
@@ -13,6 +13,9 @@ import AppointmentAvailability from "./pages/AppointmentAvailability";
 import UpdateAppointment from "./pages/UpdateAppointment";
 import BookAppointment from "./pages/BookAppointment";
 import VirtualHealthResources from "./pages/VirtualHealthResources";
+import ProfilePage from "./pages/Profile";
+import HealthSupportPage from "./pages/HealthAndSupport";
+
 
 
 
@@ -40,6 +43,8 @@ function App() {
         <Route path="/update-appointment" element={<UpdateAppointment />} />
         <Route path="/book-appointment" element={<BookAppointment />} />
         <Route path="/virtual-health-resources" element={<VirtualHealthResources/>}  />
+        <Route path="/profile-page" element={<ProfilePage/>}  />
+        <Route path="/health-and-support" element={<HealthSupportPage/>}/>
         </Routes>
         
         <Footer />
