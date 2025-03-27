@@ -1,7 +1,7 @@
 import React, { useState, useEffectuseState, useEffect  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
-import { Container, Nav, Button, Form, Card, Row, Col } from "react-bootstrap";
+import { Container, Button, Form, Card, Row, Col } from "react-bootstrap";
 import { FaStar, FaBell } from "react-icons/fa";
 import axios from "axios";
 
@@ -74,19 +74,6 @@ const Patient = () => {
     <>
     <Navigation />
           {/* Menu section */}
-        <Nav className="ms-auto">
-          <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="/virtual-health-resources" className='text-dark'>Virtual Health Resources</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <Nav.Link href="/Home" className='text-dark' >Log Out</Nav.Link>
-          <span style={{border:"1px solid #a6a6a6"}}></span>
-          <FaBell size={20} className="mt-2" style={{color:"#A8577E", marginLeft:"1050px"}} />
-        </Nav>
     
 
       {/* Search Section */}

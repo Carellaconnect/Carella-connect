@@ -159,13 +159,7 @@ const Register = () => {
     return (
         <>
             <Navigation></Navigation>
-
-            <Nav className="ms-auto" style={{borderBottom:" 2px solid #d7d7d7"}}>
-              <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-              <span style={{border:"1px solid #a6a6a6"}}></span>
-              <Nav.Link href="/login" className='text-dark' >Log In</Nav.Link>
-              <span style={{border:"1px solid #a6a6a6"}}></span>
-            </Nav>
+            
 
             <Container fluid className="d-flex justify-content-center align-items-center min-vh-100">
                     <Row className="w-100">
