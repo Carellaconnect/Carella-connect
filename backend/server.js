@@ -473,30 +473,47 @@ app.get('/filtered-doctors', async (req, res) => {
     }
 });
 
+/* ------------------------------------------------------------------------------------------------ */
+//fetch the doctor's _id from the users collection based on the provided doctorName.
+app.get('/get-doctor-id/:doctorName', async (req, res) => {
+    try {
+        const { doctorName } = req.params;
 
-// API to create a new appointment - after confirming the appointment on /book-appointment page
+        if (!doctorName) {
+            return res.status(400).json({ success: false, message: "Doctor name is required" });
+        }
+
+        // Find doctor by name (ensure case-insensitive search)
+        const doctor = await User.findOne({ name: { $regex: new RegExp("^" + doctorName + "$", "i") }, role: "Doctor" });
+
+        if (!doctor) {
+            return res.status(404).json({ success: false, message: "Doctor not found" });
+        }
+
+        res.status(200).json({ doctor_id: doctor._id.toString() }); // Ensure ObjectId is returned as a string
+    } catch (error) {
+        console.error("Error fetching doctor ID:", error);
+        res.status(500).json({ success: false, message: "Server error while fetching doctor ID" });
+    }
+});
+
+
+//API to create a new appointment - after confirming the appointment on /book-appointment page:
 app.post('/appointments', async (req, res) => {
     try {
-        console.log("Received appointment data:", req.body); // Log what the server receives
+        console.log("Received appointment data:", req.body); // Log received data
 
-        //const { patient_id, doctor_id, hospital_id, appointment_date, status, reason } = req.body;
-        const { patient_id, appointment_date, status, reason } = req.body;
-
-        /* Validate required fields
-        if (!patient_id || !doctor_id || !hospital_id || !appointment_date || !status || !reason) {
-            return res.status(400).json({ success: false, message: "All fields are required" });
-        }*/
+        const { patient_id, doctor_id, appointment_date, status, reason } = req.body;
 
         // Validate required fields
-        if ( !patient_id || !appointment_date || !status || !reason) {
+        if (!patient_id || !doctor_id || !appointment_date || !status || !reason) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
-        // Create new appointment- Save appointment to database
+        // Create new appointment directly using doctor_id
         const newAppointment = new AppointmentDetails({
             patient_id,
-            //doctor_id,
-            //hospital_id,
+            doctor_id,  // Directly use the received doctor_id
             appointment_date,
             status,
             reason
@@ -512,6 +529,10 @@ app.post('/appointments', async (req, res) => {
         res.status(500).json({ success: false, message: "Server error while creating appointment" });
     }
 });
+
+
+/* ------------------------------------------------------------------------------------------------ */
+
 
 //Fetch upcoming appointments
 app.get('/patient-dashboard/:id', async (req, res) => {

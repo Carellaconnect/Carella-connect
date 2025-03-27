@@ -42,32 +42,48 @@ const BookAppointment = () => {
     // Function to handle appointment confirmation
     const handleConfirmAppointment = async () => {
         try {
-
-            // Get logged-in user's patient_id (Assuming stored in localStorage after login)
+            // Get logged-in user's patient_id
             const userData = JSON.parse(localStorage.getItem('user'));
-            
-
-            
-
+    
+            if (!userData || !userData.id) {
+                alert("User not found. Please log in again.");
+                return;
+            }
+    
+            console.log("Fetching doctor ID for:", doctorName); // Debugging log
+    
+            // Fetch doctor_id from the new API endpoint
+            const doctorResponse = await axios.get(`http://localhost:5000/get-doctor-id/${encodeURIComponent(doctorName)}`);
+    
+            if (doctorResponse.status !== 200 || !doctorResponse.data || !doctorResponse.data.doctor_id) {
+                alert("Doctor not found.");
+                return;
+            }
+    
+            const doctorId = doctorResponse.data.doctor_id; // Extract doctor_id from response
+    
+            console.log("Doctor ID retrieved:", doctorId); // Debugging log
+    
+            // Prepare appointment data
             const appointmentData = {
                 patient_id: userData.id,
-                //doctor_id: doctor._id,
+                doctor_id: doctorId, // Now using the fetched doctor_id
                 //hospital_id: hospitalId,
                 appointment_date: new Date(`${date} ${startTime}`),
                 status: "Scheduled",
                 reason: reason
             };
-
+    
             console.log("Sending appointment data:", appointmentData); // Log before sending
-
+    
             // Send data to backend API
             const response = await axios.post("http://localhost:5000/appointments", appointmentData, {
                 headers: { "Content-Type": "application/json" }
             });
-
+    
             if (response.status === 201) {
                 alert("Appointment booked successfully!");
-                navigate("/patient-dashboard"); // Redirect to patient dashboard
+                navigate("/patient-dashboard");
             }
         } catch (error) {
             console.error("Error booking appointment:", error.response ? error.response.data : error.message);
