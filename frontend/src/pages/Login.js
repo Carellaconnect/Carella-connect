@@ -37,11 +37,11 @@ const Login = () => {
         const role = user.role.toLowerCase(); // Use `role` consistently
 
         // Redirect based on role
-        if (role === 'admin') {
+        if (role === 'admin' || role === 'Admin') {
           window.location.href = '/admin-dashboard';
-        } else if (role === 'doctor') {
+        } else if (role === 'doctor' || role === 'Doctor') {
           window.location.href = '/doctor-dashboard';
-        } else if (role === 'patient') {
+        } else if (role === 'patient' || role === 'Patient') {
           window.location.href = '/patient-dashboard';
         } else {
           window.location.href = '/';

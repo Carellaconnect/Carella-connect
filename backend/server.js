@@ -47,27 +47,6 @@ app.get('/', (req, res) => {
 
 // const { check, validationResult } = require('express-validator');
 
-/*const User= mongoose.model('User',{
-    "name": String,//
-    "email": String,//
-    "password": String,//
-    "role": String, //
-    "profile_picture": String, //
-    "phone": String, //
-    "address": String, //
-    "city": String, //
-    "postcode": String, //
-    "province": String, //
-    "date_of_birth": Date, //
-    "gender": String, //
-    "created_at": Date,
-    "updated_at": Date,
-    "status": String, //
-    "insurance_id": String,//
-    "insurance_provider": String,//
-    "hospital_id": String,//
-    "doctor_identification_id": String
-});*/
 
 const UserSchema = new mongoose.Schema({
     name: String,
@@ -105,14 +84,6 @@ const DoctorsApprovalRrequests = mongoose.model('DoctorsApprovalRrequest', {
     "notes": String,
     "created_at": Date,
     "updated_at": Date
-});
-
-const HospitalsList = mongoose.model ('Hospitals', {
-    "id": String,
-    "name": String,
-    "address": String,
-    "contact_number": String,
-    "email": String
 });
 
 
@@ -420,6 +391,181 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
     } catch (error) {
         console.error("Error updating approval status:", error);
         res.status(500).json({ success: false, message: "Failed to update status" });
+    }
+});
+
+
+// Route to fetch doctors with their profile details
+app.get('/doctors', async (req, res) => {
+    try {
+        const doctors = await User.aggregate([
+            { $match: { role: 'doctor' } }, // Filter only doctors
+            {
+                $lookup: {
+                    from: 'doctorprofiles',
+                    localField: '_id',
+                    foreignField: 'doctor_id',
+                    as: 'profile'
+                }
+            },
+            { $unwind: '$profile' } // Unwind profile details
+        ]);
+
+        res.json(doctors);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// API to fetch doctors filtered according to speciality and language for appointment booking from patient's side
+app.get('/filtered-doctors', async (req, res) => {
+    try {
+        const { specialty, language } = req.query;
+
+        if (!specialty || !language) {
+            return res.status(400).json({ error: "Specialty and language are required" });
+        }
+
+        const today = new Date(); // Get current date and time
+
+        // Fetch doctor profiles matching specialty & language
+        const doctorProfiles = await DoctorProfile.find({
+            speciality: specialty,
+            languages: { $elemMatch: { language_name: language } }
+        }).populate({
+            path: 'doctor_id',
+            select: 'name'
+        });
+
+        // Process each doctor and fetch their hospital details
+        const enrichedDoctors = await Promise.all(
+            doctorProfiles.map(async (profile) => {
+                const hospital = await Hospital.findOne({ doctors: profile.doctor_id._id })
+                    .select('name address');
+
+                return {
+                    doctor_name: profile.doctor_id.name,
+                    speciality: profile.speciality,
+                    languages: profile.languages.map(lang => lang.language_name),
+                    hospital_name: hospital ? hospital.name : "N/A",
+                    hospital_address: hospital ? hospital.address : "N/A",
+                    availability: profile.availability
+                        .filter(avail => new Date(avail.date) >= today) // Filter past dates
+                        .map(avail => ({
+                            date: avail.date.toISOString().split('T')[0],
+                            time_slots: avail.time_slots
+                                .filter(slot => new Date(slot.start_time) > today && slot.status === "Available") // Future and available slots only
+                                .map(slot => ({
+                                    start_time: new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                    end_time: new Date(slot.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                                    status: slot.status
+                                }))
+                        }))
+                        .filter(avail => avail.time_slots.length > 0) // Remove empty availability entries
+                };
+            })
+        );
+
+        res.json(enrichedDoctors);
+    } catch (error) {
+        console.error("Error in /filtered-doctors:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+// API to create a new appointment - after confirming the appointment on /book-appointment page
+app.post('/appointments', async (req, res) => {
+    try {
+        console.log("Received appointment data:", req.body); // Log what the server receives
+
+        //const { patient_id, doctor_id, hospital_id, appointment_date, status, reason } = req.body;
+        const { patient_id, appointment_date, status, reason } = req.body;
+
+        /* Validate required fields
+        if (!patient_id || !doctor_id || !hospital_id || !appointment_date || !status || !reason) {
+            return res.status(400).json({ success: false, message: "All fields are required" });
+        }*/
+
+        // Validate required fields
+        if ( !patient_id || !appointment_date || !status || !reason) {
+            return res.status(400).json({ success: false, message: "All fields are required" });
+        }
+
+        // Create new appointment- Save appointment to database
+        const newAppointment = new AppointmentDetails({
+            patient_id,
+            //doctor_id,
+            //hospital_id,
+            appointment_date,
+            status,
+            reason
+        });
+
+        // Save to database
+        await newAppointment.save();
+
+        res.status(201).json({ success: true, message: "Appointment created successfully", appointment: newAppointment });
+
+    } catch (error) {
+        console.error("Error creating appointment:", error);
+        res.status(500).json({ success: false, message: "Server error while creating appointment" });
+    }
+});
+
+//Fetch upcoming appointments
+app.get('/patient-dashboard/:id', async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const today = new Date();
+
+        const appointments = await AppointmentDetails.find({
+            patient_id: patientId,
+            appointment_date: { $gte: today }  // Fetch only future appointments
+        })
+            .populate('doctor_id', 'name')  // Fetch doctor name
+            .populate('hospital_id', 'name') // Fetch hospital name
+            .exec();
+
+        const formattedAppointments = appointments.map(appt => ({
+            _id: appt._id,
+            appointment_date: appt.appointment_date,
+            doctor_name: appt.doctor_id.name,
+            hospital_name: appt.hospital_id.name,
+        }));
+
+        res.json(formattedAppointments);
+    } catch (error) {
+        console.error("Error fetching appointments:", error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+//Fetch past appointments
+app.get('/patient-dashboard/:id/past-appointments', async (req, res) => {
+    try {
+        const patientId = req.params.id;
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);  // Ensure full day is considered
+
+        const pastappointments = await AppointmentDetails.find({
+            patient_id: patientId,
+            appointment_date: { $lt: today }  // Fetch only past appointments
+        })
+            .populate('doctor_id', 'name')  // Fetch doctor name
+            .populate('hospital_id', 'name') // Fetch hospital name
+            .exec();
+
+        const formattedpastAppointments = pastappointments.map(pastappt => ({
+            _id: pastappt._id,
+            appointment_date: pastappt.appointment_date,
+            doctor_name: pastappt.doctor_id.name,
+            hospital_name: pastappt.hospital_id.name,
+        }));
+
+        res.json(formattedpastAppointments);
+    } catch (error) {
+        console.error("Error fetching appointments:", error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
