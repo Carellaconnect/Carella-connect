@@ -473,6 +473,7 @@ app.get('/filtered-doctors', async (req, res) => {
     }
 });
 
+
 // API to create a new appointment - after confirming the appointment on /book-appointment page
 app.post('/appointments', async (req, res) => {
     try {

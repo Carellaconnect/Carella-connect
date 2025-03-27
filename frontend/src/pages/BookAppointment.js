@@ -16,7 +16,12 @@ const BookAppointment = () => {
     // Extract appointment details from location state
     const { doctorId, doctorName, specialty, languages, hospitalId, hospital, address, date, startTime, endTime } = location.state || {};
 
-
+    //Logout functionality
+    const handleLogout = () => {
+        localStorage.removeItem("user"); // Remove user data from localStorage
+        window.location.href = "/login"; // Redirect to login page
+      };
+    
 
 
     // State to store reason input
@@ -74,6 +79,17 @@ const BookAppointment = () => {
     return (
         <>
             <Navigation />
+            <Nav className="ms-auto">
+                <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
+                <span style={{ border: "1px solid #a6a6a6" }}></span>
+                <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
+                <span style={{ border: "1px solid #a6a6a6" }}></span>
+                <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
+                <span style={{ border: "1px solid #a6a6a6" }}></span>
+                <Nav.Link href="/Home" className='text-dark' onClick={handleLogout} >Log Out</Nav.Link>
+                <span style={{ border: "1px solid #a6a6a6" }}></span>
+                <FaBell size={20} className="mt-2" style={{ color: "#A8577E", marginLeft: "1050px" }} />
+            </Nav>
 
             <div>
                 <h2>Confirm Your Appointment</h2>

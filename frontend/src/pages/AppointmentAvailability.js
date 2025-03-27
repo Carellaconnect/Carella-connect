@@ -18,6 +18,13 @@ const AppointmentAvailability = () => {
   const [doctors, setDoctors] = useState([]);
   const [selectedSlots, setSelectedSlots] = useState({}); // Stores selected slot per doctor
 
+  //Logout functionality
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // Remove user data from localStorage
+    window.location.href = "/login"; // Redirect to login page
+  };
+
+
   useEffect(() => {
     if (specialty && language) {
       fetchDoctors();
@@ -69,6 +76,17 @@ const AppointmentAvailability = () => {
   return (
     <>
       <Navigation />
+      <Nav className="ms-auto">
+        <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <Nav.Link href="/Home" className='text-dark' onClick={handleLogout}>Log Out</Nav.Link>
+        <span style={{ border: "1px solid #a6a6a6" }}></span>
+        <FaBell size={20} className="mt-2" style={{ color: "#A8577E", marginLeft: "1050px" }} />
+      </Nav>
 
       <Container className="mt-4">
         <h4>
