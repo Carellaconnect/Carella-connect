@@ -37,7 +37,7 @@ const BookAppointment = () => {
     /*if (!date || !startTime || !endTime) {
         return <p>No appointment selected. Please go back and select a time slot.</p>;
     }*/
-
+        console.log("Start Time:", startTime);
 
     // Function to handle appointment confirmation
     const handleConfirmAppointment = async () => {
@@ -87,6 +87,8 @@ const BookAppointment = () => {
                 reason: reason
             };
 
+           
+
             console.log("Sending appointment data:", appointmentData); // Log before sending
 
             // Send data to backend API
@@ -102,6 +104,30 @@ const BookAppointment = () => {
             console.error("Error booking appointment:", error.response ? error.response.data : error.message);
             alert("Failed to book appointment. Please try again.");
         }
+    };
+
+    const addHoursToTime = (time, hoursToAdd) => {
+        if (!time) return "Invalid Time";
+    
+        // Split "06:00 AM" into ["06:00", "AM"]
+        const [timePart, modifier] = time.split(" ");
+        let [hours, minutes] = timePart.split(":").map(Number);
+    
+        // Convert to 24-hour format
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
+    
+        // Create Date object and add hours
+        let date = new Date();
+        date.setHours(hours, minutes);
+        date.setHours(date.getHours() + hoursToAdd);
+    
+        // Convert back to 12-hour format
+        let newHours = date.getHours() % 12 || 12;
+        let newMinutes = date.getMinutes().toString().padStart(2, "0");
+        let newModifier = date.getHours() >= 12 ? "PM" : "AM";
+    
+        return `${newHours}:${newMinutes} ${newModifier}`;
     };
 
 
@@ -120,7 +146,7 @@ const BookAppointment = () => {
                     <p><strong>Hospital:</strong> {hospital}</p>
                     <p><strong>Address:</strong> {address}</p>
                     <p><strong>Appointment Date:</strong> {date}</p>
-                    <p><strong>Time Slot:</strong> {startTime} - {endTime}</p>
+                    <p><strong>Time Slot:</strong> {addHoursToTime(startTime, 4)} - {addHoursToTime(endTime, 4)}</p>
                     
 
                    

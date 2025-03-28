@@ -15,6 +15,7 @@ const Doctor = ({ onSelectPatient }) => {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    
  
     useEffect(() => {
       const fetchAppointments = async () => {

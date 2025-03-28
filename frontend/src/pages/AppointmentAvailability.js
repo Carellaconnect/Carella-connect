@@ -76,7 +76,7 @@ const AppointmentAvailability = () => {
   return (
     <>
       <Navigation />
-      
+
       <Container className="mt-4">
         <h2>
           {specialty && language ? `Find a ${language} speaking ${specialty}` : "Find a Doctor"}
@@ -107,15 +107,42 @@ const AppointmentAvailability = () => {
                           >
                             <option value="">Select a Date & Time</option>
                             {doctor.availability.map((avail) =>
-                              avail.time_slots.map((slot, i) => (
-                                <option
-                                  key={`${avail.date}-${i}`}
-                                 value={`${avail.date}|${slot.start_time}|${slot.end_time}`}
-                                 
-                                >
-                                  {avail.date} | {slot.start_time} - {slot.end_time}
-                                </option>
-                              ))
+                              avail.time_slots.map((slot, i) => {
+                                console.log("Raw Start Time:", slot.start_time);
+                                console.log("Raw End Time:", slot.end_time);
+
+                                // Function to convert "06:00 AM" -> "06:00"
+                                const convertTo24HourFormat = (time) => {
+                                  if (!time) return "Invalid Time";
+                                  const [timePart, modifier] = time.split(" ");
+                                  let [hours, minutes] = timePart.split(":").map(Number);
+
+                                  if (modifier === "PM" && hours !== 12) hours += 12;
+                                  if (modifier === "AM" && hours === 12) hours = 0;
+
+                                  return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+                                };
+
+                                // Function to add 4 hours to the time
+                                const addHoursToTime = (time, hours) => {
+                                  const convertedTime = convertTo24HourFormat(time);
+                                  if (convertedTime === "Invalid Time") return "Invalid Time";
+
+                                  const date = new Date(`1970-01-01T${convertedTime}:00Z`);
+                                  date.setUTCHours(date.getUTCHours() + hours);
+
+                                  return date.toISOString().substr(11, 5); // Extract "HH:mm"
+                                };
+
+                                return (
+                                  <option
+                                    key={`${avail.date}-${i}`}
+                                    value={`${avail.date}|${slot.start_time}|${slot.end_time}`}
+                                  >
+                                    {avail.date} | {addHoursToTime(slot.start_time, 4)} - {addHoursToTime(slot.end_time, 4)}
+                                  </option>
+                                );
+                              })
                             )}
                           </Form.Select>
                         ) : (
