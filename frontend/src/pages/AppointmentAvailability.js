@@ -53,10 +53,10 @@ const AppointmentAvailability = () => {
       alert("Please select a time slot before booking.");
       return;
     }
-  
+
     // Extract selected slot details
     const [date, startTime, endTime] = selectedSlots[doctor._id].split("|");
-  
+
     // Navigate to the booking page with all details
     navigate("/book-appointment", {
       state: {
@@ -76,22 +76,11 @@ const AppointmentAvailability = () => {
   return (
     <>
       <Navigation />
-      <Nav className="ms-auto">
-        <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-        <span style={{ border: "1px solid #a6a6a6" }}></span>
-        <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
-        <span style={{ border: "1px solid #a6a6a6" }}></span>
-        <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
-        <span style={{ border: "1px solid #a6a6a6" }}></span>
-        <Nav.Link href="/Home" className='text-dark' onClick={handleLogout}>Log Out</Nav.Link>
-        <span style={{ border: "1px solid #a6a6a6" }}></span>
-        <FaBell size={20} className="mt-2" style={{ color: "#A8577E", marginLeft: "1050px" }} />
-      </Nav>
-
+      
       <Container className="mt-4">
-        <h4>
-          {specialty && language ? `Find a ${specialty} speaking ${language}` : "Find a Doctor"}
-        </h4>
+        <h2>
+          {specialty && language ? `Find a ${language} speaking ${specialty}` : "Find a Doctor"}
+        </h2>
         <Row>
           {doctors.length > 0 ? (
             doctors.map((doctor) => (
@@ -121,7 +110,8 @@ const AppointmentAvailability = () => {
                               avail.time_slots.map((slot, i) => (
                                 <option
                                   key={`${avail.date}-${i}`}
-                                  value={`${avail.date}|${slot.start_time}|${slot.end_time}`}
+                                 value={`${avail.date}|${slot.start_time}|${slot.end_time}`}
+                                 
                                 >
                                   {avail.date} | {slot.start_time} - {slot.end_time}
                                 </option>

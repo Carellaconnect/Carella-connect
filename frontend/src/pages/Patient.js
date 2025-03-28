@@ -133,7 +133,7 @@ const Patient = () => {
                   </Col>
                   <Col md={3}>
                     <p><strong>Date:</strong> {new Date(appt.appointment_date).toLocaleDateString()}</p>
-                    <p><strong>Time:</strong> {new Date(appt.appointment_date).toLocaleTimeString()}</p>
+                    <p><strong>Time:</strong> {new Date(new Date(appt.appointment_date).getTime() + 4 * 60 * 60 * 1000).toLocaleTimeString()}</p>
                   </Col>
                   <Col md={3} className="text-end">
                     <Button className="me-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}>Change</Button>
@@ -164,7 +164,7 @@ const Patient = () => {
                   </Col>
                   <Col md={3}>
                     <p><strong>Date:</strong> {new Date(pastappt.appointment_date).toLocaleDateString()}</p>
-                    <p><strong>Time:</strong> {new Date(pastappt.appointment_date).toLocaleTimeString()}</p>
+                    <p><strong>Time:</strong> {new Date(new Date(pastappt.appointment_date).getTime() + 4 * 60 * 60 * 1000).toLocaleTimeString()}</p>
                   </Col>
                   <Col md={3} className="text-end">
                     <p className="mb-1"><strong>Your Feedback:</strong> 

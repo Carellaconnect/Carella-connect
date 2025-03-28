@@ -20,8 +20,8 @@ const BookAppointment = () => {
     const handleLogout = () => {
         localStorage.removeItem("user"); // Remove user data from localStorage
         window.location.href = "/login"; // Redirect to login page
-      };
-    
+    };
+
 
 
     // State to store reason input
@@ -44,14 +44,14 @@ const BookAppointment = () => {
         try {
             // Get logged-in user's patient_id
             const userData = JSON.parse(localStorage.getItem('user'));
-    
+
             if (!userData || !userData.id) {
                 alert("User not found. Please log in again.");
                 return;
             }
-    
+
             console.log("Fetching doctor ID for:", doctorName); // Debugging log
-    
+
             console.log("Fetching hospital ID for:", hospital); // Debugging log
 
             // Fetch doctor_id from the new API endpoint
@@ -59,7 +59,7 @@ const BookAppointment = () => {
 
             // Fetch hospital_id from the new API endpoint
             const hospitalResponse = await axios.get(`http://localhost:5000/get-hospital-id/${encodeURIComponent(hospital)}`);
-    
+
             if (doctorResponse.status !== 200 || !doctorResponse.data || !doctorResponse.data.doctor_id) {
                 alert("Doctor not found.");
                 return;
@@ -73,10 +73,10 @@ const BookAppointment = () => {
             const doctorId = doctorResponse.data.doctor_id; // Extract doctor_id from response
 
             const hospitalId = hospitalResponse.data.hospital_id //Extract hospital_id from response
-    
+
             console.log("Doctor ID retrieved:", doctorId); // Debugging log
             console.log("Hospital ID retrieved:", hospitalId); // Debugging log
-    
+
             // Prepare appointment data
             const appointmentData = {
                 patient_id: userData.id,
@@ -86,14 +86,14 @@ const BookAppointment = () => {
                 status: "Scheduled",
                 reason: reason
             };
-    
+
             console.log("Sending appointment data:", appointmentData); // Log before sending
-    
+
             // Send data to backend API
             const response = await axios.post("http://localhost:5000/appointments", appointmentData, {
                 headers: { "Content-Type": "application/json" }
             });
-    
+
             if (response.status === 201) {
                 alert("Appointment booked successfully!");
                 navigate("/patient-dashboard");
@@ -108,41 +108,36 @@ const BookAppointment = () => {
     return (
         <>
             <Navigation />
-            <Nav className="ms-auto">
-                <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-                <span style={{ border: "1px solid #a6a6a6" }}></span>
-                <Nav.Link href="#" className='text-dark'>Profile</Nav.Link>
-                <span style={{ border: "1px solid #a6a6a6" }}></span>
-                <Nav.Link href="#" className='text-dark'>Help & Support</Nav.Link>
-                <span style={{ border: "1px solid #a6a6a6" }}></span>
-                <Nav.Link href="/Home" className='text-dark' onClick={handleLogout} >Log Out</Nav.Link>
-                <span style={{ border: "1px solid #a6a6a6" }}></span>
-                <FaBell size={20} className="mt-2" style={{ color: "#A8577E", marginLeft: "1050px" }} />
-            </Nav>
+            
 
-            <div>
-                <h2>Confirm Your Appointment</h2>
-                <p><strong>Doctor:</strong> {doctorName}</p>
-                <p><strong>Specialty:</strong> {specialty}</p>
-                <p><strong>Languages:</strong> {languages}</p>
-                <p><strong>Hospital:</strong> {hospital}</p>
-                <p><strong>Address:</strong> {address}</p>
-                <p><strong>Appointment Date:</strong> {date}</p>
-                <p><strong>Time Slot:</strong> {startTime} - {endTime}</p>
+            <div className="d-flex justify-content-center align-items-center mt-3">
+                <div className="p-4 shadow-lg rounded" style={{ maxWidth: "500px", width: "100%", backgroundColor: "#f8f9fa" }}>
+                    <h2>Confirm Your Appointment</h2>
 
-                {/* Reason Input */}
-                <Form.Group controlId="reason" className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px" }}>
-                    <Form.Label className="d-block text-center"><strong>Reason:</strong></Form.Label>
-                    <Form.Control className="mx-auto w-50" style={{ marginLeft: "100px", marginRight: "100px", marginRight: "10px", padding: "10px" }} value={reason}
-                        onChange={(e) => setReason(e.target.value)} placeholder="Enter the reason for your appointment..." required />
-                </Form.Group>
-                <button className="rounded-pill px-4"
-                    style={{ backgroundColor: "#00FF00", border: "none" }} onClick={handleConfirmAppointment}>Confirm Appointment</button>
+                    <p><strong>Doctor:</strong> {doctorName}</p>
+                    <p><strong>Specialty:</strong> {specialty}</p>
+                    <p><strong>Languages:</strong> {languages}</p>
+                    <p><strong>Hospital:</strong> {hospital}</p>
+                    <p><strong>Address:</strong> {address}</p>
+                    <p><strong>Appointment Date:</strong> {date}</p>
+                    <p><strong>Time Slot:</strong> {startTime} - {endTime}</p>
+                    
 
-                <button className="rounded-pill px-4"
-                    style={{ backgroundColor: "#FF0000", border: "none" }} onClick={() => navigate("/patient-dashboard")}>Go back</button>
+                   
+                    {/* Reason Input */}
+                    <Form.Group controlId="reason" className="mx-auto w-95" style={{ marginLeft: "50px", marginRight: "50px" }}>
+                        <Form.Label className="d-block text-center"><strong>Reason:</strong></Form.Label>
+                        <Form.Control className="mx-auto w-80" style={{ padding: "10px", width: "100%"}} value={reason}
+                            onChange={(e) => setReason(e.target.value)} placeholder="Enter reason for appointment" required />
+                    </Form.Group>
+                    <button className="rounded-pill px-4"
+                        style={{ backgroundColor: "#00FF00", border: "none", marginTop: "20px" }} onClick={handleConfirmAppointment}>Confirm Appointment</button>
 
+                    <button className="rounded-pill px-4"
+                        style={{ backgroundColor: "#FF0000", border: "none", marginTop: "20px" }} onClick={() => navigate("/patient-dashboard")}>Go back</button>
+                </div>
             </div>
+
         </>
     );
 };

@@ -18,6 +18,8 @@ const router = express.Router(); // Define router
 //app.use(cors());
 app.use(express.json());  // Middleware to parse JSON
 
+console.log("Server Timezone:", Intl.DateTimeFormat().resolvedOptions().timeZone);
+
 
 // Middleware
 app.use(cors({
