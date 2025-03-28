@@ -18,6 +18,7 @@ const Patient = () => {
   const [pastappointments, setpastAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const userData = JSON.parse(localStorage.getItem("user"));
 
   
   const handleSearch = () => {
@@ -69,6 +70,24 @@ const Patient = () => {
   
     fetchPastAppointments();
   }, []);
+
+  // Function to cancel an appointment
+  const handleCancelAppointment = async (appointmentId) => {
+    if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
+
+    try {
+        await axios.delete(`http://localhost:5000/appointments/${appointmentId}`);
+        
+        // Remove the canceled appointment from state
+        setAppointments(appointments.filter(appt => appt._id !== appointmentId));
+
+        alert("Appointment canceled successfully!");
+    } catch (error) {
+        console.error("Error canceling appointment:", error);
+        alert("Failed to cancel appointment. Please try again.");
+    }
+};
+
 
   return(
     <>
@@ -137,7 +156,7 @@ const Patient = () => {
                   </Col>
                   <Col md={3} className="text-end">
                     <Button className="me-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}>Change</Button>
-                    <Button style={{ backgroundColor: "#E32037", border: "none" }}>Cancel</Button>
+                    <Button style={{ backgroundColor: "#E32037", border: "none" }} onClick={() => handleCancelAppointment(appt._id)}>Cancel</Button>
                   </Col>
                 </Row>
               </Card>

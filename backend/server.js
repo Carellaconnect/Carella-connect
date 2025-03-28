@@ -12,6 +12,7 @@ const twilio = require('twilio');
 require('dotenv').config();
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
+
 const app = express();
 const router = express.Router(); // Define router
 
@@ -24,10 +25,12 @@ console.log("Server Timezone:", Intl.DateTimeFormat().resolvedOptions().timeZone
 // Middleware
 app.use(cors({
     origin: 'http://localhost:3000', 
-    methods: ['GET', 'POST', 'PUT'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true 
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 // app.use(session({
 //     secret: 'secret',
 //     resave: false,
@@ -523,7 +526,7 @@ app.get('/get-hospital-id/:hospital', async (req, res) => {
 });
 
 
-//API to create a new appointment - after confirming the appointment on /book-appointment page:
+//API to create a new appointment - after confirming the appointment on /book-appointment page (from patient's side):
 app.post('/appointments', async (req, res) => {
     try {
         console.log("Received appointment data:", req.body); // Log received data
@@ -617,8 +620,31 @@ app.get('/patient-dashboard/:id/past-appointments', async (req, res) => {
     }
 });
 
-//Api for emergency request Form
+//API to delete an appointment based on its _id.
+app.delete('/appointments/:id', async (req, res) => {
+    try {
+        const appointmentId = req.params.id;
+        console.log("Deleting appointment with ID:", appointmentId); // Debugging log
 
+        const deletedAppointment = await AppointmentDetails.findByIdAndDelete(appointmentId);
+
+        if (!deletedAppointment) {
+            return res.status(404).json({ error: 'Appointment not found' });
+        }
+
+        res.json({ message: 'Appointment canceled successfully' });
+    } catch (error) {
+        console.error("Error canceling appointment:", error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+//Test API
+app.get('/test', (req, res) => {
+    res.json({ message: "Backend is running fine!" });
+});
+
+//Api for emergency request Form
 app.post('/api/emergency', async (req, res) => {
     try {
         const { name, emergencyType, location, details, urgency, phoneNumber, userId } = req.body;
