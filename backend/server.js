@@ -497,16 +497,39 @@ app.get('/get-doctor-id/:doctorName', async (req, res) => {
     }
 });
 
+//fetch the hospital's _id from the hospitals collection based on the provided HospitalName.
+app.get('/get-hospital-id/:hospital', async (req, res) => {
+    try {
+        const { hospital } = req.params;
+
+        if (!hospital) {
+            return res.status(400).json({ success: false, message: "Hospital name is required" });
+        }
+
+        // Find doctor by name (ensure case-insensitive search)
+        const thehospital = await Hospital.findOne({ name: { $regex: new RegExp("^" + hospital + "$", "i") }});
+
+        if (!thehospital) {
+            return res.status(404).json({ success: false, message: "Hospital not found" });
+        }
+
+        res.status(200).json({ hospital_id: thehospital._id.toString() }); // Ensure ObjectId is returned as a string
+    } catch (error) {
+        console.error("Error fetching Hospital ID:", error);
+        res.status(500).json({ success: false, message: "Server error while fetching Hospital ID" });
+    }
+});
+
 
 //API to create a new appointment - after confirming the appointment on /book-appointment page:
 app.post('/appointments', async (req, res) => {
     try {
         console.log("Received appointment data:", req.body); // Log received data
 
-        const { patient_id, doctor_id, appointment_date, status, reason } = req.body;
+        const { patient_id, doctor_id, hospital_id, appointment_date, status, reason } = req.body;
 
         // Validate required fields
-        if (!patient_id || !doctor_id || !appointment_date || !status || !reason) {
+        if (!hospital_id || !patient_id || !doctor_id || !appointment_date || !status || !reason) {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
@@ -514,6 +537,7 @@ app.post('/appointments', async (req, res) => {
         const newAppointment = new AppointmentDetails({
             patient_id,
             doctor_id,  // Directly use the received doctor_id
+            hospital_id,
             appointment_date,
             status,
             reason

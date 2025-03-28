@@ -52,23 +52,36 @@ const BookAppointment = () => {
     
             console.log("Fetching doctor ID for:", doctorName); // Debugging log
     
+            console.log("Fetching hospital ID for:", hospital); // Debugging log
+
             // Fetch doctor_id from the new API endpoint
             const doctorResponse = await axios.get(`http://localhost:5000/get-doctor-id/${encodeURIComponent(doctorName)}`);
+
+            // Fetch hospital_id from the new API endpoint
+            const hospitalResponse = await axios.get(`http://localhost:5000/get-hospital-id/${encodeURIComponent(hospital)}`);
     
             if (doctorResponse.status !== 200 || !doctorResponse.data || !doctorResponse.data.doctor_id) {
                 alert("Doctor not found.");
                 return;
             }
-    
+
+            if (hospitalResponse.status !== 200 || !hospitalResponse.data || !hospitalResponse.data.hospital_id) {
+                alert("Hospital not found.");
+                return;
+            }
+
             const doctorId = doctorResponse.data.doctor_id; // Extract doctor_id from response
+
+            const hospitalId = hospitalResponse.data.hospital_id //Extract hospital_id from response
     
             console.log("Doctor ID retrieved:", doctorId); // Debugging log
+            console.log("Hospital ID retrieved:", hospitalId); // Debugging log
     
             // Prepare appointment data
             const appointmentData = {
                 patient_id: userData.id,
                 doctor_id: doctorId, // Now using the fetched doctor_id
-                //hospital_id: hospitalId,
+                hospital_id: hospitalId,
                 appointment_date: new Date(`${date} ${startTime}`),
                 status: "Scheduled",
                 reason: reason
