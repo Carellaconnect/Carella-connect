@@ -24,6 +24,11 @@ const AppointmentAvailability = () => {
     window.location.href = "/login"; // Redirect to login page
   };
 
+  //Handle going back to /patient-dashboard on clicking on Go back button
+  const goBack = () => {
+    // Navigate to the /patient-dashboard page for the logged in user
+    navigate(`/patient-dashboard`);
+  };
 
   useEffect(() => {
     if (specialty && language) {
@@ -152,13 +157,14 @@ const AppointmentAvailability = () => {
 
                       {/* Right Section */}
                       <Col md={2} className="text-end">
-                        <Button
-                          className="rounded-pill px-4"
-                          style={{ backgroundColor: "#A8577E", border: "none" }}
-                          onClick={() => handleBookAppointment(doctor)}
+                        <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none", marginBottom: "20px" }} onClick={() => handleBookAppointment(doctor)}
                           disabled={!selectedSlots[doctor._id]}
                         >
                           Book Appointment
+                        </Button>
+
+                        <Button className="rounded-pill px-4" style={{ backgroundColor: "#FF0000", border: "none", width: "97%" }} onClick={() => goBack()}>
+                          Go Back
                         </Button>
                       </Col>
                     </Row>

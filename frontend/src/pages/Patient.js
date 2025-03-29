@@ -190,7 +190,7 @@ const Patient = () => {
                       <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="lightgray" />
                     </p>
                     <Button className="me-2" style={{ backgroundColor: "#F28D8D", border: "none" }}>View Records</Button>
-                    <Button style={{ backgroundColor: "#8D5B8F", border: "none" }}>Book Follow-up</Button>
+                    <Button style={{ backgroundColor: "#8D5B8F", border: "none" }} onClick={() => navigate(`/followup-appointment?doctorId=${pastappt.doctorid}&doctorName=${encodeURIComponent(pastappt.doctor_name)}`) }>Book Follow-up</Button>
                   </Col>
                 </Row>
               </Card>

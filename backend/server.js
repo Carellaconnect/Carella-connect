@@ -478,6 +478,7 @@ app.get('/filtered-doctors', async (req, res) => {
     }
 });
 
+
 /* ------------------------------------------------------------------------------------------------ */
 //fetch the doctor's _id from the users collection based on the provided doctorName.
 app.get('/get-doctor-id/:doctorName', async (req, res) => {
