@@ -22,6 +22,7 @@ const Register = () => {
     const [hospitalId, setHospitalId] = useState("");
     const [doctorId, setDoctorId] = useState("");
     const [gender, setGender] = useState("");
+    const [speciality, setSpeciality] = useState("");
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(false);
@@ -36,8 +37,11 @@ const Register = () => {
       fetch("http://localhost:5000/api/hospital-data")
         .then((response) => response.json())
         .then((data) => {
-          setHospitalsList(data);
-          //console.log('Hospital List >> '+hospitalsList);
+          if(data.error) {
+            data = [];
+          } else { 
+           setHospitalsList(data);
+          }
         })
         .catch((error) =>
           console.error("Error fetching hospital list:", error)
@@ -65,6 +69,9 @@ const Register = () => {
 
   const handleGenderChange = (event) => {
     setGender(event.target.value);
+  };
+  const handleSpecialityChange = (event) => {
+    setSpeciality(event.target.value);
   };
 
   const handleHospitalIdChange = (event) => {
@@ -124,7 +131,8 @@ const Register = () => {
             doctorId,
             gender,
             isDoctor,
-            licenseNumber
+            licenseNumber,
+            speciality
           };
 
           setFormData(formData);
@@ -417,7 +425,26 @@ const Register = () => {
                                       />
                                     </Form.Group>
                                   </Col>
-                                  <Col></Col>
+                                  <Col>
+                                    <Form.Group controlId="formSpeciality" className="mb-3 text-start">
+                                      <Form.Label>Select Speciality</Form.Label>
+                                      <Form.Control
+                                        as="select"
+                                        value={speciality}
+                                        onChange={handleSpecialityChange}
+                                      >
+                                        <option value="">--Select an option--</option>
+                                        <option value="Dentist">Dentist</option>
+                                        <option value="Orthopediac">Orthopediac</option>
+                                        <option value="Dermatology">Dermatology</option>
+                                        <option value="Surgery">Surgery</option>
+                                        <option value="Psychiatry">Psychiatry</option>
+                                        <option value="Family Medicine">Family Medicine</option>
+                                        <option value="General Medicine">General Medicine</option>
+
+                                      </Form.Control>
+                                    </Form.Group>
+                                  </Col>
                                 </Row>
                               </>
                               )}

@@ -71,6 +71,8 @@ const UserSchema = new mongoose.Schema({
     insurance_provider: String,
     hospital_id: { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" },
     doctor_identification_id: String,
+    license_number: String,
+    speciality: String,
     created_at: Date,
     updated_at: Date,
 });
@@ -104,7 +106,6 @@ const AppointmentDetailsSchema = new mongoose.Schema({
 
 const AppointmentDetails = mongoose.model("AppointmentDetails", AppointmentDetailsSchema);
 module.exports = AppointmentDetails;
-
 
 //Hospital Collection
 const HospitalSchema = new mongoose.Schema({
@@ -226,7 +227,8 @@ app.post('/register',
             "insurance_provider": req.body.insuranceProvider,
             "hospital_id": req.body.hospitalId,
             "doctor_identification_id": req.body.doctorId,
-            "license_number": req.body.licenseNumber
+            "license_number": req.body.licenseNumber,
+            "speciality": req.body.speciality
             });
 
                 await newUser.save().then(() => {
@@ -754,7 +756,7 @@ app.get('/api/hospital-data', async (req, res) => {
 
     try {
         
-        const hospitalsList = await HospitalsList.find().exec();
+        const hospitalsList = await Hospital.find().exec();
     
         if (!hospitalsList || hospitalsList.length === 0) {
           return res.status(404).json({ message: "No hospitals found." });
