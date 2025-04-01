@@ -164,6 +164,18 @@ const EmergencyRequest = mongoose.model('EmergencyRequest', {
     createdAt: { type: Date, default: Date.now }
 });
 
+const MedicalRecords = mongoose.model('MedicalRecords', {
+    patientName: String,
+    patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+    email: String,
+    appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'AppointmentDetailsSchema', default: null },
+    appointmentDate: String,
+    allergies: String,
+    diagnosis: String,
+    medication: String, 
+    createdAt: { type: Date, default: Date.now }
+});
+
 
 var phoneregex = /^\(?(\d{3})\)?[\.\-\/\s]?(\d{3})[\.\-\/\s]?(\d{4})$/;
 
@@ -820,7 +832,131 @@ app.put('/api/appointments/cancel/:id', async (req, res) => {
     }
   });  
 
+//Update Appointment API 
+app.post('/updateAppointment', async (req, res) => {
+    const appointmentId = req.body.appointmentId;
+    try {
+        const medicalRecords = await MedicalRecords.findOne({ appointmentId });
+        if(medicalRecords == null) {
+            const newRecord = new MedicalRecords ({
+                "patientName": req.body.patientName, 
+                "patientId": req.body.patientId,
+                "email": req.body.email,
+                "appointmentId": req.body.appointmentId,  
+                "appointmentDate": req.body.appointmentDate,
+                "allergies": req.body.allergies,
+                "diagnosis": req.body.diagnosis,
+                "medication": req.body.medication
+            });
+            await newRecord.save().then(() => {
+                console.log('Medical record saved.');
+            });
+            return res.json({
+                success: true,
+                message: 'Medical record created successfully!'
+            });
 
+        } else {
+            medicalRecords.patientName = req.body.patientName;
+            medicalRecords.patientId = req.body.patientId;
+            medicalRecords.email = req.body.email;
+            medicalRecords.appointmentId = req.body.appointmentId;
+            medicalRecords.appointmentDate = req.body.appointmentDate;
+            medicalRecords.allergies = req.body.allergies;
+            medicalRecords.diagnosis = req.body.diagnosis;
+            medicalRecords.medication = req.body.medication;
+            const updatedRecord = await MedicalRecords.findByIdAndUpdate(
+                medicalRecords._id,
+                medicalRecords,
+                { new: true }
+            );
+            return res.json({
+                success: true,
+                message: 'Medical record updated successfully!'
+            });
+        }
+
+    } catch (error) {
+        console.error('Error during appointment updation:', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+//Complete appointment Api
+app.post('/completeConsultation', async (req, res) => {
+    const appointmentId = req.body.appointmentId;
+    const appointmentDetails = await AppointmentDetails.find({ 
+        _id: appointmentId
+      })
+      .populate('patient_id', 'name email phone gender') // Populate patient details
+      .exec();
+    try {
+        const medicalRecords = await MedicalRecords.findOne({ appointmentId });
+        if(medicalRecords == null) {
+            const newRecord = new MedicalRecords ({
+                "patientName": req.body.patientName, 
+                "patientId": req.body.patientId,
+                "email": req.body.email,
+                "appointmentId": req.body.appointmentId,  
+                "appointmentDate": req.body.appointmentDate,
+                "allergies": req.body.allergies,
+                "diagnosis": req.body.diagnosis,
+                "medication": req.body.medication
+            });
+            await newRecord.save().then(() => {
+                console.log('Medical record saved.');
+            });
+
+        } else {
+            medicalRecords.patientName = req.body.patientName;
+            medicalRecords.patientId = req.body.patientId;
+            medicalRecords.email = req.body.email;
+            medicalRecords.appointmentId = req.body.appointmentId;
+            medicalRecords.appointmentDate = req.body.appointmentDate;
+            medicalRecords.allergies = req.body.allergies;
+            medicalRecords.diagnosis = req.body.diagnosis;
+            medicalRecords.medication = req.body.medication;
+            const updatedRecord = await MedicalRecords.findByIdAndUpdate(
+                medicalRecords._id,
+                medicalRecords,
+                { new: true }
+            );
+        }
+        const updatedAppointment = await AppointmentDetails.findByIdAndUpdate(
+            appointmentId,
+            { status: 'Completed' }, // Change the status to 'Completed'
+            { new: true } // Return the updated appointment
+          );
+        return res.json({
+            success: true,
+            message: 'Medical record updated and consultation completed successfully!'
+        });
+
+    } catch (error) {
+        console.error('Error during appointment completion:', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+app.get('/api/fetchMedicalRecords/:appt_id', async (req, res) => {
+    try {
+      const { appt_id } = req.params;
+  
+      if (!appt_id) {
+        return res.status(400).json({ message: 'Appointmnet Id is required' });
+      }
+  
+      const medicalRecords = await MedicalRecords.find({ 
+          appointmentId: appt_id,
+        }).exec();
+  
+      res.json({ data: medicalRecords });
+  
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      res.status(500).json({ message: 'Error fetching appointments' });
+    }
+});
   
 
 // Start the server

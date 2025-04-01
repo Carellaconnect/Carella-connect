@@ -56,10 +56,7 @@ const Doctor = ({ onSelectPatient }) => {
     
       fetchAppointments();
     }, []);
-    
-    
-  
-
+ 
   const handleSelect = (appt) => {
     setSelectedAppointment(appt);
   };
@@ -83,17 +80,70 @@ const Doctor = ({ onSelectPatient }) => {
     setShowUserEditModal(false);
   };
 
-  const updateMedicalRecord = () => {
+  const updateMedicalRecord = async () => {
+    try {
+      const formData = {
+        appointmentId : selectedAppointment._id,
+        email : selectedAppointment.patient_id.email,
+        patientName: selectedAppointment.patient_id.name,
+        patientId: selectedAppointment.patient_id._id,
+        reason: selectedAppointment.reason,
+        allergies,
+        diagnosis,
+        medication,
+        appointmentDate: selectedAppointment.appointment_date
+      };
+        let formErrors = {};
+        try {
+          const response = await axios.post('http://localhost:5000/updateAppointment', formData);
+          console.log(response.data);
+        } catch (error) {
+          console.log('Inside catch');
+      }
+    } catch (error) {
+       
+    }
     setShowUserEditModal(false);
   };
 
-  const handleAppointment = () => {
-    // axios.put(`http://localhost:5000/api/appointments/cancel/${appointmentId}`)
-    //   .then(() => {
-    //     setAppointments(appointments.filter(appt => appt._id !== appointmentId));
-    //     alert("Appointment cancelled successfully.");
-    //   })
-    //   .catch(error => console.error("Error cancelling appointment:", error));
+  const completeConsultation = async () => {
+    try {
+      const formData = {
+        appointmentId : selectedAppointment._id,
+        email : selectedAppointment.patient_id.email,
+        patientName: selectedAppointment.patient_id.name,
+        patientId: selectedAppointment.patient_id._id,
+        reason: selectedAppointment.reason,
+        allergies,
+        diagnosis,
+        medication,
+        appointmentDate: selectedAppointment.appointment_date
+      };
+        let formErrors = {};
+        try {
+          const response = await axios.post('http://localhost:5000/completeConsultation', formData);
+          console.log(response.data);
+        } catch (error) {
+          console.log('Inside catch');
+      }
+    } catch (error) {
+       
+    }
+    setShowUserEditModal(false);
+  };
+
+  const handleAppointment = async () => {
+    if(selectedAppointment){
+      const response = await axios.get(
+        `http://localhost:5000/api/fetchMedicalRecords/${selectedAppointment._id}`
+      );
+      console.log(response);
+      if(response && response.data && response.data.data){
+        setAllergies(response.data.data[0].allergies);
+        setDiagnosis(response.data.data[0].diagnosis);
+        setMedication(response.data.data[0].medication);
+      }
+    }
     setShowUserEditModal(true);
   };
 
@@ -218,14 +268,20 @@ const Doctor = ({ onSelectPatient }) => {
                       <p>No appointment selected</p>
                     )}
                   </Modal.Body>
+                  {selectedAppointment ? (
+                    <>
                   <Modal.Footer>
                     <Button variant="secondary" onClick={updateMedicalRecord}>
                       Update
                     </Button>
-                    <Button variant="secondary" onClick={updateMedicalRecord}>
+                    <Button variant="secondary" onClick={completeConsultation}>
                       Complete Consultation
                     </Button>
                   </Modal.Footer>
+                  </>
+                  ) : (
+                    <p></p>
+                  )}
                 </Modal>
 
                      {/* Modal for Viewing Appointment Details */}
