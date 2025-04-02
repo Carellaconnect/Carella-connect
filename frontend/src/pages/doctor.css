@@ -1,0 +1,20 @@
+.react-calendar {
+    margin: auto;
+    width: 80%; /* Adjust width */
+    max-width: 100%;
+    font-size: 1 rem; /* Increase font size */
+  }
+  
+  .react-calendar__tile {
+    padding: 10px; /* Increase tile size */
+  }
+  .react-calendar__tile--now {
+    background: #F4A5AE !important; /* Change to any color */
+    color: black !important; /* Change text color */
+    font-weight: bold; /* Make text bold */
+  }
+  .react-calendar__tile--active {
+    background: #A8577E !important; /* Change background color */
+    color: white !important; /* Change text color */
+    font-weight: bold; /* Make text bold */
+  }

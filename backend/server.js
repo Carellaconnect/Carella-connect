@@ -11,10 +11,9 @@ const sendEmail = require("./emailService");
 const twilio = require('twilio');
 require('dotenv').config();
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-
-
 const app = express();
 const router = express.Router(); // Define router
+
 
 //app.use(cors());
 app.use(express.json());  // Middleware to parse JSON
@@ -957,8 +956,101 @@ app.get('/api/fetchMedicalRecords/:appt_id', async (req, res) => {
       res.status(500).json({ message: 'Error fetching appointments' });
     }
 });
+
+
+// Doctor availability 
+
+app.get('/doctor/availability/:doctorId', async (req, res) => {
+    try {
+      const { doctorId } = req.params;
+      const doctorProfile = await DoctorProfile.findOne({ doctor_id: doctorId });
+  
+      if (!doctorProfile) {
+        return res.status(404).json({ message: 'Doctor profile not found' });
+      }
+  
+      res.json(doctorProfile.availability);
+    } catch (err) {
+      res.status(500).json({ message: 'Error fetching availability data', error: err });
+    }
+  });
   
 
+
+  
+  // Add new time slot
+  app.post('/doctor/add-time-slot/:doctorId', async (req, res) => {
+    try {
+      const { doctorId } = req.params;
+      const { date, time_slot } = req.body;
+  
+      const doctor = await DoctorProfile.findOne({ doctor_id: doctorId });
+  
+      if (!doctor) {
+        return res.status(404).json({ message: 'Doctor not found' });
+      }
+  
+      // Find the availability entry for the selected date
+      const availabilityIndex = doctor.availability.findIndex(
+        (avail) => avail.date.toISOString().split('T')[0] === date
+      );
+  
+      if (availabilityIndex > -1) {
+        // If date exists, add the time slot to the existing array
+        doctor.availability[availabilityIndex].time_slots.push(time_slot);
+      } else {
+        // If date does not exist, create a new entry
+        doctor.availability.push({ date: new Date(date), time_slots: [time_slot] });
+      }
+  
+      await doctor.save();
+      res.json({ message: 'Time slot added successfully' });
+    } catch (err) {
+      console.error('Error adding time slot:', err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  
+  app.put('/doctor/update-time-slot/:doctorId', async (req, res) => {
+    try {
+      const { doctorId } = req.params;
+      const { date, index, time_slot } = req.body;
+  
+      let doctor = await DoctorProfile.findOne({ doctor_id: doctorId });
+      if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
+  
+      let dayAvailability = doctor.availability.find(avail => avail.date.toISOString().split('T')[0] === date);
+      if (!dayAvailability) return res.status(404).json({ message: 'No availability found for this date' });
+  
+      dayAvailability.time_slots[index] = time_slot;
+      await doctor.save();
+      res.json({ message: 'Time slot updated successfully' });
+    } catch (err) {
+      res.status(500).json({ message: 'Server Error', error: err });
+    }
+  });
+  
+  // Delete a time slot
+  app.delete('/doctor/delete-time-slot/:doctorId', async (req, res) => {
+    try {
+      const { doctorId } = req.params;
+      const { date, index } = req.body;
+  
+      let doctor = await DoctorProfile.findOne({ doctor_id: doctorId });
+      if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
+  
+      let dayAvailability = doctor.availability.find(avail => avail.date.toISOString().split('T')[0] === date);
+      if (!dayAvailability) return res.status(404).json({ message: 'No availability found for this date' });
+  
+      dayAvailability.time_slots.splice(index, 1);
+      await doctor.save();
+      res.json({ message: 'Time slot deleted successfully' });
+    } catch (err) {
+      res.status(500).json({ message: 'Server Error', error: err });
+    }
+  });
+  
+  
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
