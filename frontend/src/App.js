@@ -16,6 +16,7 @@ import VirtualHealthResources from "./pages/VirtualHealthResources";
 import ProfilePage from "./pages/Profile";
 import HealthSupportPage from "./pages/HealthAndSupport";
 import FollowupAppointment from "./pages/FollowupAppointment";
+import ConsultationRecords from "./pages/ConsultationRecords";
 
 
 
@@ -47,6 +48,7 @@ function App() {
         <Route path="/profile-page" element={<ProfilePage/>}  />
         <Route path="/health-and-support" element={<HealthSupportPage/>}/>
         <Route path="/followup-appointment" element={<FollowupAppointment/>}/>
+        <Route path="/consultation-records" element={<ConsultationRecords/>}/>
         </Routes>
         
         <Footer />
