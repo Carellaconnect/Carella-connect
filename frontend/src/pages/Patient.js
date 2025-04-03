@@ -181,7 +181,7 @@ const Patient = () => {
                     <p><strong>Time:</strong> {new Date(new Date(appt.appointment_date).getTime() + 4 * 60 * 60 * 1000).toLocaleTimeString()}</p>
                   </Col>
                   <Col md={3} className="text-end">
-                    <Button className="me-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}>Change</Button>
+                   { /*  <Button className="me-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}>Change</Button>*/ }
                     <Button style={{ backgroundColor: "#E32037", border: "none" }} onClick={() => handleCancelAppointment(appt._id)}>Cancel</Button>
                   </Col>
                 </Row>
@@ -218,7 +218,7 @@ const Patient = () => {
 
                     <Button className="me-2" style={{ backgroundColor: "#A8577E", border: "none" }} onClick={() => navigate(`/consultation-records?appointmentId=${pastappt._id}&doctorName=${encodeURIComponent(pastappt.doctor_name)}&hospitalName=${encodeURIComponent(pastappt.hospital_name)}`)}>View Records</Button>
 
-                    <Button style={{ backgroundColor: "#8D5B8F", border: "none" }} onClick={() => navigate(`/followup-appointment?doctorId=${pastappt.doctorid}&doctorName=${encodeURIComponent(pastappt.doctor_name)}`)}>Book Follow-up</Button>
+                    { /* <Button style={{ backgroundColor: "#8D5B8F", border: "none" }} onClick={() => navigate(`/followup-appointment?doctorId=${pastappt.doctorid}&doctorName=${encodeURIComponent(pastappt.doctor_name)}`)}>Book Follow-up</Button> */ }
                   </Col>
                 </Row>
               </Card>
