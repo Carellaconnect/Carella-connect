@@ -264,7 +264,7 @@ app.post('/register',
                             console.log("Data sent for Admin's approval.");
                         });
                     });
-
+a
                 }
                 let message = 'Registration Successful!';
                 if (req.body.role.toLowerCase() === 'doctor' || req.body.role.toLowerCase() === 'admin') {
@@ -326,10 +326,20 @@ app.post('/login', async (req, res) => {
         return res.json({
             success: true,
             message: 'Login successful!',
-            role: user.role,
-            status: user.status,
-            user_id: user._id,  // Send user ID to frontend
-            name: user.name // Send user name for display
+            user: {   
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                phone: user.phone,
+                address: user.address,
+                city: user.city,
+                province: user.province,
+                postcode: user.postcode,
+                date_of_birth: user.date_of_birth,
+                gender: user.gender,
+                status: user.status
+            }
         });
 
     } catch (error) {
@@ -662,6 +672,8 @@ app.get('/test', (req, res) => {
 app.post('/api/emergency', async (req, res) => {
     try {
         const { name, emergencyType, location, details, urgency, phoneNumber, userId } = req.body;
+        const formattedPhoneNumber = formatPhoneNumber(phoneNumber);
+
 
         if (!emergencyType || !location || !urgency || !phoneNumber) {
             return res.status(400).json({ success: false, message: "Required fields are missing!" });
@@ -683,7 +695,7 @@ app.post('/api/emergency', async (req, res) => {
             location,
             details,
             urgency,
-            phoneNumber,
+            phoneNumber: formattedPhoneNumber,
             userId: userId || null,
         });
 
@@ -695,6 +707,20 @@ app.post('/api/emergency', async (req, res) => {
         res.status(500).json({ success: false, message: "Server error while submitting request." });
     }
 });
+// Function to format the phone number
+function formatPhoneNumber(phoneNumber) {
+    
+    const cleaned = phoneNumber.replace(/\D/g, '');
+
+    // Check if the cleaned phone number is exactly 10 digits
+    if (cleaned.length === 10) {
+        // Format the phone number as XXX-XXX-XXXX
+        return `${cleaned.substring(0, 3)}-${cleaned.substring(3, 6)}-${cleaned.substring(6, 10)}`;
+    } else {
+        // Return null if the phone number is not valid
+        return null;
+    }
+}
 
 // Get all emergency requests
 app.get('/api/emergency-requests', async (req, res) => {
@@ -737,6 +763,7 @@ app.put('/api/emergency-requests/:id', async (req, res) => {
 
             try {
                 // Send SMS using Twilio
+                
                 await client.messages.create({
                     body: message,
                     from: process.env.TWILIO_PHONE_NUMBER, 
@@ -760,6 +787,8 @@ app.put('/api/emergency-requests/:id', async (req, res) => {
         return res.status(500).json({ success: false, message: "Server error while updating the emergency request." });
     }
 });
+
+
 
 
 

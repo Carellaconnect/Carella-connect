@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Navbar, Nav, Button, Container, Row, Col, Card, Modal, Form, Alert } from "react-bootstrap";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
@@ -28,6 +28,7 @@ const Home = ({ user }) => {
   });
   const [responseMessage, setResponseMessage] = useState(""); // State for response message
   const [formSubmitted, setFormSubmitted] = useState(false); // State to track form submission
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user && user.phoneNumber) {
@@ -66,6 +67,33 @@ const Home = ({ user }) => {
     }
   };
 
+const handleHealthEducationClick = () => {
+
+      navigate("/virtual-health-resources"); 
+   
+  };
+  const handleEmergencyClick = () => {
+    setShowEmergencyModal(true); 
+  };
+
+  const handleHowItWorksClick = () => {
+    if (user) {
+      // Redirect based on user role
+      if (user.role === "admin") {
+        navigate("/admin-dashboard");
+      } else if (user.role === "doctor") {
+        navigate("/doctor-dashboard");
+      } else if (user.role === "patient") {
+        navigate("/patient-dashboard");
+      } else {
+        navigate("/login"); // Default dashboard if role is unknown
+      }
+    } else {
+      navigate("/login"); // If not logged in, redirect to login
+    }
+  };
+
+
   return (
     <>
       {/* Navbar */}
@@ -89,30 +117,30 @@ const Home = ({ user }) => {
 
       {/* Hero Section */}
       <Container fluid className="hero-section" style={{ height: "55vh", objectFit: "cover" }}>
-        <Row className="align-items-center">
-          <Col md={4} className="p-0">
-            <img src="/images/drhand.png" alt="Doctor Left" className="img-fluid w-100 hero-img" />
-          </Col>
-          <Col md={4} className="text-center py-5">
-            <h2>Carella Connect – Bridging the Gap in Healthcare!</h2>
-            <p>Bringing quality healthcare closer to you. Find doctors, access medical records, and receive medication alerts.</p>
-            <Link to="/login">
-              <Button style={{ backgroundColor: "#A8577E", border: "none", padding: "10px 20px", fontSize: "1.2rem" }}>
-                Book Now
-              </Button>
-            </Link>
-          </Col>
-          <Col md={4} className="p-0">
-            <img src="/images/pthand.png" alt="Patient Right" className="img-fluid w-100 hero-img" />
-          </Col>
-        </Row>
-      </Container>
-      {/* Emergency Request Button */}
-      <Container className="text-center my-5">
+  <Row className="align-items-center">
+    <Col md={4} className="p-0">
+      <img src="/images/drhand.png" alt="Doctor Left" className="img-fluid w-100 hero-img" />
+    </Col>
+    <Col md={4} className="text-center py-5">
+      <h2>Carella Connect – Bridging the Gap in Healthcare!</h2>
+      <p>Bringing quality healthcare closer to you. Find doctors, access medical records, and receive medication alerts.</p>
+      {/* Buttons wrapped inside a div for flexbox alignment */}
+      <div className="d-flex flex-column gap-2 align-items-center">
+        <Link to="/login">
+          <Button style={{ backgroundColor: "#A8577E", border: "none", padding: "10px 20px", fontSize: "1.2rem" }}>
+            Book Now
+          </Button>
+        </Link>
         <Button onClick={() => setShowEmergencyModal(true)} style={{ backgroundColor: "#A8577E", border: "0px", padding: "12px 24px", fontSize: "1.2rem" }}>
           Request Emergency Help
         </Button>
-      </Container>
+      </div>
+    </Col>
+    <Col md={4} className="p-0">
+      <img src="/images/pthand.png" alt="Patient Right" className="img-fluid w-100 hero-img" />
+    </Col>
+  </Row>
+        </Container>
 
       {/* Emergency Request Modal */}
       <Modal show={showEmergencyModal} onHide={() => setShowEmergencyModal(false)} centered>
@@ -207,14 +235,19 @@ const Home = ({ user }) => {
                 <Form.Control
                   type="tel"
                   name="phoneNumber"
-                  placeholder="Enter your phone number"
+                  placeholder="Enter your phone number, (10 digits, no country code)"
                   value={emergencyDetails.phoneNumber}
                   onChange={handleChange}
                   required
                 />
+              
               </Form.Group>
 
-              <Button variant="primary" type="submit">Submit Request</Button>
+              <div style={{ marginTop: "20px" }}> {/* This creates the gap */}
+                  <Button type="submit" style={{ backgroundColor: "#A8577E", border: "none", padding: "10px 20px", fontSize: "1.2rem", marginBottom: "10px" }}>
+                    Submit Request
+              </Button>
+            </div>
             </Form>
           )}
         </Modal.Body>
@@ -243,7 +276,30 @@ const Home = ({ user }) => {
               <Card.Body>
                 <Card.Title>{service.name}</Card.Title>
                 <Card.Text>{service.description}</Card.Text>
-                <Button style={{ backgroundColor: "#A8577E", border: "0px" }}>Learn More</Button>
+                <Button style={{ backgroundColor: "#A8577E", border: "0px" }} 
+                 onClick={() => {
+                  if (service.name === "Emergency Assistance") {
+                    handleEmergencyClick(); // Show emergency modal
+                  } else if (service.name === "Health Education & Resources") {
+                    handleHealthEducationClick(); // Navigate to health education page
+                  } else {
+                    // Role-based navigation for other services
+                    if (user) {
+                      if (user.role === "admin") {
+                        navigate("/admin-dashboard");
+                      } else if (user.role === "doctor") {
+                        navigate("/doctor-dashboard");
+                      } else if (user.role === "patient") {
+                        navigate("/patient-dashboard");
+                      } else {
+                        navigate("/login"); // Fallback
+                      }
+                    } else {
+                      navigate("/login"); // If no user, go to login
+                    }
+                  }
+                }}
+                >Learn More</Button>
               </Card.Body>
             </Card>
           </SwiperSlide>
@@ -263,7 +319,8 @@ const Home = ({ user }) => {
               <p className="badge p-3" style={{backgroundColor:"#A8577E", borderRadius:"95%", fontSize:"15px"}}>{step.id}</p>
               <h5 className='mt-3'>{step.title}</h5>
               <p>{step.text}</p>
-              <Button className='mt-3 p-2' style={{backgroundColor:"#A8577E", border:"0px"}}>{step.button}</Button>
+              <Button className='mt-3 p-2' style={{backgroundColor:"#A8577E", border:"0px"}} onClick={handleHowItWorksClick}
+              >{step.button}</Button>
             </Col>
           ))}
           </Row>
