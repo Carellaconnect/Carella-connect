@@ -169,6 +169,7 @@ const MedicalRecords = mongoose.model('MedicalRecords', {
     email: String,
     appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'AppointmentDetailsSchema', default: null },
     appointmentDate: String,
+    reason: String,
     allergies: String,
     diagnosis: String,
     medication: String, 
@@ -872,6 +873,7 @@ app.post('/updateAppointment', async (req, res) => {
                 "email": req.body.email,
                 "appointmentId": req.body.appointmentId,  
                 "appointmentDate": req.body.appointmentDate,
+                "reason": req.body.reason,
                 "allergies": req.body.allergies,
                 "diagnosis": req.body.diagnosis,
                 "medication": req.body.medication
@@ -890,6 +892,7 @@ app.post('/updateAppointment', async (req, res) => {
             medicalRecords.email = req.body.email;
             medicalRecords.appointmentId = req.body.appointmentId;
             medicalRecords.appointmentDate = req.body.appointmentDate;
+            medicalRecords.reason = req.body.reason;
             medicalRecords.allergies = req.body.allergies;
             medicalRecords.diagnosis = req.body.diagnosis;
             medicalRecords.medication = req.body.medication;
@@ -927,6 +930,7 @@ app.post('/completeConsultation', async (req, res) => {
                 "email": req.body.email,
                 "appointmentId": req.body.appointmentId,  
                 "appointmentDate": req.body.appointmentDate,
+                "reason": req.body.reason,
                 "allergies": req.body.allergies,
                 "diagnosis": req.body.diagnosis,
                 "medication": req.body.medication
@@ -941,6 +945,7 @@ app.post('/completeConsultation', async (req, res) => {
             medicalRecords.email = req.body.email;
             medicalRecords.appointmentId = req.body.appointmentId;
             medicalRecords.appointmentDate = req.body.appointmentDate;
+            medicalRecords.reason = req.body.reason;
             medicalRecords.allergies = req.body.allergies;
             medicalRecords.diagnosis = req.body.diagnosis;
             medicalRecords.medication = req.body.medication;
@@ -983,6 +988,65 @@ app.get('/api/fetchMedicalRecords/:appt_id', async (req, res) => {
     } catch (error) {
       console.error('Error fetching appointments:', error);
       res.status(500).json({ message: 'Error fetching appointments' });
+    }
+});
+
+app.get('/api/fetchMedicalRecords/:appt_id', async (req, res) => {
+    try {
+      const { appt_id } = req.params;
+  
+      if (!appt_id) {
+        return res.status(400).json({ message: 'Appointmnet Id is required' });
+      }
+  
+      const medicalRecords = await MedicalRecords.find({ 
+          appointmentId: appt_id,
+        }).exec();
+  
+      res.json({ data: medicalRecords });
+  
+    } catch (error) {
+      console.error('Error fetching appointments:', error);
+      res.status(500).json({ message: 'Error fetching appointments' });
+    }
+});
+
+app.get('/api/getAllPreviousRecords/:patientId', async (req, res) => {
+    try {
+      const { patientId } = req.params;
+  
+      if (!patientId) {
+        return res.status(400).json({ message: 'Patient Id is required' });
+      }
+  
+      const medicalRecords = await MedicalRecords.find({ 
+          patientId: patientId,
+        }).exec();
+  
+      res.json({ data: medicalRecords });
+  
+    } catch (error) {
+      console.error('Error fetching medical records:', error);
+      res.status(500).json({ message: 'Error fetching medical records' });
+    }
+});
+
+//getMedicalRecordById
+app.get('/api/getMedicalRecordById/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      if (!id) {
+        return res.status(400).json({ message: 'Record Id is required' });
+      }
+      const medicalRecords = await MedicalRecords.find({ 
+        _id: id,
+      }).exec();
+      res.json({ data: medicalRecords });
+  
+    } catch (error) {
+      console.error('Error fetching medical records:', error);
+      res.status(500).json({ message: 'Error fetching medical records' });
     }
 });
 

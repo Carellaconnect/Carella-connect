@@ -17,6 +17,7 @@ const Doctor = ({ onSelectPatient }) => {
   const [appointments, setAppointments] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
   const [showUserEditModal, setShowUserEditModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -29,6 +30,8 @@ const Doctor = ({ onSelectPatient }) => {
   const [editingSlot, setEditingSlot] = useState(null);
   const [availability, setAvailability] = useState([]);
   const [timeSlots, setTimeSlots] = useState([]);
+  const [medicalRecords, setMedicalRecords] = useState([]);
+  const [selectedMedicalRecord, setSelectedMedicalRecord] = useState([]);
 
 
   useEffect(() => {
@@ -66,16 +69,26 @@ const Doctor = ({ onSelectPatient }) => {
     fetchAppointments();
   }, []);
 
-
-
-  const handleSelect = (appt) => {
-    setSelectedAppointment(appt);
-  };
   const handleView = () => {
     setShowModal(true);
   };
 
+  const handleModalClose = () => {
+    setShowMedicalRecordModal(false);
+  };
+
+  const handleMedicalRecordView = async (recordId) => {
+    const response = await axios.get(
+      `http://localhost:5000/api/getMedicalRecordById/${recordId}`
+    );
+    if(response && response.data && response.data.data && response.data.data[0]){
+      setSelectedMedicalRecord(response.data.data[0]);
+    }
+    setShowMedicalRecordModal(true);
+  }
+
   const handleCloseModal = () => {
+
     setShowModal(false);
   };
   const handleDiscard = (appointmentId) => {
@@ -143,13 +156,25 @@ const Doctor = ({ onSelectPatient }) => {
     setShowUserEditModal(false);
   };
 
+  const handleSelect = async (appt) => {
+    console.log(appt);
+    setSelectedAppointment(appt);
+    const response = await axios.get(
+      `http://localhost:5000/api/getAllPreviousRecords/${appt.patient_id._id}`
+    );
+    if(response && response.data && response.data.data){
+      setMedicalRecords(response.data.data);
+    }
+  };
+
+  ///api/getAllPreviousRecords/:patientId
   const handleAppointment = async () => {
     if (selectedAppointment) {
       const response = await axios.get(
         `http://localhost:5000/api/fetchMedicalRecords/${selectedAppointment._id}`
       );
       console.log(response);
-      if (response && response.data && response.data.data) {
+      if (response && response.data && response.data.data && response.data.data[0]) {
         setAllergies(response.data.data[0].allergies);
         setDiagnosis(response.data.data[0].diagnosis);
         setMedication(response.data.data[0].medication);
@@ -432,7 +457,7 @@ const Doctor = ({ onSelectPatient }) => {
         </Col>
 
         {/* Medical Records Section */}
-        <Col md={6}>
+        {/* <Col md={6}>
           <Card className="mb-4 p-3 shadow-sm h-95" style={{height:"250px"}}>
             <h5>Medical Records</h5>
             <Form className="d-flex justify-content-center mb-3 mt-3">
@@ -448,6 +473,66 @@ const Doctor = ({ onSelectPatient }) => {
               </div>
             ))}
           </Card>
+        </Col> */}
+        <Col>
+        <Card className="mb-4 p-3 shadow-sm h-95" style={{height:"250px"}}>
+          <h5>Previous Medical Records</h5>
+          {selectedAppointment ? (
+            <>
+              <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Patient Name</th>
+                  <th>Reason</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {medicalRecords.map(record => (
+                  <tr key={record._id}>
+                    <td>{record.patientName}</td>
+                    <td>{record.reason}</td>
+                    <td>{moment(record.appointment_date).format("DD MMM YYYY")}</td>
+                    <td>
+                      <Button style={{ backgroundColor: "#A8577E", border: "0px"}} onClick={() => handleMedicalRecordView(record._id)}>View</Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+            </>
+          ) : (
+            <p>No appointment selected</p>
+          )}
+          <Modal show={showMedicalRecordModal} onHide={handleModalClose}>
+              <Modal.Header closeButton>
+                <Modal.Title>Appointment Details</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                {selectedMedicalRecord ? (
+                  <>
+                    <h5>Patient Name: {selectedMedicalRecord.patientName}</h5>
+                    <p>Patient Email: {selectedMedicalRecord.email}</p>
+                    <p>Reason : {selectedMedicalRecord.reason}</p>
+                    <p>Date: {moment(selectedMedicalRecord.appointment_date).format("DD MMM YYYY")}</p>
+                    <p>Allergies: {selectedMedicalRecord.allergies}</p>
+                    <p>Diagnosis: {selectedMedicalRecord.diagnosis}</p>
+                    <p>Medication: {selectedMedicalRecord.medication}</p>
+
+                    {/* Add more details as necessary */}
+                  </>
+                ) : (
+                  <p>No record to show</p>
+                )}
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={handleModalClose}>
+                  Close
+                </Button>
+              </Modal.Footer>
+            </Modal>
+        </Card>
         </Col>
       </Row>
 

@@ -103,7 +103,7 @@ const Login = () => {
                     />
                   </Form.Group>
 
-                  <Button variant="primary" type="submit" disabled={loading}  style={{ backgroundColor: "#F4A5AE", border: "0px", color: "black" }}>
+                  <Button variant="primary" type="submit" disabled={loading} style={{ backgroundColor: "#A8577E", border: "0px", color: "white" }}>
                     {loading ? 'Signing In...' : 'Sign In'}
                   </Button>
                 </Form>
