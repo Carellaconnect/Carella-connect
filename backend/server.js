@@ -1079,6 +1079,24 @@ app.get('/doctor/availability/:doctorId', async (req, res) => {
     }
   });
   
+
+  // GET medical record by appointmentId
+app.get("/medicalrecords/:appointmentId", async (req, res) => {
+    try {
+        const appointmentId = req.params.appointmentId;
+
+        // Find medical record by appointmentId
+        const record = await MedicalRecords.findOne({ appointmentId });
+
+        if (!record) {
+            return res.status(404).json({ message: "Medical record not found" });
+        }
+
+        res.json(record);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+});
   
 // Start the server
 const PORT = process.env.PORT || 5000;

@@ -1,4 +1,4 @@
-import React, { useState, useEffectuseState, useEffect  } from 'react';
+import React, { useState, useEffectuseState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
 import { Container, Button, Form, Card, Row, Col } from "react-bootstrap";
@@ -13,17 +13,20 @@ const Patient = () => {
   // State for dropdown selections
   const [specialty, setSpecialty] = useState('');
   const [language, setLanguage] = useState('');
-  
+
   const [appointments, setAppointments] = useState([]);
   const [pastappointments, setpastAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const userData = JSON.parse(localStorage.getItem("user"));
+  const [cancelSuccessMessage, setcancelSuccessMessage] = useState("");
+  const [cancelFailureMessage, setcancelFailureMessage] = useState("");
+  const [handleSearchMessage, sethandleSearchMessage] = useState("");
 
-  
+
   const handleSearch = () => {
     if (!specialty || !language) {
-      alert("Please select both Specialty and Language.");
+      sethandleSearchMessage("Please select both Specialty and Language.");
       return;
     }
 
@@ -67,7 +70,7 @@ const Patient = () => {
         setError('Failed to fetch past appointments.');
       }
     };
-  
+
     fetchPastAppointments();
   }, []);
 
@@ -76,48 +79,67 @@ const Patient = () => {
     if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
 
     try {
-        await axios.delete(`http://localhost:5000/appointments/${appointmentId}`);
-        
-        // Remove the canceled appointment from state
-        setAppointments(appointments.filter(appt => appt._id !== appointmentId));
+      await axios.delete(`http://localhost:5000/appointments/${appointmentId}`);
 
-        alert("Appointment canceled successfully!");
+      // Remove the canceled appointment from state
+      setAppointments(appointments.filter(appt => appt._id !== appointmentId));
+
+      setcancelSuccessMessage("Appointment canceled successfully!");
     } catch (error) {
-        console.error("Error canceling appointment:", error);
-        alert("Failed to cancel appointment. Please try again.");
+      console.error("Error canceling appointment:", error);
+      setcancelFailureMessage("Failed to cancel appointment. Please try again.");
     }
-};
+  };
 
 
-  return(
+  return (
     <>
-    <Navigation />
-          {/* Menu section */}
-    
+      <Navigation />
+      {/* Show success message if appointment is cancelled*/}
+      {cancelSuccessMessage && (
+        <div className="alert alert-success text-center" role="alert">
+          {cancelSuccessMessage}
+        </div>
+      )}
+
+      {/* Show handleSearch message*/}
+      {handleSearchMessage && (
+        <div className="alert alert-search-message text-center" role="alert" style={{ width: "100%", backgroundColor: "#e6c5be" }}>
+          {handleSearchMessage}
+        </div>
+      )}
+
+      {/* Show failure message if appointment is not cancelled */}
+      {cancelFailureMessage && (
+                <div className="alert alert-failure text-center" role="alert" style={{ width: "100%", backgroundColor: "#e6c5be" }}>
+                    {cancelFailureMessage}
+                </div>
+            )}
+
 
       {/* Search Section */}
       <Container fluid className="text-center p-5" style={{ backgroundColor: "#d7d7d7" }}>
-    <Row className="justify-content-center">
-    <Col md={8} className="text-center">
-      {/* Title */}
-      <h3 className="fw-bold">Find Your Doctor</h3>
-      {/* Subtitle */}
-      <p>Book an appointment for consultation</p>
-      {/* Search Fields */}
-      <Row className="justify-content-center mt-3">
-        <Col md={3}>
-        <Form.Select
+        <Row className="justify-content-center">
+          <Col md={8} className="text-center">
+            {/* Title */}
+            <h3 className="fw-bold">Find Your Doctor</h3>
+            {/* Subtitle */}
+            <p>Book an appointment for consultation</p>
+            {/* Search Fields */}
+            <Row className="justify-content-center mt-3">
+              <Col md={3}>
+                <Form.Select
                   className="rounded-pill px-3"
                   value={specialty}
                   onChange={(e) => setSpecialty(e.target.value)}>
                   <option value="">Select Specialty</option>
                   <option value="Dermatologist">Dermatologist</option>
                   <option value="Dentist">Dentist</option>
-        </Form.Select>
-        </Col>
-        
-        <Col md={3}>
-        <Form.Select
+                </Form.Select>
+              </Col>
+
+              <Col md={3}>
+                <Form.Select
                   className="rounded-pill px-3"
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}>
@@ -125,21 +147,21 @@ const Patient = () => {
                   <option value="English">English</option>
                   <option value="French">French</option>
                 </Form.Select>
-        </Col>
-        <Col md={2}>
-        {/* Search Button */}
-        <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }} onClick={handleSearch}>
-            FIND
-          </Button>
-        </Col>
-      </Row>
-    </Col>
-  </Row>
-</Container>
+              </Col>
+              <Col md={2}>
+                {/* Search Button */}
+                <Button className="rounded-pill px-4" style={{ backgroundColor: "#A8577E", border: "none" }} onClick={handleSearch}>
+                  FIND
+                </Button>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+      </Container>
 
 
-{/* Upcoming Consultations */}
-<Container className="mt-5 text-start">
+      {/* Upcoming Consultations */}
+      <Container className="mt-5 text-start">
         <h2>Upcoming Consultations</h2>
         {loading ? <p>Loading...</p> : error ? <p>{error}</p> : (
           appointments.length > 0 ? (
@@ -169,8 +191,8 @@ const Patient = () => {
 
 
 
-  {/* Completed Consultations */}
-  <Container className="mt-5 text-start">
+      {/* Completed Consultations */}
+      <Container className="mt-5 text-start">
         <h2>Completed Consultations</h2>
         {loading ? <p>Loading...</p> : error ? <p>{error}</p> : (
           pastappointments.length > 0 ? (
@@ -186,11 +208,12 @@ const Patient = () => {
                     <p><strong>Time:</strong> {new Date(new Date(pastappt.appointment_date).getTime() + 4 * 60 * 60 * 1000).toLocaleTimeString()}</p>
                   </Col>
                   <Col md={3} className="text-end">
-                    <p className="mb-1"><strong>Your Feedback:</strong> 
+                    <p className="mb-1"><strong>Your Feedback:</strong>
                       <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="lightgray" />
                     </p>
-                    <Button className="me-2" style={{ backgroundColor: "#F28D8D", border: "none" }}>View Records</Button>
-                    <Button style={{ backgroundColor: "#8D5B8F", border: "none" }} onClick={() => navigate(`/followup-appointment?doctorId=${pastappt.doctorid}&doctorName=${encodeURIComponent(pastappt.doctor_name)}`) }>Book Follow-up</Button>
+                    <Button className="me-2" style={{ backgroundColor: "#A8577E", border: "none" }} onClick={() => navigate(`/consultation-records?appointmentId=${pastappt._id}&doctorName=${encodeURIComponent(pastappt.doctor_name)}&hospitalName=${encodeURIComponent(pastappt.hospital_name)}`)}>View Records</Button>
+
+                    <Button style={{ backgroundColor: "#8D5B8F", border: "none" }} onClick={() => navigate(`/followup-appointment?doctorId=${pastappt.doctorid}&doctorName=${encodeURIComponent(pastappt.doctor_name)}`)}>Book Follow-up</Button>
                   </Col>
                 </Row>
               </Card>
@@ -200,7 +223,7 @@ const Patient = () => {
           )
         )}
       </Container>
-</>
+    </>
   )
 };
 

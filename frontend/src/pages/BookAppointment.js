@@ -26,6 +26,10 @@ const BookAppointment = () => {
 
     // State to store reason input
     const [reason, setReason] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [failureMessage, setFailureMessage] = useState("");
+    const [doctorNotfoundMessage, setdoctorNotfoundMessage] = useState("");
+    const [hospitalNotfoundMessage, sethospitalNotfoundMessage] = useState("");
 
     useEffect(() => {
         if (!location.state) {
@@ -37,7 +41,7 @@ const BookAppointment = () => {
     /*if (!date || !startTime || !endTime) {
         return <p>No appointment selected. Please go back and select a time slot.</p>;
     }*/
-        console.log("Start Time:", startTime);
+    console.log("Start Time:", startTime);
 
     // Function to handle appointment confirmation
     const handleConfirmAppointment = async () => {
@@ -61,12 +65,12 @@ const BookAppointment = () => {
             const hospitalResponse = await axios.get(`http://localhost:5000/get-hospital-id/${encodeURIComponent(hospital)}`);
 
             if (doctorResponse.status !== 200 || !doctorResponse.data || !doctorResponse.data.doctor_id) {
-                alert("Doctor not found.");
+                setdoctorNotfoundMessage("Doctor not found.");
                 return;
             }
 
             if (hospitalResponse.status !== 200 || !hospitalResponse.data || !hospitalResponse.data.hospital_id) {
-                alert("Hospital not found.");
+                sethospitalNotfoundMessage("Hospital not found.");
                 return;
             }
 
@@ -87,7 +91,7 @@ const BookAppointment = () => {
                 reason: reason
             };
 
-           
+
 
             console.log("Sending appointment data:", appointmentData); // Log before sending
 
@@ -97,36 +101,36 @@ const BookAppointment = () => {
             });
 
             if (response.status === 201) {
-                alert("Appointment booked successfully!");
-                navigate("/patient-dashboard");
+                setSuccessMessage("Appointment booked successfully!");
+                setTimeout(() => navigate("/patient-dashboard"), 2000);
             }
         } catch (error) {
             console.error("Error booking appointment:", error.response ? error.response.data : error.message);
-            alert("Failed to book appointment. Please try again.");
+            setFailureMessage("Failed to book appointment. Please try again.");
         }
     };
 
     const addHoursToTime = (time, hoursToAdd) => {
         if (!time) return "Invalid Time";
-    
+
         // Split "06:00 AM" into ["06:00", "AM"]
         const [timePart, modifier] = time.split(" ");
         let [hours, minutes] = timePart.split(":").map(Number);
-    
+
         // Convert to 24-hour format
         if (modifier === "PM" && hours !== 12) hours += 12;
         if (modifier === "AM" && hours === 12) hours = 0;
-    
+
         // Create Date object and add hours
         let date = new Date();
         date.setHours(hours, minutes);
         date.setHours(date.getHours() + hoursToAdd);
-    
+
         // Convert back to 12-hour format
         let newHours = date.getHours() % 12 || 12;
         let newMinutes = date.getMinutes().toString().padStart(2, "0");
         let newModifier = date.getHours() >= 12 ? "PM" : "AM";
-    
+
         return `${newHours}:${newMinutes} ${newModifier}`;
     };
 
@@ -134,7 +138,34 @@ const BookAppointment = () => {
     return (
         <>
             <Navigation />
-            
+            {/* Show success message if appointment is booked */}
+            {successMessage && (
+                <div className="alert alert-success text-center" role="alert">
+                    {successMessage}
+                </div>
+            )}
+
+            {/* Show failure message message if appointment is not booked */}
+            {failureMessage && (
+                <div className="alert alert-failure text-center" role="alert" style={{ width: "100%", backgroundColor: "#e6c5be" }}>
+                    {failureMessage}
+                </div>
+            )}
+
+            {/* Show doctor not found message*/}
+            {doctorNotfoundMessage && (
+                <div className="alert doctor-notfound text-center" role="alert" style={{ width: "100%", backgroundColor: "#e6c5be" }}>
+                    {doctorNotfoundMessage}
+                </div>
+            )}
+
+            {/* Show hospital not found message*/}
+            {hospitalNotfoundMessage && (
+                <div className="alert hospital-notfound text-center" role="alert" style={{ width: "100%", backgroundColor: "#e6c5be" }}>
+                    {hospitalNotfoundMessage}
+                </div>
+            )}
+
 
             <div className="d-flex justify-content-center align-items-center mt-3">
                 <div className="p-4 shadow-lg rounded" style={{ maxWidth: "500px", width: "100%", backgroundColor: "#f8f9fa" }}>
@@ -147,20 +178,26 @@ const BookAppointment = () => {
                     <p><strong>Address:</strong> {address}</p>
                     <p><strong>Appointment Date:</strong> {date}</p>
                     <p><strong>Time Slot:</strong> {addHoursToTime(startTime, 4)} - {addHoursToTime(endTime, 4)}</p>
-                    
 
-                   
+
+
                     {/* Reason Input */}
                     <Form.Group controlId="reason" className="mx-auto w-95" style={{ marginLeft: "50px", marginRight: "50px" }}>
                         <Form.Label className="d-block text-center"><strong>Reason:</strong></Form.Label>
-                        <Form.Control className="mx-auto w-80" style={{ padding: "10px", width: "100%"}} value={reason}
+                        <Form.Control className="mx-auto w-80" style={{ padding: "10px", width: "100%" }} value={reason}
                             onChange={(e) => setReason(e.target.value)} placeholder="Enter reason for appointment" required />
                     </Form.Group>
-                    <button className="rounded-pill px-4"
-                        style={{ backgroundColor: "#00FF00", border: "none", marginTop: "20px" }} onClick={handleConfirmAppointment}>Confirm Appointment</button>
+                    
+                   {/* Buttons Container */}
+                   <div className="text-center mt-3">
+                        <button className="rounded-pill px-4 w-50 d-block mx-auto"
+                            style={{ backgroundColor: "#A8577E", border: "none", marginBottom: "10px", color: "#FFFFFF" }}
+                            onClick={handleConfirmAppointment}>Confirm Appointment</button>
 
-                    <button className="rounded-pill px-4"
-                        style={{ backgroundColor: "#FF0000", border: "none", marginTop: "20px" }} onClick={() => navigate("/patient-dashboard")}>Go back</button>
+                        <button className="rounded-pill px-4 w-50 d-block mx-auto"
+                            style={{ backgroundColor: "#FF0000", border: "none", color: "#FFFFFF" }}
+                            onClick={() => navigate("/patient-dashboard")}>Go back</button>
+                    </div>
                 </div>
             </div>
 
