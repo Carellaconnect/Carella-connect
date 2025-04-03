@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Navigation from './Navigation';
-import { Table, Button } from 'react-bootstrap';
+import { Card, ListGroup, Container, Row, Col } from 'react-bootstrap';
 
 const ProfilePage = () => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Retrieve user data from localStorage
     const userData = JSON.parse(localStorage.getItem('user'));
     if (userData) {
       setUser(userData);
@@ -21,22 +20,59 @@ const ProfilePage = () => {
 
   return (
     <>
-     <Navigation />
-    <div>
-      <h1>Profile Page</h1>
-      <p><strong>User ID:</strong> {user.id}</p>
-      <p><strong>Name:</strong> {user.name}</p>
-      <p><strong>Email:</strong> {user.email}</p>
-      <p>Phone: {user.phone}</p>
-      <p>Address: {user.address}</p>
-      <p>City: {user.city}</p>
-      <p>Province: {user.province}</p>
-      <p>Postcode: {user.postcode}</p>
-      <p>Date of Birth: {new Date(user.date_of_birth).toLocaleDateString()}</p>
-      <p>Gender: {user.gender}</p>
-      <p>Status: {user.status}</p>
-      {/* Render other user details as needed */}
-    </div>
+      <Navigation />
+      <Container className="mt-5 mb-5">
+        <Row className="justify-content-center">
+          <Col md={8} lg={6}>
+            <Card className="shadow-none" style={{ border: '1px solid #ddd' }}> {/* Remove box shadow and set border */}
+              <Card.Header
+                className="text-center text-white"
+                style={{
+                  backgroundColor: '#A8577E',
+                  border: 'none',
+                  padding: '10px 20px',
+                  fontSize: '1.2rem',
+                  color: 'white',
+                  marginBottom: '10px',
+                }}
+              >
+                <h3>Profile Information</h3>
+              </Card.Header>
+              <Card.Body>
+                <ListGroup variant="flush">
+                  <ListGroup.Item>
+                    <strong>Name:</strong> {user.name}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <strong>Email:</strong> {user.email}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <strong>Phone:</strong> {user.phone}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <strong>Address:</strong> {user.address}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <strong>City:</strong> {user.city}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <strong>Province:</strong> {user.province}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <strong>Postcode:</strong> {user.postcode}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <strong>Gender:</strong> {user.gender}
+                  </ListGroup.Item>
+                  <ListGroup.Item>
+                    <strong>Status:</strong> {user.status}
+                  </ListGroup.Item>
+                </ListGroup>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
     </>
   );
 };

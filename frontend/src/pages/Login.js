@@ -15,33 +15,29 @@ const Login = () => {
     setError('');
     setSuccess('');
     setLoading(true);
-
+  
     try {
       const response = await axios.post('http://localhost:5000/login', { email, password });
-      console.log(response.data);
-
+      console.log(response.data); 
+  
       if (response.data.success) {
         setSuccess(response.data.message);
         setLoading(false);
-
-        // Save user details in localStorage
-        const user = {
-          id: response.data.user_id, // Ensure backend sends `user_id`
-          name: response.data.name, // Include user name for display
-          role: response.data.role,
-          email: email,
-          status: response.data.status
-        };
-
+  
+        
+        const user = response.data.user; 
+  
+        
         localStorage.setItem("user", JSON.stringify(user));
-        const role = user.role.toLowerCase(); // Use `role` consistently
-
+  
+        const role = user.role.toLowerCase(); 
+  
         // Redirect based on role
-        if (role === 'admin' || role === 'Admin') {
+        if (role === 'admin') {
           window.location.href = '/admin-dashboard';
-        } else if (role === 'doctor' || role === 'Doctor') {
+        } else if (role === 'doctor') {
           window.location.href = '/doctor-dashboard';
-        } else if (role === 'patient' || role === 'Patient') {
+        } else if (role === 'patient') {
           window.location.href = '/patient-dashboard';
         } else {
           window.location.href = '/';
@@ -55,6 +51,7 @@ const Login = () => {
       setError(error.response?.data?.message || 'An error occurred. Please try again.');
     }
   };
+  
 
   return (
     <>
@@ -106,13 +103,13 @@ const Login = () => {
                     />
                   </Form.Group>
 
-                  <Button variant="primary" type="submit" disabled={loading}>
+                  <Button variant="primary" type="submit" disabled={loading}  style={{ backgroundColor: "#F4A5AE", border: "0px", color: "black" }}>
                     {loading ? 'Signing In...' : 'Sign In'}
                   </Button>
                 </Form>
 
                 <div className="text-center mt-3">
-                  <p>Don't have an account? <a href="/register">Sign Up</a></p>
+                  <p>Don't have an account? <a href="/register"  style={{ color: "#A8577E" }}>Sign Up</a></p>
                 </div>
               </Card.Body>
             </Card>

@@ -119,12 +119,12 @@ const AdminDashboard = () => {
   const totalDoctors = approvalRequests.length;
 const approvedDoctors = approvalRequests.filter(req => req.approval_status === "Approved").length;
 const rejectedDoctors = approvalRequests.filter(req => req.approval_status === "Rejected").length;
-const pendingDoctors = approvalRequests.filter(req => req.approval_status === "Pending").length; // New
+const pendingDoctors = approvalRequests.filter(req => req.approval_status === "Pending").length; 
 
 const totalEmergencies = emergencyRequests.length;
 const inProgressEmergencies = emergencyRequests.filter(req => req.status === "In Progress").length;
 const resolvedEmergencies = emergencyRequests.filter(req => req.status === "Resolved").length;
-const pendingEmergencies = emergencyRequests.filter(req => req.status === "Pending").length; // New
+const pendingEmergencies = emergencyRequests.filter(req => req.status === "Pending").length; 
 
 
   return (
@@ -235,7 +235,8 @@ const pendingEmergencies = emergencyRequests.filter(req => req.status === "Pendi
                               <Button
                                 variant="success"
                                 size="sm"
-                                className="mr-2"
+                                className="mr-5"
+                                style={{ marginRight: '10px' }}
                                 onClick={() => handleApprove(request._id)}
                               >
                                 Approve
@@ -278,19 +279,31 @@ const pendingEmergencies = emergencyRequests.filter(req => req.status === "Pendi
               <td>{request.phoneNumber}</td>
               <td>{request.urgency}</td>
               <td>{request.status}</td>
+            
               <td>
-                <Button
-                  variant="warning"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedEmergency(request);
-                    setNewStatus(request.status);
-                    setShowModal(true);
-                  }}
-                >
-                  Update Status
-                </Button>
-              </td>
+                  {request.status !== "Resolved" && (
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedEmergency(request);
+                        setNewStatus(request.status);
+                        setShowModal(true);
+                      }}
+                      style={{
+                        backgroundColor: "#A8577E",
+                        border: "none",
+                        padding: "10px 20px",
+                        fontSize: "1.2rem",
+                        color: "white",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      Update Status
+                    </Button>
+                  )}
+                </td>
+              
             </tr>
           ))}
         </tbody>
@@ -313,8 +326,8 @@ const pendingEmergencies = emergencyRequests.filter(req => req.status === "Pendi
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
-          <Button variant="primary" onClick={handleUpdateStatus}>Update Status</Button>
+          <Button style={{  backgroundColor: "Grey", border: "none", padding: "10px 20px", fontSize: "1.2rem", marginBottom: "10px" }} onClick={() => setShowModal(false)}>Close</Button>
+          <Button style={{ backgroundColor: "#A8577E", border: "none", padding: "10px 20px", fontSize: "1.2rem", marginBottom: "10px" }} onClick={handleUpdateStatus}>Update Status</Button>
         </Modal.Footer>
       </Modal>
     </>

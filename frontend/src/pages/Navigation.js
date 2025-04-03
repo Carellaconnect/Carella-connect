@@ -58,11 +58,12 @@ const Navigation = () => {
       </Navbar>
 
       {isLoggedIn ? ( // Show navigation only if user is logged in
-        <Nav className="ms-auto">
+        <Nav className="ms-auto" style={{ borderBottom: "2px solid #d7d7d7" }}>
           <Nav.Link href="/home" className="text-dark">Home</Nav.Link>
           <span style={{ border: "1px solid #a6a6a6" }}></span>
 
           {/* Role-based Dashboard Link */}
+
           <Nav.Link href={getDashboardLink()} className="text-dark">Dashboard</Nav.Link>
           <span style={{ border: "1px solid #a6a6a6" }}></span>
 
