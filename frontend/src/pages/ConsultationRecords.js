@@ -7,7 +7,6 @@ import axios from 'axios';
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import BASE_URL from "../config";
 
 
 const ConsultationRecords = () => {
@@ -34,7 +33,7 @@ const ConsultationRecords = () => {
     useEffect(() => {
         const fetchMedicalRecord = async () => {
             try {
-                const response = await axios.get(`${BASE_URL}/medicalrecords/${appointmentId}`);
+                const response = await axios.get(`http://localhost:5000/medicalrecords/${appointmentId}`);
                 setMedicalRecord(response.data);
             } catch (err) {
                 setError("Failed to fetch medical records.");

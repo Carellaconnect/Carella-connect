@@ -7,8 +7,7 @@ import { Container, Nav, Row, Col, Table, Card, Button, Form, Modal } from "reac
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import 'react-calendar/dist/Calendar.css';
-import './doctor.css'
-import BASE_URL from '../config';
+import './doctor.css';
 
 
 
@@ -50,7 +49,7 @@ const Doctor = ({ onSelectPatient }) => {
         }
 
         const response = await axios.get(
-          `${BASE_URL}/api/upcoming-appointments/${userData.id}`
+           `http://localhost:5000/api/upcoming-appointments/${userData.id}`
         );
 
         if (response.data.message) {
@@ -81,7 +80,7 @@ const Doctor = ({ onSelectPatient }) => {
 
   const handleMedicalRecordView = async (recordId) => {
     const response = await axios.get(
-      `${BASE_URL}/api/getMedicalRecordById/${recordId}`
+      `http://localhost:5000/api/getMedicalRecordById/${recordId}`
     );
     if(response && response.data && response.data.data && response.data.data[0]){
       setSelectedMedicalRecord(response.data.data[0]);
@@ -94,7 +93,7 @@ const Doctor = ({ onSelectPatient }) => {
     setShowModal(false);
   };
   const handleDiscard = (appointmentId) => {
-    axios.put(`${BASE_URL}/api/appointments/cancel/${appointmentId}`)
+    axios.put(`http://localhost:5000/api/appointments/cancel/${appointmentId}`)
       .then(() => {
         setAppointments(appointments.filter(appt => appt._id !== appointmentId));
         alert("Appointment cancelled successfully.");
@@ -121,7 +120,7 @@ const Doctor = ({ onSelectPatient }) => {
       };
       let formErrors = {};
       try {
-        const response = await axios.post('${BASE_URL}/updateAppointment', formData);
+        const response = await axios.post("http://localhost:5000/updateAppointment", formData);
         console.log(response.data);
       } catch (error) {
         console.log('Inside catch');
@@ -147,7 +146,7 @@ const Doctor = ({ onSelectPatient }) => {
       };
       let formErrors = {};
       try {
-        const response = await axios.post('${BASE_URL}/completeConsultation', formData);
+        const response = await axios.post('http://localhost:5000/completeConsultation', formData);
         console.log(response.data);
       } catch (error) {
         console.log('Inside catch');
@@ -162,7 +161,7 @@ const Doctor = ({ onSelectPatient }) => {
     console.log(appt);
     setSelectedAppointment(appt);
     const response = await axios.get(
-      `${BASE_URL}/api/getAllPreviousRecords/${appt.patient_id._id}`
+      `http://localhost:5000/api/getAllPreviousRecords/${appt.patient_id._id}`
     );
     if(response && response.data && response.data.data){
       setMedicalRecords(response.data.data);
@@ -173,7 +172,7 @@ const Doctor = ({ onSelectPatient }) => {
   const handleAppointment = async () => {
     if (selectedAppointment) {
       const response = await axios.get(
-        `${BASE_URL}/api/fetchMedicalRecords/${selectedAppointment._id}`
+        `http://localhost:5000/api/fetchMedicalRecords/${selectedAppointment._id}`
       );
       console.log(response);
       if (response && response.data && response.data.data && response.data.data[0]) {

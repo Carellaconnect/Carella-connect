@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Navbar, Nav, Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-import BASE_URL from "../config";
 
 
 const Login = () => {
@@ -19,7 +18,7 @@ const Login = () => {
     setLoading(true);
   
     try {
-      const response = await axios.post(`${BASE_URL}/login`, { email, password });
+      const response = await axios.post(`http://localhost:5000/login`, { email, password });
       console.log(response.data); 
   
       if (response.data.success) {

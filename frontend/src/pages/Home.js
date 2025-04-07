@@ -6,7 +6,6 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import BASE_URL from "../config";
 
 
 const services = [
@@ -45,7 +44,7 @@ const Home = ({ user }) => {
 
   const handleEmergencySubmit = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/api/emergency`, {
+      const response = await fetch("http://localhost:5000/api/emergency", {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
