@@ -5,6 +5,7 @@ import Navigation from './Navigation';
 import { Table, Button } from 'react-bootstrap';
 import {Nav,  Form, Card, Modal } from "react-bootstrap";
 import { FaStar, FaSearch, FaBell } from "react-icons/fa";
+import BASE_URL from "../config";
 
 const AdminDashboard = () => {
   const [approvalRequests, setApprovalRequests] = useState([]);
@@ -16,7 +17,9 @@ const AdminDashboard = () => {
 
 
   useEffect(() => {
-    fetch("http://localhost:5000/doctors-approval-requests")
+    fetch(
+      `${BASE_URL}/doctors-approval-requests`
+    )
       .then((response) => response.json())
       .then((data) => {
         setApprovalRequests(data);
@@ -27,7 +30,7 @@ const AdminDashboard = () => {
   }, []);
    // Fetch Emergency Requests
    useEffect(() => {
-    fetch("http://localhost:5000/api/emergency-requests")
+    fetch(`${BASE_URL}/api/emergency-requests`)
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -41,7 +44,7 @@ const AdminDashboard = () => {
 
   // Handle approve action
   const handleApprove = (requestId) => {
-    fetch(`http://localhost:5000/update-doctor-approval/${requestId}`, {
+    fetch(`${BASE_URL}/update-doctor-approval/${requestId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Approved" }),  
@@ -64,7 +67,7 @@ const AdminDashboard = () => {
 
   // Handle reject action
   const handleReject = (requestId) => {
-    fetch(`http://localhost:5000/update-doctor-approval/${requestId}`, {
+    fetch(`${BASE_URL}/update-doctor-approval/${requestId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "Rejected" }),  
@@ -94,7 +97,7 @@ const AdminDashboard = () => {
     if (!selectedEmergency) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/emergency-requests/${selectedEmergency._id}`, {
+      const response = await fetch(`${BASE_URL}/api/emergency-requests/${selectedEmergency._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

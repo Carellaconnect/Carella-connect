@@ -4,6 +4,8 @@ import { Navbar, Nav, Form, Button, Container, Row, Col, Card } from 'react-boot
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from './Navigation';
 import axios from 'axios';
+import BASE_URL from "../config";
+
 
 const Register = () => {
     const [email, setEmail] = useState('');
@@ -34,7 +36,7 @@ const Register = () => {
     const [formData, setFormData] = useState('');
 
     useEffect(() => {
-      fetch("http://localhost:5000/api/hospital-data")
+      fetch(`${BASE_URL}/api/hospital-data`)
         .then((response) => response.json())
         .then((data) => {
           if(data.error) {
@@ -140,7 +142,7 @@ const Register = () => {
           if (validateForm()) {
             let formErrors = {};
             try {
-              const response = await axios.post('http://localhost:5000/register', formData);
+              const response = await axios.post(`${BASE_URL}/register`, formData);
               console.log(response.data);
               setSuccess(response.data.message);
               setLoading(false);

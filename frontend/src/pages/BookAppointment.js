@@ -7,6 +7,8 @@ import axios from 'axios';
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import BASE_URL from "../config";
+
 
 
 const BookAppointment = () => {
@@ -59,10 +61,10 @@ const BookAppointment = () => {
             console.log("Fetching hospital ID for:", hospital); // Debugging log
 
             // Fetch doctor_id from the new API endpoint
-            const doctorResponse = await axios.get(`http://localhost:5000/get-doctor-id/${encodeURIComponent(doctorName)}`);
+            const doctorResponse = await axios.get(`${BASE_URL}/get-doctor-id/${encodeURIComponent(doctorName)}`);
 
             // Fetch hospital_id from the new API endpoint
-            const hospitalResponse = await axios.get(`http://localhost:5000/get-hospital-id/${encodeURIComponent(hospital)}`);
+            const hospitalResponse = await axios.get(`${BASE_URL}/get-hospital-id/${encodeURIComponent(hospital)}`);
 
             if (doctorResponse.status !== 200 || !doctorResponse.data || !doctorResponse.data.doctor_id) {
                 setdoctorNotfoundMessage("Doctor not found.");
@@ -96,7 +98,7 @@ const BookAppointment = () => {
             console.log("Sending appointment data:", appointmentData); // Log before sending
 
             // Send data to backend API
-            const response = await axios.post("http://localhost:5000/appointments", appointmentData, {
+            const response = await axios.post( `${BASE_URL}/appointments`, appointmentData, {
                 headers: { "Content-Type": "application/json" }
             });
 
