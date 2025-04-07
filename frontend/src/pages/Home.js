@@ -6,6 +6,8 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import BASE_URL from "../config";
+
 
 const services = [
   { name: "Online Appointments", description: "Easily search for doctors and hospitals and schedule appointments in just a few clicks.", img: "/images/online.jpg" },
@@ -43,7 +45,7 @@ const Home = ({ user }) => {
 
   const handleEmergencySubmit = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/emergency', {
+      const response = await fetch(`${BASE_URL}/api/emergency`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

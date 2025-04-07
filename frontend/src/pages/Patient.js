@@ -4,6 +4,8 @@ import Navigation from './Navigation';
 import { Container, Button, Form, Card, Row, Col } from "react-bootstrap";
 import { FaStar, FaBell } from "react-icons/fa";
 import axios from "axios";
+import BASE_URL from "../config";
+
 
 
 const Patient = () => {
@@ -44,7 +46,7 @@ const Patient = () => {
           return;
         }
 
-        const response = await axios.get(`http://localhost:5000/patient-dashboard/${userData.id}`);
+        const response = await axios.get(`${BASE_URL}/patient-dashboard/${userData.id}`);
         setAppointments(response.data);
         setLoading(false);
       } catch (err) {
@@ -64,7 +66,7 @@ const Patient = () => {
           setError('User not found. Please log in again.');
           return;
         }
-        const response = await axios.get(`http://localhost:5000/patient-dashboard/${userData.id}/past-appointments`);
+        const response = await axios.get(`${BASE_URL}/patient-dashboard/${userData.id}/past-appointments`);
         setpastAppointments(response.data);
       } catch (err) {
         setError('Failed to fetch past appointments.');
@@ -79,7 +81,7 @@ const Patient = () => {
     if (!window.confirm("Are you sure you want to cancel this appointment?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/appointments/${appointmentId}`);
+      await axios.delete(`${BASE_URL}/appointments/${appointmentId}`);
 
       // Remove the canceled appointment from state
       setAppointments(appointments.filter(appt => appt._id !== appointmentId));
