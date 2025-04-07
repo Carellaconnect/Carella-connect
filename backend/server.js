@@ -291,7 +291,6 @@ app.post('/register',
                             console.log("Data sent for Admin's approval.");
                         });
                     });
-a
                 }
                 let message = 'Registration Successful!';
                 if (req.body.role.toLowerCase() === 'doctor' || req.body.role.toLowerCase() === 'admin') {
