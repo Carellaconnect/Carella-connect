@@ -17,15 +17,13 @@ import ProfilePage from "./pages/Profile";
 import HealthSupportPage from "./pages/HealthAndSupport";
 import FollowupAppointment from "./pages/FollowupAppointment";
 import ConsultationRecords from "./pages/ConsultationRecords";
-import BASE_URL from "./config";
-
 
 
 function App() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    axios.get(`${BASE_URL}/`)
+    axios.get(`http://localhost:5000/`)
       .then(response => setMessage(response.data))
       .catch(error => console.error("Error fetching data:", error));
   }, []);
