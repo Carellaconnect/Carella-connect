@@ -249,7 +249,7 @@ app.post('/register',
             "name": req.body.fname+' '+req.body.lname, 
             "email": req.body.email,
             "password": req.body.password,
-            "role": req.body.role,    
+            "role": req.body.role.toLowerCase(),    
             "profile_picture": req.body.profile_pic,  
             "phone": req.body.phone,
             "address": req.body.address,
@@ -272,10 +272,10 @@ app.post('/register',
                 await newUser.save().then(() => {
                     console.log('User Data saved.');
                 });
-
+                console.log('role >>'+req.body.role);
                 if (req.body.role.toLowerCase() === 'doctor') {
                     const doctorData = await User.findOne({ email: req.body.email });
-                    const adminData = await User.aggregate([{ $match: { role: 'Admin', hospital_id: doctorData.hospital_id } }])
+                    const adminData = await User.aggregate([{ $match: { role: 'admin', hospital_id: doctorData.hospital_id } }])
                     adminData.forEach(admin => {
                         //Add the details to the doctor_approvals collection
                         const doctorApproval = new DoctorsApprovalRrequests({
