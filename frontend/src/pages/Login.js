@@ -50,7 +50,13 @@ const Login = () => {
       }
     } catch (error) {
       setLoading(false);
-      setError(error.response?.data?.message || 'An error occurred. Please try again.');
+      if (error.response?.status === 429) {
+        // Too many failed login attempts
+        setError(error.response.data.message || 'Too many login attempts. Please try again later.');
+      }
+      else {
+        setError(error.response?.data?.message || 'An error occurred. Please try again.');
+      }
     }
   };
   

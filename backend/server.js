@@ -13,6 +13,7 @@ require('dotenv').config();
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 const app = express();
 const router = express.Router(); // Define router
+const rateLimit = require('express-rate-limit');
 
 
 //app.use(cors());
@@ -35,6 +36,31 @@ app.use(express.urlencoded({ extended: true }));
 //     resave: false,
 //     saveUninitialized: true
 // }));
+
+// Trust the proxy to get the correct IP (important for localhost + proxies)
+app.set('trust proxy', 1);
+
+//Log IP address for every request (add here)
+app.use((req, res, next) => {
+    console.log("IP Address:", req.ip);
+    next();
+  });
+
+
+//Limit login attempts to 5 per 10 minutes per IP only for unsuccessful attempts
+const loginLimiter = rateLimit({
+    windowMs: 2 * 60 * 1000,
+    max: 5,
+    handler: (req, res) => {
+        return res.status(429).json({
+            success: false,
+            message: 'Too many failed login attempts. Please try again after 5 minutes.',
+        });
+    },
+    keyGenerator: (req) => req.ip,
+    skipSuccessfulRequests: true //this is important!
+});
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
@@ -291,7 +317,7 @@ a
     });
 
 //Login API 
-app.post('/login', async (req, res) => {
+app.post('/login', loginLimiter, async (req, res) => {
     const { email, password } = req.body;
 
     try {
