@@ -135,9 +135,13 @@ const Patient = () => {
                   value={specialty}
                   onChange={(e) => setSpecialty(e.target.value)}>
                   <option value="">Select Specialty</option>
-                  <option value="Dermatologist">Dermatologist</option>
                   <option value="Dentist">Dentist</option>
-                  <option value="Surgery">Surgery</option>
+                  <option value="Orthopediac">Orthopediac</option>
+                  <option value="Dermatologist">Dermatologist</option>
+                  <option value="Surgeon">Surgeon</option>
+                  <option value="Psychiatrist">Psychiatrist</option>
+                  <option value="Family Medicine">Family Medicine</option>
+                  <option value="General Medicine">General Medicine</option>
                 </Form.Select>
               </Col>
 

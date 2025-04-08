@@ -443,9 +443,9 @@ const Register = () => {
                                         <option value="">--Select an option--</option>
                                         <option value="Dentist">Dentist</option>
                                         <option value="Orthopediac">Orthopediac</option>
-                                        <option value="Dermatology">Dermatology</option>
-                                        <option value="Surgery">Surgery</option>
-                                        <option value="Psychiatry">Psychiatry</option>
+                                        <option value="Dermatologist">Dermatology</option>
+                                        <option value="Surgeon">Surgery</option>
+                                        <option value="Psychiatrist">Psychiatry</option>
                                         <option value="Family Medicine">Family Medicine</option>
                                         <option value="General Medicine">General Medicine</option>
 

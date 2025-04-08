@@ -442,6 +442,16 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
         doctorProfile.save().then(() => {
             console.log("Data saved in the doctor profile collection");
         });
+
+        // Add doctor id to the hospitals collection
+        
+        let hospital = await Hospital.findOne({ _id: doctor.hospital_id });
+        let doctorsList = hospital.doctors;
+        doctorsList.push(doctor._id);
+
+        hospital.save().then(() => {
+            console.log('Added doctor id to the hospital collection');
+        });
        
         return res.json({ 
             success: true, 
