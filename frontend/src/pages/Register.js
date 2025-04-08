@@ -23,6 +23,7 @@ const Register = () => {
     const [hospitalId, setHospitalId] = useState("");
     const [doctorId, setDoctorId] = useState("");
     const [gender, setGender] = useState("");
+    const [language, setLanguage] = useState("");
     const [speciality, setSpeciality] = useState("");
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -73,6 +74,10 @@ const Register = () => {
   };
   const handleSpecialityChange = (event) => {
     setSpeciality(event.target.value);
+  };
+
+  const handleLanguageChange = (event) => {
+    setLanguage(event.target.value);
   };
 
   const handleHospitalIdChange = (event) => {
@@ -133,7 +138,8 @@ const Register = () => {
             gender,
             isDoctor,
             licenseNumber,
-            speciality
+            speciality,
+            language,
           };
 
           setFormData(formData);
@@ -446,6 +452,25 @@ const Register = () => {
                                       </Form.Control>
                                     </Form.Group>
                                   </Col>
+                                </Row>
+                                <Row>
+                                  <Col>
+                                  <Form.Group controlId="formLanguage" className="mb-3 text-start">
+                                      <Form.Label>Language Preference</Form.Label>
+                                      <Form.Control
+                                        as="select"
+                                        value={language}
+                                        onChange={handleLanguageChange}
+                                      >
+                                        <option value="">--Select an option--</option>
+                                        <option value="EN">English</option>
+                                        <option value="FR">French</option>
+                                        <option value="BOTH">Both</option>
+
+                                      </Form.Control>
+                                    </Form.Group>
+                                  </Col>
+                                  <Col></Col>
                                 </Row>
                               </>
                               )}

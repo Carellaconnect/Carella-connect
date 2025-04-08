@@ -100,6 +100,7 @@ const UserSchema = new mongoose.Schema({
     speciality: String,
     created_at: Date,
     updated_at: Date,
+    language: String
 });
 
 const User = mongoose.model("User", UserSchema);
@@ -216,22 +217,7 @@ function phoneCheck(val) {
 }
 
 app.post('/register',
-    //[
-    // check('name','Please enter a name').notEmpty(), 
-    // check('email','Email cannot be empty and should be in the specified format').isEmail(),
-    // check('role','Please select a role.').notEmpty(), 
-    // check('city','Please enter the city').notEmpty(), 
-    // check('postcode','Please enter the postcode').notEmpty(), 
-    // check('phone').custom(phoneCheck),
-    // check('province', 'Please select the province').notEmpty(),
-    // check('gender', 'Please select a gender').notEmpty(),
-    // check('date_of_birth', 'Please ente the date of birth').notEmpty()
-    //],
     async (req, res) => {
-        // const errors = validationResult(req);
-        // if(!errors.isEmpty()){
-        //     res.render('order',{errors:errors.array()});
-        // }else{
 
         const email = req.body.email;
 
@@ -266,16 +252,16 @@ app.post('/register',
             "hospital_id": req.body.hospitalId,
             "doctor_identification_id": req.body.doctorId,
             "license_number": req.body.licenseNumber,
-            "speciality": req.body.speciality
+            "speciality": req.body.speciality,
+            "language": req.body.language
             });
 
                 await newUser.save().then(() => {
                     console.log('User Data saved.');
                 });
-                console.log('role >>'+req.body.role);
                 if (req.body.role.toLowerCase() === 'doctor') {
                     const doctorData = await User.findOne({ email: req.body.email });
-                    const adminData = await User.aggregate([{ $match: { role: 'admin', hospital_id: doctorData.hospital_id } }])
+                    const adminData = await User.aggregate([{ $match: { role: 'admin', hospital_id: doctorData.hospital_id } }]);
                     adminData.forEach(admin => {
                         //Add the details to the doctor_approvals collection
                         const doctorApproval = new DoctorsApprovalRrequests({
@@ -436,6 +422,26 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
 
         await sendEmail(doctor.email, emailSubject, emailMessage);
 
+        //Adding the doctor details to the doctor profile collection
+        let language = [];
+        if(doctor.language === "EN"){
+            language.push({"language_name": "English", "language_code": "EN"}); 
+        } else if (doctor.language === "FR") {
+            language.push({"language_name": "French", "language_code": "FR"}); 
+        } else if (doctor.language === "BOTH") {
+            language.push({"language_name": "English", "language_code": "EN"});
+            language.push({"language_name": "French", "language_code": "FR"});
+        }
+        const doctorProfile = new DoctorProfile({
+            "doctor_id": doctor._id,
+            "speciality": doctor.speciality,
+            "languages": language,
+            "availability": []
+        });
+
+        doctorProfile.save().then(() => {
+            console.log("Data saved in the doctor profile collection");
+        });
        
         return res.json({ 
             success: true, 

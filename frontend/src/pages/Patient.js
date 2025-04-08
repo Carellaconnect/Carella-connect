@@ -137,6 +137,7 @@ const Patient = () => {
                   <option value="">Select Specialty</option>
                   <option value="Dermatologist">Dermatologist</option>
                   <option value="Dentist">Dentist</option>
+                  <option value="Surgery">Surgery</option>
                 </Form.Select>
               </Col>
 
