@@ -127,7 +127,11 @@ const AppointmentDetailsSchema = new mongoose.Schema({
     hospital_id: { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" },
     appointment_date: Date,
     status: String,
-    reason: String
+    reason: String,
+    feedback: {
+        rating: Number,
+        comment: String,
+    }
 });
 
 const AppointmentDetails = mongoose.model("AppointmentDetails", AppointmentDetailsSchema);
@@ -203,6 +207,14 @@ const MedicalRecords = mongoose.model('MedicalRecords', {
     createdAt: { type: Date, default: Date.now }
 });
 
+const feedback = mongoose.model('Feedback', {
+    appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'AppointmentDetails' },  
+    patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    hospital_id: { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" },
+    rating: { type: Number, required: true },
+    comment: { type: String }
+});
 
 var phoneregex = /^\(?(\d{3})\)?[\.\-\/\s]?(\d{3})[\.\-\/\s]?(\d{4})$/;
 
@@ -1201,6 +1213,29 @@ app.get("/medicalrecords/:appointmentId", async (req, res) => {
         res.json(record);
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
+    }
+});
+
+// Feedback API
+
+app.post('/appointments/:id/feedback', async (req, res) => {
+    try {
+        const { rating, comment } = req.body;
+        const appointmentId = req.params.id;
+
+        const appointment = await AppointmentDetails.findByIdAndUpdate(
+            appointmentId,
+            { feedback: { rating, comment } },
+            { new: true }
+        );
+
+        if (!appointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+
+        res.status(200).json({ message: 'Feedback submitted successfully', feedback: appointment.feedback });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
 });
   

@@ -1,12 +1,9 @@
-import React, { useState, useEffectuseState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navigation from './Navigation';
-import { Container, Button, Form, Card, Row, Col } from "react-bootstrap";
+import { Container, Button, Form, Card, Row, Col, Modal } from "react-bootstrap";
 import { FaStar, FaBell } from "react-icons/fa";
 import axios from "axios";
-
-
-
 
 const Patient = () => {
   const navigate = useNavigate(); // Initialize useNavigate
@@ -24,6 +21,13 @@ const Patient = () => {
   const [cancelSuccessMessage, setcancelSuccessMessage] = useState("");
   const [cancelFailureMessage, setcancelFailureMessage] = useState("");
   const [handleSearchMessage, sethandleSearchMessage] = useState("");
+
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+
+
 
 
   const handleSearch = () => {
@@ -90,6 +94,38 @@ const Patient = () => {
     } catch (error) {
       console.error("Error canceling appointment:", error);
       setcancelFailureMessage("Failed to cancel appointment. Please try again.");
+    }
+  };
+  const handleFeedbackClick = (appointment) => {
+    setSelectedAppointment(appointment);
+    setSelectedRating(0);
+    setComment("");
+    setShowFeedbackModal(true);
+  };
+  const submitFeedback = async () => {
+    if (selectedRating === 0 || comment.trim() === "") {
+      alert("Please provide both a rating and a comment.");
+      return;
+    }
+  
+    try {
+      await axios.post(`http://localhost:5000/appointments/${selectedAppointment._id}/feedback`, {
+        rating: selectedRating,
+        comment,
+      });
+  
+      // Update past appointments locally to show new feedback without refetching
+      const updatedPastAppointments = pastappointments.map((appt) =>
+        appt._id === selectedAppointment._id
+          ? { ...appt, feedback: { rating: selectedRating, comment } }
+          : appt
+      );
+  
+      setpastAppointments(updatedPastAppointments);
+      setShowFeedbackModal(false);
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+      alert("Failed to submit feedback. Please try again.");
     }
   };
 
@@ -199,41 +235,102 @@ const Patient = () => {
 
 
       {/* Completed Consultations */}
-      <Container className="mt-5 text-start">
-        <h2>Completed Consultations</h2>
-        {loading ? <p>Loading...</p> : error ? <p>{error}</p> : (
-          pastappointments.length > 0 ? (
-            pastappointments.map((pastappt) => (
-              <Card className="p-3 mb-3 shadow-sm" key={pastappt._id}>
-                <Row>
-                  <Col md={6}>
-                    <h5><strong>Dr. {pastappt.doctor_name}</strong></h5>
-                    <p><strong>Hospital:</strong> {pastappt.hospital_name}</p>
-                  </Col>
-                  <Col md={3}>
-                    <p><strong>Date:</strong> {new Date(pastappt.appointment_date).toLocaleDateString()}</p>
-                    <p><strong>Time:</strong> {new Date(new Date(pastappt.appointment_date).getTime() + 4 * 60 * 60 * 1000).toLocaleTimeString()}</p>
-                  </Col>
-                  <Col md={3} className="text-end">
-                    <p className="mb-1"><strong>Your Feedback:</strong>
-                      <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="gold" /> <FaStar color="lightgray" />
-                    </p>
-                    <Button className="me-2" style={{ backgroundColor: "#A8577E", border: "none" }} onClick={() => navigate(`/consultation-records?appointmentId=${pastappt._id}&doctorName=${encodeURIComponent(pastappt.doctor_name)}&hospitalName=${encodeURIComponent(pastappt.hospital_name)}`)}>View Records</Button>
+          <Container className="mt-5 text-start">
+            <h2>Completed Consultations</h2>
 
-                    <Button style={{ backgroundColor: "#8D5B8F", border: "none" }} onClick={() => navigate(`/followup-appointment?doctorId=${pastappt.doctorid}&doctorName=${encodeURIComponent(pastappt.doctor_name)}`)}>Book Follow-up</Button>
-                  </Col>
-                </Row>
-              </Card>
-            ))
-          ) : (
-            <p>No past consultations.</p>
-          )
-        )}
-      </Container>
+            {loading ? <p>Loading...</p> : error ? <p>{error}</p> : (
+              pastappointments.length > 0 ? (
+                pastappointments.map((pastappt) => (
+                  <Card className="p-3 mb-3 shadow-sm" key={pastappt._id}>
+                    <Row>
+                      <Col md={6}>
+                        <h5><strong>Dr. {pastappt.doctor_name}</strong></h5>
+                        <p><strong>Hospital:</strong> {pastappt.hospital_name}</p>
+
+                        {/* Feedback section */}
+                        {pastappt.feedback ? (
+                          <>
+                           <p className="mb-1 mt-2"><strong>Your Feedback:</strong> &nbsp;&nbsp;
+                    
+                                {/* Stars */}
+                                {[...Array(5)].map((_, i) => (
+                                  <FaStar key={i} color={i < pastappt.feedback.rating ? "gold" : "lightgray"} /> 
+                                ))} &nbsp;&nbsp;
+                                {/* Feedback comment */}
+                                <strong>Comment:</strong> {pastappt.feedback.comment}
+                          
+                           
+                           </p>
+                              
+                          </>
+                        ) : (
+                          <Button style={{ backgroundColor: "#F4A5AE", border: "0px", color: "black"}}
+                            onClick={() => handleFeedbackClick(pastappt)}>
+                            Give Feedback
+                          </Button>
+                        )}
+                      </Col>
+
+                      <Col md={3}>
+                        <p><strong>Date:</strong> {new Date(pastappt.appointment_date).toLocaleDateString()}</p>
+                        <p><strong>Time:</strong> {new Date(new Date(pastappt.appointment_date).getTime() + 4 * 60 * 60 * 1000).toLocaleTimeString()}</p>
+                      </Col>
+
+                      <Col md={3} className="text-end">
+                        <Button className="me-2 mb-2" style={{ backgroundColor: "#A8577E", border: "none" }}
+                          onClick={() => navigate(`/consultation-records?appointmentId=${pastappt._id}&doctorName=${encodeURIComponent(pastappt.doctor_name)}&hospitalName=${encodeURIComponent(pastappt.hospital_name)}`)}>
+                          View Records
+                        </Button>
+
+                        <Button className="me-2 mb-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}
+                          onClick={() => navigate(`/followup-appointment?doctorId=${pastappt.doctorid}&doctorName=${encodeURIComponent(pastappt.doctor_name)}`)}>
+                          Book Follow-up
+                        </Button>
+                      </Col>
+                    </Row>
+                  </Card>
+                ))
+              ) : (
+                <p>No completed consultations.</p>
+              )
+            )}
+          </Container>
+      {/* Feedback Modal */}
+      <Modal show={showFeedbackModal} onHide={() => setShowFeedbackModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Give Feedback</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="mb-3">
+            {[...Array(5)].map((_, i) => (
+              <FaStar
+                key={i}
+                color={i < selectedRating ? "gold" : "lightgray"}
+                style={{ cursor: "pointer" }}
+                onClick={() => setSelectedRating(i + 1)}
+              />
+            ))}
+          </div>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            placeholder="Write your feedback here..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowFeedbackModal(false)}>
+            Close
+          </Button>
+          <Button style={{ backgroundColor: "#A8577E", border: "none" }} onClick={submitFeedback}>
+            Submit Feedback
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
     </>
-  )
+  );
 };
-
-
 
 export default Patient;
