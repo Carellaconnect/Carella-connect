@@ -8,6 +8,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 
+
 const services = [
   { name: "Online Appointments", description: "Easily search for doctors and hospitals and schedule appointments in just a few clicks.", img: "/images/online.jpg" },
   { name: "Virtual Consultations", description: "Connect with healthcare professionals through secure online video consultations.", img: "/images/virtual.jpg" },
@@ -17,7 +18,11 @@ const services = [
   { name: "Health Education & Resources", description: "Access expert-reviewed articles, videos, and wellness tips for a healthier life.", img: "/images/education.jpg" }
 ];
 
-const Home = ({ user }) => {
+const Home = ({  }) => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const [showEmergencyModal, setShowEmergencyModal] = useState(false);
   const [emergencyDetails, setEmergencyDetails] = useState({
     name: '',
@@ -29,7 +34,50 @@ const Home = ({ user }) => {
   });
   const [responseMessage, setResponseMessage] = useState(""); // State for response message
   const [formSubmitted, setFormSubmitted] = useState(false); // State to track form submission
-  const navigate = useNavigate();
+   const [userRole, setUserRole] = useState(''); 
+
+   useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setUser(storedUser);
+      setUserRole(storedUser.role); // Set the role correctly
+      setIsLoggedIn(true);
+      navigate(getDashboardLink(storedUser.role)); // Directly call the getDashboardLink with stored role
+    }
+  }, [navigate]);useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    if (storedUser) {
+      setUser(storedUser);
+      setIsLoggedIn(true);
+      setUserRole(storedUser.role); 
+    navigate(getDashboardLink());
+    }
+  }, []);
+  // Handle Login 
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    const { username, password } = e.target.elements;
+  
+    // Replace with your authentication logic
+    if (username.value === 'test' && password.value === 'password') {
+      const userData = { username: username.value, role: 'patient' }; // Set the role here
+      setUser(userData);
+      setUserRole(userData.role); // Set userRole here
+      setIsLoggedIn(true);
+      localStorage.setItem('user', JSON.stringify(userData));
+      setLoginError('');
+    } else {
+      setLoginError('Invalid credentials. Please try again.');
+    }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    setUser(null);
+    setIsLoggedIn(false);
+    localStorage.removeItem('user');
+    navigate('/');
+  };
 
   useEffect(() => {
     if (user && user.phoneNumber) {
@@ -44,7 +92,7 @@ const Home = ({ user }) => {
 
   const handleEmergencySubmit = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/emergency", {
+      const response = await fetch(`http://localhost:5000/api/emergency`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -76,45 +124,86 @@ const handleHealthEducationClick = () => {
   const handleEmergencyClick = () => {
     setShowEmergencyModal(true); 
   };
-
-  const handleHowItWorksClick = () => {
-    if (user) {
-      // Redirect based on user role
-      if (user.role === "admin") {
-        navigate("/admin-dashboard");
-      } else if (user.role === "doctor") {
-        navigate("/doctor-dashboard");
-      } else if (user.role === "patient") {
-        navigate("/patient-dashboard");
-      } else {
-        navigate("/login"); // Default dashboard if role is unknown
-      }
-    } else {
-      navigate("/login"); // If not logged in, redirect to login
+ 
+  const getDashboardLink = () => {
+    const role = user?.role?.toLowerCase();  // Ensure user has role
+    switch (role) {
+      case 'admin':
+        return '/admin-dashboard';
+      case 'app_admin':
+        return '/appadmin-dashboard'
+      case 'doctor':
+        return '/doctor-dashboard';
+      case 'patient':
+        return '/patient-dashboard';
+      default:
+        return '#'; // Fallback if role is not found
     }
   };
+  const handleButtonClick = () => {
+    console.log("Is Logged In:", isLoggedIn);
+    console.log("User Role:", userRole);
 
+    if (isLoggedIn) {
+      const role = user?.role?.toLowerCase(); 
+      if (userRole === 'patient') {
+        navigate('/patient-dashboard');
+      } else if (userRole === 'doctor') {
+        navigate('/doctor-dashboard');
+      } else if (userRole === 'admin') {
+        navigate('/admin-dashboard');
+      }else if (userRole === 'app_admin') {
+        navigate('/appadmin-dashboard');
+      }
+    } else {
+      navigate("#");
+    }
+};
+
+
+  
+  console.log("Is Logged In:", isLoggedIn);
 
   return (
     <>
-      {/* Navbar */}
-      <Navbar expand="lg" className="px-4 py-3" style={{ backgroundColor: "#F7D9E1" }}>
+     {/* Navbar */}
+     <Navbar expand="lg" className="px-4 py-3" style={{ backgroundColor: "#F7D9E1" }}>
         <Navbar.Brand href="#">
           <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
           <strong style={{ fontSize: "30px" }}>Carella Connect</strong> <span style={{ fontSize: "12px" }}>Bridging the Gap in Healthcare!</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end">
-          <Nav>
-            <Link to="/register">
-              <Button style={{ backgroundColor: "#F4A5AE", border: "0px", color: "black" }} className="me-2">SignUp</Button>
-            </Link>
-            <Link to="/login">
-              <Button style={{ backgroundColor: "#A8577E", border: "0px" }}>Login</Button>
-            </Link>
-          </Nav>
+          {isLoggedIn ? (  // If user is logged in, show dashboard options
+            <Nav className="ms-auto" style={{ }}>
+                     
+            
+                      {/* Role-based Dashboard Link */}
+            
+                      <Nav.Link href={getDashboardLink()} style={{ backgroundColor: "#F4A5AE", border: "0px",borderRadius: "5px", color: "black" }} className="me-2">Dashboard</Nav.Link>
+                    
+                    <Nav.Link onClick={handleLogout} style={{ backgroundColor: "#A8577E", border: "0px" , borderRadius: "5px" }}>
+                        Log Out
+                      </Nav.Link>
+                      
+                    </Nav>
+          ) : (  // If user is NOT logged in, show signup and login buttons
+            <Nav>
+              <Link to="/register">
+                <Button style={{ backgroundColor: "#F4A5AE", border: "0px", color: "black" }} className="me-2">
+                  SignUp
+                </Button>
+              </Link>
+              <Link to="/login">
+                <Button style={{ backgroundColor: "#A8577E", border: "0px" }}>
+                  Login
+                </Button>
+              </Link>
+            </Nav>
+          )}
         </Navbar.Collapse>
       </Navbar>
+    
 
       {/* Hero Section */}
       <Container fluid className="hero-section" style={{ height: "55vh", objectFit: "cover" }}>
@@ -277,30 +366,20 @@ const handleHealthEducationClick = () => {
               <Card.Body>
                 <Card.Title>{service.name}</Card.Title>
                 <Card.Text>{service.description}</Card.Text>
-                <Button style={{ backgroundColor: "#A8577E", border: "0px" }} 
-                 onClick={() => {
-                  if (service.name === "Emergency Assistance") {
-                    handleEmergencyClick(); // Show emergency modal
-                  } else if (service.name === "Health Education & Resources") {
-                    handleHealthEducationClick(); // Navigate to health education page
-                  } else {
-                    // Role-based navigation for other services
-                    if (user) {
-                      if (user.role === "admin") {
-                        navigate("/admin-dashboard");
-                      } else if (user.role === "doctor") {
-                        navigate("/doctor-dashboard");
-                      } else if (user.role === "patient") {
-                        navigate("/patient-dashboard");
-                      } else {
-                        navigate("/login"); // Fallback
-                      }
+                <Button 
+                  style={{ backgroundColor: "#A8577E", border: "0px" }} 
+                  onClick={() => {
+                    if (service.name === "Emergency Assistance") {
+                      handleEmergencyClick(); // Show emergency modal
+                    } else if (service.name === "Health Education & Resources") {
+                      handleHealthEducationClick(); // Navigate to health education page
                     } else {
-                      navigate("/login"); // If no user, go to login
+                      window.location.href = getDashboardLink(); // Use window.location.href for direct navigation
                     }
-                  }
-                }}
-                >Learn More</Button>
+                  }}
+                >
+                 
+          Learn More</Button>
               </Card.Body>
             </Card>
           </SwiperSlide>
@@ -320,7 +399,7 @@ const handleHealthEducationClick = () => {
               <p className="badge p-3" style={{backgroundColor:"#A8577E", borderRadius:"95%", fontSize:"15px"}}>{step.id}</p>
               <h5 className='mt-3'>{step.title}</h5>
               <p>{step.text}</p>
-              <Button className='mt-3 p-2' style={{backgroundColor:"#A8577E", border:"0px"}} onClick={handleHowItWorksClick}
+              <Button className='mt-3 p-2' style={{backgroundColor:"#A8577E", border:"0px"}}  href={getDashboardLink()}
               >{step.button}</Button>
             </Col>
           ))}

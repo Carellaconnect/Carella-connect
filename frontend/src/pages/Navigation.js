@@ -22,6 +22,8 @@ const Navigation = () => {
     switch (role) {  // Use userRole instead of user
       case  'admin':
         return '/admin-dashboard';  
+      case 'app_admin':
+      return '/appadmin-dashboard';
       case 'doctor':
         return '/doctor-dashboard'; 
       case 'patient':

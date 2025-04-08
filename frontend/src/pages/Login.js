@@ -36,7 +36,10 @@ const Login = () => {
         // Redirect based on role
         if (role === 'admin') {
           window.location.href = '/admin-dashboard';
-        } else if (role === 'doctor') {
+          
+        } else if (role === 'app_admin') {
+          window.location.href = '/appadmin-dashboard';
+        }else if (role === 'doctor') {
           window.location.href = '/doctor-dashboard';
         } else if (role === 'patient') {
           window.location.href = '/patient-dashboard';
