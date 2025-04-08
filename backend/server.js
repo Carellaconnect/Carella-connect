@@ -314,65 +314,67 @@ app.post('/register',
         // res.send('New User Added at Backend!');
         // }
     });
-
-//Login API 
-app.post('/login', loginLimiter, async (req, res) => {
+// Login API
+app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-
+  
     try {
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      const user = await User.findOne({ email });
+   
+  
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'Invalid email' });
+      }
+  
+      const isMatch = password === user.password;
+      console.log("Password matched:", isMatch);
+  
+      if (!isMatch) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
+      }
+  
+      if (user.role.toLowerCase() === 'doctor') {
+        console.log("Doctor status:", user.status); 
+  
+        if (user.status.toLowerCase() === 'pending') {
+          return res.status(403).json({
+            success: false,
+            message: 'Your account is pending approval. Please wait for approval from the admin.'
+          });
         }
-
-
-        const isMatch = password === user.password;
-
-        if (!isMatch) {
-            return res.status(401).json({ success: false, message: 'Invalid email or password' });
+        if (user.status.toLowerCase() === 'rejected') {
+          return res.status(403).json({
+            success: false,
+            message: 'Your account has been rejected. Please contact the admin for more information.'
+          });
         }
-
-
-        if (user.role === 'Doctor') {
-            if (user.status === 'Pending') {
-                return res.status(403).json({
-                    success: false,
-                    message: 'Your account is pending approval. Please wait for approval from the admin.'
-                });
-            } else if (user.status === 'Rejected') {
-                return res.status(403).json({
-                    success: false,
-                    message: 'Your account has been rejected. Please contact the admin for more information.'
-                });
-            }
+      }
+  
+      return res.json({
+        success: true,
+        message: 'Login successful!',
+        user: {   
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            phone: user.phone,
+            address: user.address,
+            city: user.city,
+            province: user.province,
+            postcode: user.postcode,
+            date_of_birth: user.date_of_birth,
+            gender: user.gender,
+            status: user.status
         }
-
-        // Login successful
-        return res.json({
-            success: true,
-            message: 'Login successful!',
-            user: {   
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                phone: user.phone,
-                address: user.address,
-                city: user.city,
-                province: user.province,
-                postcode: user.postcode,
-                date_of_birth: user.date_of_birth,
-                gender: user.gender,
-                status: user.status
-            }
-        });
-
+      });
+  
     } catch (error) {
-        console.error('Error during login:', error);
-        return res.status(500).json({ success: false, message: 'Server error' });
+      console.error('Error during login:', error);
+      return res.status(500).json({ success: false, message: 'Server error' });
     }
-});
+  });
+  
 
 
 //API to fetch dr registration 
