@@ -27,9 +27,6 @@ const Patient = () => {
   const [comment, setComment] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
-
-
-
   const handleSearch = () => {
     if (!specialty || !language) {
       sethandleSearchMessage("Please select both Specialty and Language.");
@@ -96,6 +93,21 @@ const Patient = () => {
       setcancelFailureMessage("Failed to cancel appointment. Please try again.");
     }
   };
+
+  const handleChangeAppointment = async (appointment) => {
+    if (!window.confirm("Your scheduled appointment will be cancelled. Would you like to continue?")) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/appointments/${appointment._id}`);
+
+    } catch (error) {
+      console.error("Error canceling appointment:", error);
+      setcancelFailureMessage("Failed to cancel appointment. Please try again.");
+      return;
+    }
+    navigate(`/appointment-availability?specialty=${encodeURIComponent(appointment.speciality)}&language=${encodeURIComponent(appointment.language)}`);
+  };
+
   const handleFeedbackClick = (appointment) => {
     setSelectedAppointment(appointment);
     setSelectedRating(0);
@@ -220,7 +232,7 @@ const Patient = () => {
                     <p><strong>Time:</strong> {new Date(new Date(appt.appointment_date).getTime() + 4 * 60 * 60 * 1000).toLocaleTimeString()}</p>
                   </Col>
                   <Col md={3} className="text-end">
-                    <Button className="me-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}>Change</Button>
+                    <Button className="me-2" style={{ backgroundColor: "#8D5B8F", border: "none" }} onClick={() => handleChangeAppointment(appt)}>Change</Button>
                     <Button style={{ backgroundColor: "#E32037", border: "none" }} onClick={() => handleCancelAppointment(appt._id)}>Cancel</Button>
                   </Col>
                 </Row>
@@ -248,7 +260,7 @@ const Patient = () => {
                         <p><strong>Hospital:</strong> {pastappt.hospital_name}</p>
 
                         {/* Feedback section */}
-                        {pastappt.feedback.rating || pastappt.feedback.comment ? (
+                        {pastappt && pastappt.feedback && (pastappt.feedback.rating || pastappt.feedback.comment) ? (
                           <>
                            <p className="mb-1 mt-2"><strong>Your Feedback:</strong> &nbsp;&nbsp;
                     
@@ -281,7 +293,7 @@ const Patient = () => {
                         </Button>
 
                         <Button className="me-2 mb-2" style={{ backgroundColor: "#8D5B8F", border: "none" }}
-                          onClick={() => navigate(`/followup-appointment?doctorId=${pastappt.doctorid}&doctorName=${encodeURIComponent(pastappt.doctor_name)}`)}>
+                          onClick={() => navigate(`/appointment-availability?specialty=${encodeURIComponent(pastappt.speciality)}&language=${encodeURIComponent(pastappt.language)}`)}>
                           Book Follow-up
                         </Button>
                       </Col>

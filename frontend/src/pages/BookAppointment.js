@@ -90,7 +90,9 @@ const BookAppointment = () => {
                 hospital_id: hospitalId,
                 appointment_date: new Date(`${date} ${startTime}`),
                 status: "Scheduled",
-                reason: reason
+                reason: reason,
+                language: languages,
+                speciality: specialty,
             };
 
 
