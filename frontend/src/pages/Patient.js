@@ -248,7 +248,7 @@ const Patient = () => {
                         <p><strong>Hospital:</strong> {pastappt.hospital_name}</p>
 
                         {/* Feedback section */}
-                        {pastappt.feedback ? (
+                        {pastappt.feedback.rating || pastappt.feedback.comment ? (
                           <>
                            <p className="mb-1 mt-2"><strong>Your Feedback:</strong> &nbsp;&nbsp;
                     
@@ -258,8 +258,6 @@ const Patient = () => {
                                 ))} &nbsp;&nbsp;
                                 {/* Feedback comment */}
                                 <strong>Comment:</strong> {pastappt.feedback.comment}
-                          
-                           
                            </p>
                               
                           </>

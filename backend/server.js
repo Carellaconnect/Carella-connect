@@ -691,6 +691,7 @@ app.get('/patient-dashboard/:id/past-appointments', async (req, res) => {
             appointment_date: pastappt.appointment_date,
             doctor_name: pastappt.doctor_id.name,
             hospital_name: pastappt.hospital_id.name,
+            feedback: pastappt.feedback,
         }));
 
         res.json(formattedpastAppointments);
