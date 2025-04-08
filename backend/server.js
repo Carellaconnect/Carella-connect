@@ -41,10 +41,10 @@ app.use(express.urlencoded({ extended: true }));
 app.set('trust proxy', 1);
 
 //Log IP address for every request (add here)
-app.use((req, res, next) => {
-    console.log("IP Address:", req.ip);
-    next();
-  });
+// app.use((req, res, next) => {
+//     console.log("IP Address:", req.ip);
+//     next();
+//   });
 
 
 //Limit login attempts to 5 per 10 minutes per IP only for unsuccessful attempts
@@ -510,7 +510,7 @@ app.get('/filtered-doctors', async (req, res) => {
                         .map(avail => ({
                             date: avail.date.toISOString().split('T')[0],
                             time_slots: avail.time_slots
-                                .filter(slot => new Date(slot.start_time) > today && slot.status === "Available") // Future and available slots only
+                                .filter(slot => new Date(slot.start_time) > today && slot.status === "Available" || "available") // Future and available slots only
                                 .map(slot => ({
                                     start_time: new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                     end_time: new Date(slot.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
