@@ -48,7 +48,15 @@ const ConsultationRecords = () => {
     return (
         <>
             <Navigation />
-            <Container className="mt-4" style={{ paddingTop: "50px", maxWidth: "600px", margin: "auto" }}>
+            <Container fluid style={{
+                      margin: "0px", padding: "10px",
+                      backgroundImage: "url('/images/1background.png')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      minHeight: "100vh",
+                    }}>
+            <Container style={{ paddingTop: "50px", maxWidth: "600px", margin: "auto" }}>
                 <h2 className="consultation-heading">Consultation Records</h2>
                 <Card className="shadow-sm p-3 text-left">
                     {error && <p style={{ color: "red" }}>{error}</p>}
@@ -94,7 +102,7 @@ const ConsultationRecords = () => {
                 </Card>
             </Container>
 
-
+            </Container>
 
         </>
 

@@ -5,8 +5,15 @@ import Navigation from './Navigation';
 const SupportPage = () => {
   return (
     <>
-          <Navigation />
-    <Container className="mt-5">
+          <Navigation /> 
+    <Container className="pt-5" fluid style={{
+          margin: "0px", padding: "0px",
+          backgroundImage: "url('/images/1background.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh",
+        }}>
       <Row className="justify-content-center">
         <Col md={8}>
           <Card>

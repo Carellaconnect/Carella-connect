@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 const Navigation = () => {
   const [userName, setUserName] = useState('');
-  const [userRole, setUserRole] = useState(''); 
+  const [userRole, setUserRole] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,21 +20,23 @@ const Navigation = () => {
   const getDashboardLink = () => {
     const role = userRole.toLowerCase();
     switch (role) {  // Use userRole instead of user
-      case  'admin':
-        return '/admin-dashboard';  
+      case 'admin':
+        return '/admin-dashboard';
+      case 'app_admin':
+        return '/appadmin-dashboard';
       case 'doctor':
-        return '/doctor-dashboard'; 
+        return '/doctor-dashboard';
       case 'patient':
-        return '/patient-dashboard'; 
+        return '/patient-dashboard';
       default:
-        return '#';  
+        return '#';
     }
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); 
-    localStorage.removeItem("user");  
-    navigate("/login"); 
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
   // Check if the user is logged in
@@ -43,15 +45,20 @@ const Navigation = () => {
   return (
     <>
       <Navbar expand="lg" className="px-4 py-3 m-0" style={{ backgroundColor: "#F7D9E1" }}>
-        <Navbar.Brand href="#">
-          <img src="../images/Logo.png" alt="Logo" width="100" className="me-2" />
-          <strong style={{ fontSize: "30px" }}>Carella Connect</strong> <span style={{ fontSize: "12px" }}>Bridging the Gap in Healthcare!</span>
+        {/* Left: Logo */}
+        <Navbar.Brand href="#" className="m-0">
+          <img src="/images/Logo.png" alt="Logo" width="100" />
         </Navbar.Brand>
+        {/* Center: Title and Subtitle */}
+        <div className="" style={{ marginLeft: "380px" }}>
+          <strong style={{ fontSize: "45px", color: "#2596a7" }}>Carella Connect</strong>
+          <span style={{ fontSize: "12px", color: "brown" }}>  Bridging the Gap in Healthcare!</span>
+        </div>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end">
           {isLoggedIn && (
             <Nav className="ms-auto">
-              <span className="me-3 fw-bold">Welcome, {userName}!</span>
+              <span className="me-1 fw-bold">Welcome, {userName}!</span>
             </Nav>
           )}
         </Navbar.Collapse>
@@ -82,12 +89,12 @@ const Navigation = () => {
           <span style={{ border: "1px solid #a6a6a6" }}></span>
         </Nav>
       ) : (
-        <Nav className="ms-auto" style={{borderBottom:" 2px solid #d7d7d7"}}>
-        <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
-        <span style={{border:"1px solid #a6a6a6"}}></span>
-        <Nav.Link href="/login" className='text-dark' >Log In</Nav.Link>
-        <span style={{border:"1px solid #a6a6a6"}}></span>
-      </Nav>
+        <Nav className="ms-auto" style={{ borderBottom: " 2px solid #d7d7d7" }}>
+          <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
+          <span style={{ border: "1px solid #a6a6a6" }}></span>
+          <Nav.Link href="/login" className='text-dark' >Log In</Nav.Link>
+          <span style={{ border: "1px solid #a6a6a6" }}></span>
+        </Nav>
 
       )}
     </>

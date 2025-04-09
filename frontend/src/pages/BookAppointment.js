@@ -142,6 +142,7 @@ const BookAppointment = () => {
     return (
         <>
             <Navigation />
+             
             {/* Show success message if appointment is booked */}
             {successMessage && (
                 <div className="alert alert-success text-center" role="alert">
@@ -170,8 +171,15 @@ const BookAppointment = () => {
                 </div>
             )}
 
-
-            <div className="d-flex justify-content-center align-items-center mt-3">
+<Container fluid style={{
+                      margin: "0px", padding: "10px",
+                      backgroundImage: "url('/images/1background.png')",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                      backgroundRepeat: "no-repeat",
+                      minHeight: "100vh",
+                    }}>
+            <div className="d-flex justify-content-center align-items-center">
                 <div className="p-4 shadow-lg rounded" style={{ maxWidth: "500px", width: "100%", backgroundColor: "#f8f9fa" }}>
                     <h2>Confirm Your Appointment</h2>
 
@@ -204,7 +212,7 @@ const BookAppointment = () => {
                     </div>
                 </div>
             </div>
-
+            </Container>
         </>
     );
 };

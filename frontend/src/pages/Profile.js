@@ -21,7 +21,15 @@ const ProfilePage = () => {
   return (
     <>
       <Navigation />
-      <Container className="mt-5 mb-5">
+      <Container fluid style={{
+                margin: "0px", padding: "0px",
+                backgroundImage: "url('/images/1background.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                minHeight: "100vh",
+              }}>
+      <Container className="pt-5">
         <Row className="justify-content-center">
           <Col md={8} lg={6}>
             <Card className="shadow-none" style={{ border: '1px solid #ddd' }}> {/* Remove box shadow and set border */}
@@ -72,6 +80,7 @@ const ProfilePage = () => {
             </Card>
           </Col>
         </Row>
+      </Container>
       </Container>
     </>
   );

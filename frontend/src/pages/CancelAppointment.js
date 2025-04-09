@@ -3,6 +3,14 @@ import { Modal, Button } from "react-bootstrap";
 
 const CancelAppointment = ({ show, onClose, onConfirm }) => {
   return (
+    <Container fluid style={{
+      margin: "0px", padding: "10px",
+      backgroundImage: "url('/images/1background.png')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+      minHeight: "100vh",
+    }}>
     <Modal show={show} onHide={onClose} centered>
       <Modal.Body className="text-center">
         <h4 className="mb-3">Cancel Appointment</h4>
@@ -13,6 +21,7 @@ const CancelAppointment = ({ show, onClose, onConfirm }) => {
         </div>
       </Modal.Body>
     </Modal>
+    </Container>
   );
 };
 

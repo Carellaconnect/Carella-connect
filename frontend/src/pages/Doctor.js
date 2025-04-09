@@ -290,8 +290,14 @@ const Doctor = ({ onSelectPatient }) => {
 
   return <>
     <Navigation />
-
-    <Container fluid className="p-4">
+    <Container fluid className="p-4" style={{
+                margin: "0px", padding: "0px",
+                backgroundImage: "url('/images/1background.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                minHeight: "100vh",
+              }}>
       <Row>
         {/* Appointments Section */}
         <Col md={6} className='h-50' >
@@ -459,23 +465,7 @@ const Doctor = ({ onSelectPatient }) => {
         </Col>
 
         {/* Medical Records Section */}
-        {/* <Col md={6}>
-          <Card className="mb-4 p-3 shadow-sm h-95" style={{height:"250px"}}>
-            <h5>Medical Records</h5>
-            <Form className="d-flex justify-content-center mb-3 mt-3">
-              <Form.Control type="search" placeholder="Search doctors..." className="w-100" />
-              <Button className="ms-2" style={{ backgroundColor: "#A8577E", border: "0px" }}>
-                <FaSearch />
-              </Button>
-            </Form>
-            {["Patient Name1", "Patient Name2"].map((patient, index) => (
-              <div key={index} className="d-flex justify-content-between align-items-center my-2">
-                <span>{patient} - Condition - Date & Time</span>
-                <Button style={{ backgroundColor: "#A8577E", border: "0px" }}>View</Button>
-              </div>
-            ))}
-          </Card>
-        </Col> */}
+        
         <Col>
         <Card className="mb-4 p-3 shadow-sm h-95" style={{height:"250px"}}>
           <h5>Previous Medical Records</h5>
@@ -539,35 +529,11 @@ const Doctor = ({ onSelectPatient }) => {
       </Row>
 
       <Row className="mb-4 p-3 shadow-sm" style={{height:"500px"}}>
-        {/* Prescription Section */}
-        {/* <Col md={6}>
-          <Card className="mb-4 p-3 shadow-sm h-100">
-            <h5>Prescription</h5>
-            <Form className="d-flex justify-content-center mb-3 mt-3">
-              <Form.Control type="search" placeholder="Search medications..." className="w-100" />
-              <Button className="ms-2" style={{ backgroundColor: "#A8577E", border: "0px" }}>
-                <FaSearch />
-              </Button>
-            </Form>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <span>Acetaminophen - pain, cold, flu... - age 12+</span>
-              <Button style={{ backgroundColor: "#A8577E", border: "0px" }}>Add to Prescription</Button>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <span>Acetaminophen - pain, cold, flu... - age 12+</span>
-              <Button style={{ backgroundColor: "#A8577E", border: "0px" }}>Add to Prescription</Button>
-            </div>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <span>Acetaminophen - pain, cold, flu... - age 12+</span>
-              <Button style={{ backgroundColor: "#A8577E", border: "0px" }}>Add to Prescription</Button>
-            </div>
-          </Card>
-        </Col> */}
-
+        
         {/* Availability Section */}
         {/* <div className="container mt-4"> */}
         <h3 className="mb-3">Appointment Availability</h3>
-        <Col md={6}>
+        <Col md={6} style={{backgroundColor:"white", paddingTop:"10px"}}>
           {/* Date Picker */}
           <div className="mb-3">
             <label className="form-label"><strong>Selected Date: </strong>{selectedDate.toDateString()}</label>
@@ -577,7 +543,7 @@ const Doctor = ({ onSelectPatient }) => {
             <Calendar onChange={handleDateChange} value={selectedDate}/>
           </div>
         </Col>
-        <Col md={6}>
+        <Col md={6} style={{backgroundColor:"white", paddingTop:"10px"}}>
           <h5>Available Time Slots</h5>
           {availableTimeSlots.length > 0 ? (
             <table className="table table-bordered table-striped mt-3">

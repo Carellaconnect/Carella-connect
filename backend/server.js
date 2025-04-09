@@ -1299,6 +1299,128 @@ app.post('/appointments/:id/feedback', async (req, res) => {
     }
 });
 
+//App Admin integration
+
+// Get All Hospitals
+app.get('/api/hospitals', async (req, res) => {
+    try {
+      const hospitals = await Hospital.find();
+      res.json(hospitals);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error fetching hospitals' });
+    }
+  });
+
+// // Add Hospital
+app.post('/api/hospitals', async (req, res) => {
+    try {
+      const newHospital = new Hospital(req.body);
+      await newHospital.save();
+      res.status(201).json(newHospital);
+    } catch (error) {
+      res.status(500).json({ message: 'Error adding hospital' });
+    }
+  });
+
+  // update hospital
+
+  app.put('/api/hospitals/:id', async (req, res) => {
+    try {
+      const updatedHospital = await Hospital.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.status(200).json(updatedHospital);
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating hospital' });
+    }
+  });
+
+  
+ // Delete Hospital
+app.delete('/api/hospitals/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const hospital = await Hospital.findByIdAndDelete(id);
+    
+    if (!hospital) {
+      return res.status(404).json({ message: 'Hospital not found' });
+    }
+    
+    res.json({ message: 'Hospital deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error deleting hospital' });
+  }
+});
+  
+
+// Fetch doctors by hospital ID
+app.get('/api/doctors/hospital/:hospitalId', async (req, res) => {
+    try {
+      const { hospitalId } = req.params;
+      const doctors = await User.find({ hospital_id: hospitalId, role: { $regex: /^doctor$/, $options: 'i' } }).sort({ status: 1 });;  // Fetching doctors from the User model with hospital_id field
+      res.status(200).json(doctors);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching doctors' });
+    }
+  });
+// Fetch admin by hospital
+
+app.get('/api/admins/hospital/:hospitalId', async (req, res) => {
+    try {
+      const { hospitalId } = req.params;
+      const admins = await User.find({ hospital_id: hospitalId, role: { $regex: /^admin$/, $options: 'i' } }); // Filter by role
+      res.status(200).json(admins);
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching admins' });
+    }
+  });
+
+  // add admin to hospital
+
+  app.post('/api/admins', async (req, res) => {
+    try {
+      const adminData = {
+        ...req.body,
+        role: 'admin',
+        created_at: new Date(),
+        updated_at: new Date(),
+      };
+      const newAdmin = new User(adminData);
+      await newAdmin.save();
+      res.status(201).json(newAdmin);
+    } catch (error) {
+      res.status(500).json({ message: 'Error adding admin' });
+    }
+  });
+  
+// update admin 
+
+app.put('/api/admins/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedAdmin = await User.findByIdAndUpdate(
+      id,
+      { ...req.body, updated_at: new Date() },
+      { new: true }
+    );
+    res.status(200).json(updatedAdmin);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating admin' });
+  }
+});
+
+// Delete admin
+
+app.delete('/api/admins/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await User.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Admin deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting admin' });
+  }
+});
+
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navigation from './Navigation';
-import { Table, Button } from 'react-bootstrap';
+import { Table, Button, Container } from 'react-bootstrap';
 import {Nav,  Form, Card, Modal } from "react-bootstrap";
 import { FaStar, FaSearch, FaBell } from "react-icons/fa";
 
@@ -172,7 +172,15 @@ const pendingEmergencies = emergencyRequests.filter(req => req.status === "Pendi
   
       
       <Navigation />
-       
+      <Container fluid
+        style={{
+          margin: "0px", padding: "0px",
+          backgroundImage: "url('/images/1background.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh",
+        }}>
          {/* Show notification if message is set */}
     {notification.message && (
       <div className={`alert alert-${notification.type}`} role="alert">
@@ -180,9 +188,8 @@ const pendingEmergencies = emergencyRequests.filter(req => req.status === "Pendi
       </div>
     )}
     
-                
                 <h3 className="text-center mb-4">Admin Dashboard</h3>
-                                <div className="container mt-4">
+                                <div className="container mt-4" style={{backgroundColor:"white", paddingTop:"10px"}}>
                                   <div className="row">
                                     {/* Doctor Approval Stats Table */}
                                     <div className="col-md-6 mb-4">
@@ -370,6 +377,7 @@ const pendingEmergencies = emergencyRequests.filter(req => req.status === "Pendi
           <Button style={{ backgroundColor: "#A8577E", border: "none", padding: "10px 20px", fontSize: "1.2rem", marginBottom: "10px" }} onClick={handleUpdateStatus}>Update Status</Button>
         </Modal.Footer>
       </Modal>
+      </Container>
     </>
   );
 };

@@ -145,6 +145,14 @@ const Patient = () => {
   return (
     <>
       <Navigation />
+      <Container fluid style={{
+          margin: "0px", padding: "0px",
+          backgroundImage: "url('/images/1background.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh",
+        }}>
       {/* Show success message if appointment is cancelled*/}
       {cancelSuccessMessage && (
         <div className="alert alert-success text-center" role="alert">
@@ -338,7 +346,7 @@ const Patient = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
+      </Container>
     </>
   );
 };

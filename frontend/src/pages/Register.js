@@ -175,7 +175,14 @@ const Register = () => {
         <>
             <Navigation></Navigation>
             
-
+<Container fluid style={{
+          margin: "0px", padding: "0px",
+          backgroundImage: "url('/images/1background.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh",
+        }}>
             <Container fluid className="d-flex justify-content-center align-items-center min-vh-100">
                     <Row className="w-100">
                       <Col md={6} lg={6} className="mx-auto">
@@ -510,7 +517,7 @@ const Register = () => {
                       </Col>
                     </Row>
                   </Container>
-
+                  </Container>
         </>
     );
 };

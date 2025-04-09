@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Navbar, Nav, Button,  Card, Form } from "react-bootstrap";
+import { Navbar, Nav, Button,  Card, Form , Container} from "react-bootstrap";
 import Navigation from './Navigation';
 
 function VirtualHealthResources() {
@@ -79,8 +79,15 @@ function VirtualHealthResources() {
         <>
         <Navigation />
     
-                   
-        <div className="container mt-4">
+        <Container fluid style={{
+          margin: "0px", padding: "0px",
+          backgroundImage: "url('/images/1background.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh",
+        }}>  
+        <div className="container pt-4">
             <h2>📚 Virtual Health Resources</h2>
             <p>Explore educational content on common health concerns and self-care.</p>
 
@@ -114,6 +121,7 @@ function VirtualHealthResources() {
                 ))}
             </div>
         </div>
+        </Container>  
         </>
     );
 }

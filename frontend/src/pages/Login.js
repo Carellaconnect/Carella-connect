@@ -36,7 +36,9 @@ const Login = () => {
         // Redirect based on role
         if (role === 'admin') {
           window.location.href = '/admin-dashboard';
-        } else if (role === 'doctor') {
+        } else if (role === 'app_admin') {
+          window.location.href = '/appadmin-dashboard';
+        }else if (role === 'doctor') {
           window.location.href = '/doctor-dashboard';
         } else if (role === 'patient') {
           window.location.href = '/patient-dashboard';
@@ -64,20 +66,37 @@ const Login = () => {
     <>
       {/* Navbar */}
       <Navbar expand="lg" className="px-4 py-3 m-0" style={{ backgroundColor: "#F7D9E1" }}>
-        <Navbar.Brand href="/">
-          <img src="/images/Logo.png" alt="Logo" width="100" className="me-2" />
-          <strong style={{ fontSize: "30px" }}>Carella Connect</strong> 
-          <span style={{ fontSize: "12px" }}>Bridging the Gap in Healthcare!</span>
-        </Navbar.Brand>
+      <div className="d-flex justify-content-between w-100 align-items-center">
+    
+    {/* Left: Logo */}
+    <Navbar.Brand href="/" className="m-0">
+      <img src="/images/Logo.png" alt="Logo" width="100" />
+    </Navbar.Brand>
+
+    {/* Center: Title and Subtitle */}
+    <div className="text-center mx-auto">
+      <strong style={{ fontSize: "45px", color:"#2596a7" }}>Carella Connect</strong>
+      <span style={{ fontSize: "12px", color:"brown" }}>  Bridging the Gap in Healthcare!</span>
+    </div>
+  </div>
       </Navbar>
 
       {/* Navigation Links */}
       <Nav className="ms-auto" style={{ borderBottom: "2px solid #d7d7d7" }}>
         <Nav.Link href="/Home" className='text-dark'>Home</Nav.Link>
       </Nav>
+      <Container fluid
+              style={{
+                margin: "0px", padding: "0px",
+                backgroundImage: "url('/images/1background.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                minHeight: "100vh",
+              }}>
 
       {/* Login Form */}
-      <Container fluid className="d-flex justify-content-center align-items-center min-vh-100">
+      <Container fluid className="d-flex justify-content-center align-items-center min-vh-100" >
         <Row className="w-100">
           <Col md={6} lg={4} className="mx-auto text-center">
             <Card className="p-4 shadow-sm mb-5">
@@ -122,6 +141,7 @@ const Login = () => {
             </Card>
           </Col>
         </Row>
+      </Container>
       </Container>
     </>
   );

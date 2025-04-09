@@ -81,8 +81,14 @@ const AppointmentAvailability = () => {
   return (
     <>
       <Navigation />
-
-      <Container className="mt-4">
+      <Container fluid style={{
+          margin: "0px", padding: "10px",
+          backgroundImage: "url('/images/1background.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "100vh",
+        }}>
         <h2>
           {specialty && language ? `Find a ${language} speaking ${specialty}` : "Find a Doctor"}
         </h2>
