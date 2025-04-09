@@ -128,6 +128,8 @@ const AppointmentDetailsSchema = new mongoose.Schema({
     appointment_date: Date,
     status: String,
     reason: String,
+    language: String,
+    speciality: String,
     feedback: {
         rating: Number,
         comment: String,
@@ -611,7 +613,7 @@ app.post('/appointments', async (req, res) => {
     try {
         console.log("Received appointment data:", req.body); // Log received data
 
-        const { patient_id, doctor_id, hospital_id, appointment_date, status, reason } = req.body;
+        const { patient_id, doctor_id, hospital_id, appointment_date, status, reason, language, speciality } = req.body;
 
         // Validate required fields
         if (!hospital_id || !patient_id || !doctor_id || !appointment_date || !status || !reason) {
@@ -625,7 +627,9 @@ app.post('/appointments', async (req, res) => {
             hospital_id,
             appointment_date,
             status,
-            reason
+            reason,
+            language,
+            speciality,
         });
 
         // Save to database
@@ -662,6 +666,8 @@ app.get('/patient-dashboard/:id', async (req, res) => {
             appointment_date: appt.appointment_date,
             doctor_name: appt.doctor_id.name,
             hospital_name: appt.hospital_id.name,
+            language: appt.language,
+            speciality: appt.speciality,
         }));
 
         res.json(formattedAppointments);
@@ -678,13 +684,24 @@ app.get('/patient-dashboard/:id/past-appointments', async (req, res) => {
         const today = new Date();
         today.setHours(23, 59, 59, 999);  // Ensure full day is considered
 
+        // const pastappointments = await AppointmentDetails.find({
+        //     patient_id: patientId,
+        //     appointment_date: { $lt: today }  // Fetch only past appointments
+        // })
+        //     .populate('doctor_id', 'name')  // Fetch doctor name
+        //     .populate('hospital_id', 'name') // Fetch hospital name
+        //     .exec();
+
         const pastappointments = await AppointmentDetails.find({
-            patient_id: patientId,
-            appointment_date: { $lt: today }  // Fetch only past appointments
+            patient_id: patientId,  // Match patient_id
+            $or: [  // Use the $or operator for date or status conditions
+                { appointment_date: { $lt: today } },  // Date is less than today (appointments before today)
+                { status: 'Completed' }  // Status is completed
+            ]
         })
-            .populate('doctor_id', 'name')  // Fetch doctor name
-            .populate('hospital_id', 'name') // Fetch hospital name
-            .exec();
+        .populate('doctor_id', 'name')  // Populate doctor's name
+        .populate('hospital_id', 'name') // Populate hospital's name
+        .exec();
 
         const formattedpastAppointments = pastappointments.map(pastappt => ({
             _id: pastappt._id,
@@ -692,8 +709,9 @@ app.get('/patient-dashboard/:id/past-appointments', async (req, res) => {
             doctor_name: pastappt.doctor_id.name,
             hospital_name: pastappt.hospital_id.name,
             feedback: pastappt.feedback,
+            language: pastappt.language,
+            speciality: pastappt.speciality,
         }));
-
         res.json(formattedpastAppointments);
     } catch (error) {
         console.error("Error fetching appointments:", error);

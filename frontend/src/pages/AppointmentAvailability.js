@@ -68,7 +68,7 @@ const AppointmentAvailability = () => {
         doctorId: doctor._id,
         doctorName: doctor.doctor_name,
         specialty: doctor.speciality,
-        languages: doctor.languages.join(", "),
+        languages: language,
         hospital: doctor.hospital_name,
         address: doctor.hospital_address,
         date,
