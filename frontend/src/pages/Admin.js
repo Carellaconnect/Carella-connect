@@ -9,25 +9,42 @@ import { FaStar, FaSearch, FaBell } from "react-icons/fa";
 
 const AdminDashboard = () => {
   const [approvalRequests, setApprovalRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [notification, setNotification] = useState({ message: '', type: '' });
   const [emergencyRequests, setEmergencyRequests] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedEmergency, setSelectedEmergency] = useState(null);
   const [newStatus, setNewStatus] = useState("");
 
+  const user = JSON.parse(localStorage.getItem("user"));
 
-  useEffect(() => {
-    fetch(
-      "http://localhost:5000/doctors-approval-requests"
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        setApprovalRequests(data);
-      })
-      .catch((error) =>
-        console.error("Error fetching approval requests:", error)
-      );
-  }, []);
+ useEffect(() => {
+    if (!user || !user.email) {
+      setError("User not logged in or email not found.");
+      return;
+    }
+
+    const fetchApprovalRequests = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5000/doctors-approval-requests?email=${user.email}`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setApprovalRequests(data);
+        } else {
+          setError("Failed to fetch approval requests.");
+        }
+      } catch (err) {
+        setError("Error fetching approval requests.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchApprovalRequests();
+  }, [user]);
    // Fetch Emergency Requests
    useEffect(() => {
     fetch("http://localhost:5000/api/emergency-requests")
@@ -112,11 +129,31 @@ const AdminDashboard = () => {
           )
         );
         setShowModal(false);
+        setNotification({
+          message: `Emergency request status updated to '${newStatus}' successfully. Message update sent to the user`,
+          type: 'success',
+      });
+      setTimeout(() => {
+        setNotification({ message: '', type: '' });
+    }, 5000);
       } else {
-        console.error("Failed to update status");
+        setNotification({
+          message: "Failed to update status. Please try again.",
+          type: 'danger',
+      });
+      setTimeout(() => {
+        setNotification({ message: '', type: '' });
+    }, 5000);
       }
     } catch (error) {
       console.error("Error updating status:", error);
+      setNotification({
+        message: "Error updating status. Please try again.",
+        type: 'danger',
+    });
+    setTimeout(() => {
+      setNotification({ message: '', type: '' });
+  }, 5000);
     }
   };
   const totalDoctors = approvalRequests.length;
