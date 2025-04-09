@@ -377,15 +377,25 @@ app.post('/login', async (req, res) => {
   
 
 
-//API to fetch dr registration 
+//API to fetch dr approval  
 
 app.get("/doctors-approval-requests", async (req, res) => {
     try {
-        
-        const approvalRequests = await DoctorsApprovalRrequests.find()
-          .populate('doctor_id', 'name email status')  
-          .populate('hospital_admin_id', 'name email')  
-          .exec();
+        const email = req.query.email;
+        if (!email) {
+            return res.status(400).json({ message: "Email is required." });
+          }
+      
+          const hospitalAdmin = await User.findOne( {email });
+
+          if (!hospitalAdmin) {
+            return res.status(404).json({ message: "Hospital admin not found." });
+          }
+          const approvalRequests = await DoctorsApprovalRrequests.find({
+            hospital_admin_id: hospitalAdmin._id,  // Filter by the admin's ID
+          }).populate('doctor_id', 'name email status')
+            .populate('hospital_admin_id', 'name email')
+            .exec();
     
         if (!approvalRequests || approvalRequests.length === 0) {
           return res.status(404).json({ message: "No approval requests found." });
@@ -435,6 +445,14 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
             : `Dear ${doctor.name},\n\nWe regret to inform you that your account has been rejected.\n\nBest Regards,\nCarella Connect`;
 
         await sendEmail(doctor.email, emailSubject, emailMessage);
+        
+         return res.status(200).json({
+            success: true,
+            message: status === "Approved" 
+                ? 'Doctor approved successfully! An email notification has been sent to the doctor.'
+                : 'Doctor rejected successfully! An email notification has been sent to the doctor.'
+        });
+
 
         //Adding the doctor details to the doctor profile collection
         let language = [];
