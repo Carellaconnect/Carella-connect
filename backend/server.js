@@ -24,10 +24,10 @@ console.log("Server Timezone:", Intl.DateTimeFormat().resolvedOptions().timeZone
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:3000', 
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true 
+    credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -64,8 +64,8 @@ const loginLimiter = rateLimit({
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('Failed to connect to MongoDB:', err));
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => console.error('Failed to connect to MongoDB:', err));
 // mongoose.connect('mongodb+srv://carellaconnect:CarellaConnect@carellaconnect.h50ep.mongodb.net/Carella_Connect')
 //     .then(() => console.log('Connected to MongoDB'))
 //     .catch((err) => console.error('Failed to connect to MongoDB:', err));
@@ -187,12 +187,12 @@ const EmergencyRequest = mongoose.model('EmergencyRequest', {
     details: String,
     urgency: String,
     phoneNumber: String,
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }, 
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     status: {
         type: String,
         enum: ['Pending', 'In Progress', 'Resolved'],
         default: 'Pending',
-      },
+    },
     createdAt: { type: Date, default: Date.now }
 });
 
@@ -205,12 +205,12 @@ const MedicalRecords = mongoose.model('MedicalRecords', {
     reason: String,
     allergies: String,
     diagnosis: String,
-    medication: String, 
+    medication: String,
     createdAt: { type: Date, default: Date.now }
 });
 
 const feedback = mongoose.model('Feedback', {
-    appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'AppointmentDetails' },  
+    appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'AppointmentDetails' },
     patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     hospital_id: { type: mongoose.Schema.Types.ObjectId, ref: "Hospital" },
@@ -241,34 +241,34 @@ app.post('/register',
             let status = 'Active';
             user = await User.findOne({ email });
 
-        if (user == null) {
-            if(req.body.role.toLowerCase() == 'doctor' || req.body.role.toLowerCase() == 'admin'){
-                status = 'Pending';
-            }
-            const newUser = new User({
-            "name": req.body.fname+' '+req.body.lname, 
-            "email": req.body.email,
-            "password": req.body.password,
-            "role": req.body.role.toLowerCase(),    
-            "profile_picture": req.body.profile_pic,  
-            "phone": req.body.phone,
-            "address": req.body.address,
-            "city": req.body.city,
-            "postcode": req.body.postcode,
-            "province": req.body.province,
-            "date_of_birth": req.body.dob,  
-            "gender": req.body.gender,   
-            "created_at": new Date(), 
-            "updated_at": new Date(), 
-            "status": status, 
-            "insurance_id": req.body.insuranceId,  
-            "insurance_provider": req.body.insuranceProvider,
-            "hospital_id": req.body.hospitalId,
-            "doctor_identification_id": req.body.doctorId,
-            "license_number": req.body.licenseNumber,
-            "speciality": req.body.speciality,
-            "language": req.body.language
-            });
+            if (user == null) {
+                if (req.body.role.toLowerCase() == 'doctor' || req.body.role.toLowerCase() == 'admin') {
+                    status = 'Pending';
+                }
+                const newUser = new User({
+                    "name": req.body.fname + ' ' + req.body.lname,
+                    "email": req.body.email,
+                    "password": req.body.password,
+                    "role": req.body.role.toLowerCase(),
+                    "profile_picture": req.body.profile_pic,
+                    "phone": req.body.phone,
+                    "address": req.body.address,
+                    "city": req.body.city,
+                    "postcode": req.body.postcode,
+                    "province": req.body.province,
+                    "date_of_birth": req.body.dob,
+                    "gender": req.body.gender,
+                    "created_at": new Date(),
+                    "updated_at": new Date(),
+                    "status": status,
+                    "insurance_id": req.body.insuranceId,
+                    "insurance_provider": req.body.insuranceProvider,
+                    "hospital_id": req.body.hospitalId,
+                    "doctor_identification_id": req.body.doctorId,
+                    "license_number": req.body.licenseNumber,
+                    "speciality": req.body.speciality,
+                    "language": req.body.language
+                });
 
                 await newUser.save().then(() => {
                     console.log('User Data saved.');
@@ -317,64 +317,64 @@ app.post('/register',
 // Login API
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-  
+
     try {
-      const user = await User.findOne({ email });
-   
-  
-      if (!user) {
-        return res.status(401).json({ success: false, message: 'Invalid email' });
-      }
-  
-      const isMatch = password === user.password;
-      console.log("Password matched:", isMatch);
-  
-      if (!isMatch) {
-        return res.status(401).json({ success: false, message: 'Invalid email or password' });
-      }
-  
-      if (user.role.toLowerCase() === 'doctor') {
-        console.log("Doctor status:", user.status); 
-  
-        if (user.status.toLowerCase() === 'pending') {
-          return res.status(403).json({
-            success: false,
-            message: 'Your account is pending approval. Please wait for approval from the admin.'
-          });
+        const user = await User.findOne({ email });
+
+
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Invalid email' });
         }
-        if (user.status.toLowerCase() === 'rejected') {
-          return res.status(403).json({
-            success: false,
-            message: 'Your account has been rejected. Please contact the admin for more information.'
-          });
+
+        const isMatch = password === user.password;
+        console.log("Password matched:", isMatch);
+
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
-      }
-  
-      return res.json({
-        success: true,
-        message: 'Login successful!',
-        user: {   
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            phone: user.phone,
-            address: user.address,
-            city: user.city,
-            province: user.province,
-            postcode: user.postcode,
-            date_of_birth: user.date_of_birth,
-            gender: user.gender,
-            status: user.status
+
+        if (user.role.toLowerCase() === 'doctor') {
+            console.log("Doctor status:", user.status);
+
+            if (user.status.toLowerCase() === 'pending') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Your account is pending approval. Please wait for approval from the admin.'
+                });
+            }
+            if (user.status.toLowerCase() === 'rejected') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Your account has been rejected. Please contact the admin for more information.'
+                });
+            }
         }
-      });
-  
+
+        return res.json({
+            success: true,
+            message: 'Login successful!',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                phone: user.phone,
+                address: user.address,
+                city: user.city,
+                province: user.province,
+                postcode: user.postcode,
+                date_of_birth: user.date_of_birth,
+                gender: user.gender,
+                status: user.status
+            }
+        });
+
     } catch (error) {
-      console.error('Error during login:', error);
-      return res.status(500).json({ success: false, message: 'Server error' });
+        console.error('Error during login:', error);
+        return res.status(500).json({ success: false, message: 'Server error' });
     }
-  });
-  
+});
+
 
 
 //API to fetch dr approval  
@@ -384,29 +384,29 @@ app.get("/doctors-approval-requests", async (req, res) => {
         const email = req.query.email;
         if (!email) {
             return res.status(400).json({ message: "Email is required." });
-          }
-      
-          const hospitalAdmin = await User.findOne( {email });
+        }
 
-          if (!hospitalAdmin) {
+        const hospitalAdmin = await User.findOne({ email });
+
+        if (!hospitalAdmin) {
             return res.status(404).json({ message: "Hospital admin not found." });
-          }
-          const approvalRequests = await DoctorsApprovalRrequests.find({
+        }
+        const approvalRequests = await DoctorsApprovalRrequests.find({
             hospital_admin_id: hospitalAdmin._id,  // Filter by the admin's ID
-          }).populate('doctor_id', 'name email status')
+        }).populate('doctor_id', 'name email status')
             .populate('hospital_admin_id', 'name email')
             .exec();
-    
+
         if (!approvalRequests || approvalRequests.length === 0) {
-          return res.status(404).json({ message: "No approval requests found." });
+            return res.status(404).json({ message: "No approval requests found." });
         }
-    
+
         res.json(approvalRequests);
-      } catch (error) {
+    } catch (error) {
         console.error("Error fetching doctor approval requests:", error);
         res.status(500).json({ error: "Server error while fetching approval requests." });
-      }
-    });
+    }
+});
 
 // Route to update doctor approval status
 
@@ -438,17 +438,17 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
             );
         }
 
-       
+
         const emailSubject = status === "Approved" ? "Doctor Approval - Accepted" : "Doctor Approval - Rejected";
         const emailMessage = status === "Approved"
             ? `Dear ${doctor.name},\n\nYour account has been approved! You can now access the system.\n\nBest Regards,\nCarella Connect`
             : `Dear ${doctor.name},\n\nWe regret to inform you that your account has been rejected.\n\nBest Regards,\nCarella Connect`;
 
         await sendEmail(doctor.email, emailSubject, emailMessage);
-        
-         return res.status(200).json({
+
+        return res.status(200).json({
             success: true,
-            message: status === "Approved" 
+            message: status === "Approved"
                 ? 'Doctor approved successfully! An email notification has been sent to the doctor.'
                 : 'Doctor rejected successfully! An email notification has been sent to the doctor.'
         });
@@ -456,13 +456,13 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
 
         //Adding the doctor details to the doctor profile collection
         let language = [];
-        if(doctor.language === "EN"){
-            language.push({"language_name": "English", "language_code": "EN"}); 
+        if (doctor.language === "EN") {
+            language.push({ "language_name": "English", "language_code": "EN" });
         } else if (doctor.language === "FR") {
-            language.push({"language_name": "French", "language_code": "FR"}); 
+            language.push({ "language_name": "French", "language_code": "FR" });
         } else if (doctor.language === "BOTH") {
-            language.push({"language_name": "English", "language_code": "EN"});
-            language.push({"language_name": "French", "language_code": "FR"});
+            language.push({ "language_name": "English", "language_code": "EN" });
+            language.push({ "language_name": "French", "language_code": "FR" });
         }
         const doctorProfile = new DoctorProfile({
             "doctor_id": doctor._id,
@@ -476,7 +476,7 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
         });
 
         // Add doctor id to the hospitals collection
-        
+
         let hospital = await Hospital.findOne({ _id: doctor.hospital_id });
         let doctorsList = hospital.doctors;
         doctorsList.push(doctor._id);
@@ -484,12 +484,12 @@ app.put('/update-doctor-approval/:id', async (req, res) => {
         hospital.save().then(() => {
             console.log('Added doctor id to the hospital collection');
         });
-       
-        return res.json({ 
-            success: true, 
-            message: `Doctor ${status.toLowerCase()} successfully!`, 
-            updatedRequest, 
-            doctor 
+
+        return res.json({
+            success: true,
+            message: `Doctor ${status.toLowerCase()} successfully!`,
+            updatedRequest,
+            doctor
         });
 
     } catch (error) {
@@ -535,7 +535,8 @@ app.get('/filtered-doctors', async (req, res) => {
         // Fetch doctor profiles matching specialty & language
         const doctorProfiles = await DoctorProfile.find({
             speciality: specialty,
-            languages: { $elemMatch: { language_name: language } }
+            languages: { $elemMatch: { language_name: language } },
+            
         }).populate({
             path: 'doctor_id',
             select: 'name'
@@ -558,7 +559,7 @@ app.get('/filtered-doctors', async (req, res) => {
                         .map(avail => ({
                             date: avail.date.toISOString().split('T')[0],
                             time_slots: avail.time_slots
-                                .filter(slot => new Date(slot.start_time) > today && slot.status === "Available" || "available") // Future and available slots only
+                                .filter(slot => new Date(slot.start_time) > today && slot.status.toLowerCase() === "available") // Future and available slots only
                                 .map(slot => ({
                                     start_time: new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                                     end_time: new Date(slot.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -612,7 +613,7 @@ app.get('/get-hospital-id/:hospital', async (req, res) => {
         }
 
         // Find doctor by name (ensure case-insensitive search)
-        const thehospital = await Hospital.findOne({ name: { $regex: new RegExp("^" + hospital + "$", "i") }});
+        const thehospital = await Hospital.findOne({ name: { $regex: new RegExp("^" + hospital + "$", "i") } });
 
         if (!thehospital) {
             return res.status(404).json({ success: false, message: "Hospital not found" });
@@ -653,6 +654,26 @@ app.post('/appointments', async (req, res) => {
         // Save to database
         await newAppointment.save();
 
+        // 🛠 Update doctor's slot status to "Scheduled"
+        const slotUpdateResult = await DoctorProfile.updateOne(
+            {
+                doctor_id: doctor_id,
+                "availability.time_slots.start_time": new Date(appointment_date)
+            },
+            {
+                $set: {
+                    "availability.$[].time_slots.$[slot].status": "Scheduled"
+                }
+            },
+            {
+                arrayFilters: [
+                    { "slot.start_time": new Date(appointment_date) }
+                ]
+            }
+        );
+
+        console.log("Slot update result:", slotUpdateResult);
+
         res.status(201).json({ success: true, message: "Appointment created successfully", appointment: newAppointment });
 
     } catch (error) {
@@ -673,7 +694,8 @@ app.get('/patient-dashboard/:id', async (req, res) => {
 
         const appointments = await AppointmentDetails.find({
             patient_id: patientId,
-            appointment_date: { $gte: today }  // Fetch only future appointments
+            appointment_date: { $gte: today },
+            status: 'Scheduled'  // Fetch only future appointments
         })
             .populate('doctor_id', 'name')  // Fetch doctor name
             .populate('hospital_id', 'name') // Fetch hospital name
@@ -717,9 +739,9 @@ app.get('/patient-dashboard/:id/past-appointments', async (req, res) => {
                 { status: 'Completed' }  // Status is completed
             ]
         })
-        .populate('doctor_id', 'name')  // Populate doctor's name
-        .populate('hospital_id', 'name') // Populate hospital's name
-        .exec();
+            .populate('doctor_id', 'name')  // Populate doctor's name
+            .populate('hospital_id', 'name') // Populate hospital's name
+            .exec();
 
         const formattedpastAppointments = pastappointments.map(pastappt => ({
             _id: pastappt._id,
@@ -755,6 +777,7 @@ app.delete('/appointments/:id', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+  
 
 //Test API
 app.get('/test', (req, res) => {
@@ -772,7 +795,7 @@ app.post('/api/emergency', async (req, res) => {
             return res.status(400).json({ success: false, message: "Required fields are missing!" });
         }
 
-        
+
         let responseMessage = "";
         if (urgency === "High") {
             responseMessage = "Your request is serious! A team member will call you from (519)-6893-456 within 30 minutes.";
@@ -783,7 +806,7 @@ app.post('/api/emergency', async (req, res) => {
         }
 
         const newRequest = new EmergencyRequest({
-            name: userId ? null : name, 
+            name: userId ? null : name,
             emergencyType,
             location,
             details,
@@ -802,7 +825,7 @@ app.post('/api/emergency', async (req, res) => {
 });
 // Function to format the phone number
 function formatPhoneNumber(phoneNumber) {
-    
+
     const cleaned = phoneNumber.replace(/\D/g, '');
 
     // Check if the cleaned phone number is exactly 10 digits
@@ -819,7 +842,7 @@ function formatPhoneNumber(phoneNumber) {
 app.get('/api/emergency-requests', async (req, res) => {
     try {
         const { userId } = req.params;
-        
+
         const emergencyRequests = await EmergencyRequest.find().populate('userId', 'name email'); // Populate user details if available
         res.json({ success: true, data: emergencyRequests });
     } catch (error) {
@@ -837,7 +860,7 @@ app.put('/api/emergency-requests/:id', async (req, res) => {
     }
 
     try {
-        
+
         const updatedEmergency = await EmergencyRequest.findByIdAndUpdate(
             req.params.id,
             { status: status, updatedAt: new Date() },
@@ -848,7 +871,7 @@ app.put('/api/emergency-requests/:id', async (req, res) => {
             return res.status(404).json({ success: false, message: "Emergency request not found" });
         }
 
-        
+
         if (updatedEmergency.phoneNumber) {
             const message = status === 'In Progress'
                 ? `Your emergency request is now being processed. \nTeam Carella Connect.`
@@ -856,11 +879,11 @@ app.put('/api/emergency-requests/:id', async (req, res) => {
 
             try {
                 // Send SMS using Twilio
-                
+
                 await client.messages.create({
                     body: message,
-                    from: process.env.TWILIO_PHONE_NUMBER, 
-                    to: updatedEmergency.phoneNumber, 
+                    from: process.env.TWILIO_PHONE_NUMBER,
+                    to: updatedEmergency.phoneNumber,
                 });
                 console.log(`SMS sent to ${updatedEmergency.phoneNumber}`);
             } catch (smsError) {
@@ -888,82 +911,82 @@ app.put('/api/emergency-requests/:id', async (req, res) => {
 app.get('/api/hospital-data', async (req, res) => {
 
     try {
-        
+
         const hospitalsList = await Hospital.find().exec();
-    
+
         if (!hospitalsList || hospitalsList.length === 0) {
-          return res.status(404).json({ message: "No hospitals found." });
+            return res.status(404).json({ message: "No hospitals found." });
         }
-    
+
         res.json(hospitalsList);
-      } catch (error) {
+    } catch (error) {
         console.error("Error fetching list of hospitals:", error);
         res.status(500).json({ error: "Server error while fetching hospitals list." });
-      }
+    }
 });
 
 
 app.get('/api/upcoming-appointments/:doctorId', async (req, res) => {
     try {
-      const { doctorId } = req.params; // Get doctor ID from the request
-  
-      if (!doctorId) {
-        return res.status(400).json({ message: 'Doctor ID is required' });
-      }
-  
-      const appointments = await AppointmentDetails.find({ 
-          doctor_id: doctorId,  // Filter by doctor ID
-          status: 'Scheduled' 
+        const { doctorId } = req.params; // Get doctor ID from the request
+
+        if (!doctorId) {
+            return res.status(400).json({ message: 'Doctor ID is required' });
+        }
+
+        const appointments = await AppointmentDetails.find({
+            doctor_id: doctorId,  // Filter by doctor ID
+            status: 'Scheduled'
         })
-        .populate('patient_id', 'name email phone gender') // Populate patient details
-        .exec();
-  
-      if (appointments.length === 0) {
-        return res.status(200).json({ data: [] }); // ✅ Return an empty array instead of 404
-      }
-  
-      res.json({ data: appointments });
-  
+            .populate('patient_id', 'name email phone gender') // Populate patient details
+            .exec();
+
+        if (appointments.length === 0) {
+            return res.status(200).json({ data: [] }); // ✅ Return an empty array instead of 404
+        }
+
+        res.json({ data: appointments });
+
     } catch (error) {
-      console.error('Error fetching appointments:', error);
-      res.status(500).json({ message: 'Error fetching appointments' });
+        console.error('Error fetching appointments:', error);
+        res.status(500).json({ message: 'Error fetching appointments' });
     }
 });
 // Route to cancel (discard) an appointment
 app.put('/api/appointments/cancel/:id', async (req, res) => {
     try {
-      const appointmentId = req.params.id;
-  
-      // Update the status of the appointment to 'Cancelled'
-      const updatedAppointment = await AppointmentDetails.findByIdAndUpdate(
-        appointmentId,
-        { status: 'Cancelled' }, // Change the status to 'Cancelled'
-        { new: true } // Return the updated appointment
-      );
-  
-      if (!updatedAppointment) {
-        return res.status(404).json({ message: 'Appointment not found' });
-      }
-  
-      // Respond with the updated appointment
-      res.json({ message: 'Appointment cancelled successfully', data: updatedAppointment });
+        const appointmentId = req.params.id;
+
+        // Update the status of the appointment to 'Cancelled'
+        const updatedAppointment = await AppointmentDetails.findByIdAndUpdate(
+            appointmentId,
+            { status: 'Cancelled' }, // Change the status to 'Cancelled'
+            { new: true } // Return the updated appointment
+        );
+
+        if (!updatedAppointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
+        }
+
+        // Respond with the updated appointment
+        res.json({ message: 'Appointment cancelled successfully', data: updatedAppointment });
     } catch (error) {
-      console.error('Error cancelling appointment:', error);
-      res.status(500).json({ message: 'Error cancelling appointment' });
+        console.error('Error cancelling appointment:', error);
+        res.status(500).json({ message: 'Error cancelling appointment' });
     }
-  });  
+});
 
 //Update Appointment API 
 app.post('/updateAppointment', async (req, res) => {
     const appointmentId = req.body.appointmentId;
     try {
         const medicalRecords = await MedicalRecords.findOne({ appointmentId });
-        if(medicalRecords == null) {
-            const newRecord = new MedicalRecords ({
-                "patientName": req.body.patientName, 
+        if (medicalRecords == null) {
+            const newRecord = new MedicalRecords({
+                "patientName": req.body.patientName,
                 "patientId": req.body.patientId,
                 "email": req.body.email,
-                "appointmentId": req.body.appointmentId,  
+                "appointmentId": req.body.appointmentId,
                 "appointmentDate": req.body.appointmentDate,
                 "reason": req.body.reason,
                 "allergies": req.body.allergies,
@@ -1008,19 +1031,19 @@ app.post('/updateAppointment', async (req, res) => {
 //Complete appointment Api
 app.post('/completeConsultation', async (req, res) => {
     const appointmentId = req.body.appointmentId;
-    const appointmentDetails = await AppointmentDetails.find({ 
+    const appointmentDetails = await AppointmentDetails.find({
         _id: appointmentId
-      })
-      .populate('patient_id', 'name email phone gender') // Populate patient details
-      .exec();
+    })
+        .populate('patient_id', 'name email phone gender') // Populate patient details
+        .exec();
     try {
         const medicalRecords = await MedicalRecords.findOne({ appointmentId });
-        if(medicalRecords == null) {
-            const newRecord = new MedicalRecords ({
-                "patientName": req.body.patientName, 
+        if (medicalRecords == null) {
+            const newRecord = new MedicalRecords({
+                "patientName": req.body.patientName,
                 "patientId": req.body.patientId,
                 "email": req.body.email,
-                "appointmentId": req.body.appointmentId,  
+                "appointmentId": req.body.appointmentId,
                 "appointmentDate": req.body.appointmentDate,
                 "reason": req.body.reason,
                 "allergies": req.body.allergies,
@@ -1051,7 +1074,7 @@ app.post('/completeConsultation', async (req, res) => {
             appointmentId,
             { status: 'Completed' }, // Change the status to 'Completed'
             { new: true } // Return the updated appointment
-          );
+        );
         return res.json({
             success: true,
             message: 'Medical record updated and consultation completed successfully!'
@@ -1065,80 +1088,80 @@ app.post('/completeConsultation', async (req, res) => {
 
 app.get('/api/fetchMedicalRecords/:appt_id', async (req, res) => {
     try {
-      const { appt_id } = req.params;
-  
-      if (!appt_id) {
-        return res.status(400).json({ message: 'Appointmnet Id is required' });
-      }
-  
-      const medicalRecords = await MedicalRecords.find({ 
-          appointmentId: appt_id,
+        const { appt_id } = req.params;
+
+        if (!appt_id) {
+            return res.status(400).json({ message: 'Appointmnet Id is required' });
+        }
+
+        const medicalRecords = await MedicalRecords.find({
+            appointmentId: appt_id,
         }).exec();
-  
-      res.json({ data: medicalRecords });
-  
+
+        res.json({ data: medicalRecords });
+
     } catch (error) {
-      console.error('Error fetching appointments:', error);
-      res.status(500).json({ message: 'Error fetching appointments' });
+        console.error('Error fetching appointments:', error);
+        res.status(500).json({ message: 'Error fetching appointments' });
     }
 });
 
 app.get('/api/fetchMedicalRecords/:appt_id', async (req, res) => {
     try {
-      const { appt_id } = req.params;
-  
-      if (!appt_id) {
-        return res.status(400).json({ message: 'Appointmnet Id is required' });
-      }
-  
-      const medicalRecords = await MedicalRecords.find({ 
-          appointmentId: appt_id,
+        const { appt_id } = req.params;
+
+        if (!appt_id) {
+            return res.status(400).json({ message: 'Appointmnet Id is required' });
+        }
+
+        const medicalRecords = await MedicalRecords.find({
+            appointmentId: appt_id,
         }).exec();
-  
-      res.json({ data: medicalRecords });
-  
+
+        res.json({ data: medicalRecords });
+
     } catch (error) {
-      console.error('Error fetching appointments:', error);
-      res.status(500).json({ message: 'Error fetching appointments' });
+        console.error('Error fetching appointments:', error);
+        res.status(500).json({ message: 'Error fetching appointments' });
     }
 });
 
 app.get('/api/getAllPreviousRecords/:patientId', async (req, res) => {
     try {
-      const { patientId } = req.params;
-  
-      if (!patientId) {
-        return res.status(400).json({ message: 'Patient Id is required' });
-      }
-  
-      const medicalRecords = await MedicalRecords.find({ 
-          patientId: patientId,
+        const { patientId } = req.params;
+
+        if (!patientId) {
+            return res.status(400).json({ message: 'Patient Id is required' });
+        }
+
+        const medicalRecords = await MedicalRecords.find({
+            patientId: patientId,
         }).exec();
-  
-      res.json({ data: medicalRecords });
-  
+
+        res.json({ data: medicalRecords });
+
     } catch (error) {
-      console.error('Error fetching medical records:', error);
-      res.status(500).json({ message: 'Error fetching medical records' });
+        console.error('Error fetching medical records:', error);
+        res.status(500).json({ message: 'Error fetching medical records' });
     }
 });
 
 //getMedicalRecordById
 app.get('/api/getMedicalRecordById/:id', async (req, res) => {
     try {
-      const { id } = req.params;
-  
-      if (!id) {
-        return res.status(400).json({ message: 'Record Id is required' });
-      }
-      const medicalRecords = await MedicalRecords.find({ 
-        _id: id,
-      }).exec();
-      res.json({ data: medicalRecords });
-  
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Record Id is required' });
+        }
+        const medicalRecords = await MedicalRecords.find({
+            _id: id,
+        }).exec();
+        res.json({ data: medicalRecords });
+
     } catch (error) {
-      console.error('Error fetching medical records:', error);
-      res.status(500).json({ message: 'Error fetching medical records' });
+        console.error('Error fetching medical records:', error);
+        res.status(500).json({ message: 'Error fetching medical records' });
     }
 });
 
@@ -1147,96 +1170,96 @@ app.get('/api/getMedicalRecordById/:id', async (req, res) => {
 
 app.get('/doctor/availability/:doctorId', async (req, res) => {
     try {
-      const { doctorId } = req.params;
-      const doctorProfile = await DoctorProfile.findOne({ doctor_id: doctorId });
-  
-      if (!doctorProfile) {
-        return res.status(404).json({ message: 'Doctor profile not found' });
-      }
-  
-      res.json(doctorProfile.availability);
+        const { doctorId } = req.params;
+        const doctorProfile = await DoctorProfile.findOne({ doctor_id: doctorId });
+
+        if (!doctorProfile) {
+            return res.status(404).json({ message: 'Doctor profile not found' });
+        }
+
+        res.json(doctorProfile.availability);
     } catch (err) {
-      res.status(500).json({ message: 'Error fetching availability data', error: err });
+        res.status(500).json({ message: 'Error fetching availability data', error: err });
     }
-  });
-  
+});
 
 
-  
-  // Add new time slot
-  app.post('/doctor/add-time-slot/:doctorId', async (req, res) => {
-    try {
-      const { doctorId } = req.params;
-      const { date, time_slot } = req.body;
-  
-      const doctor = await DoctorProfile.findOne({ doctor_id: doctorId });
-  
-      if (!doctor) {
-        return res.status(404).json({ message: 'Doctor not found' });
-      }
-  
-      // Find the availability entry for the selected date
-      const availabilityIndex = doctor.availability.findIndex(
-        (avail) => avail.date.toISOString().split('T')[0] === date
-      );
-  
-      if (availabilityIndex > -1) {
-        // If date exists, add the time slot to the existing array
-        doctor.availability[availabilityIndex].time_slots.push(time_slot);
-      } else {
-        // If date does not exist, create a new entry
-        doctor.availability.push({ date: new Date(date), time_slots: [time_slot] });
-      }
-  
-      await doctor.save();
-      res.json({ message: 'Time slot added successfully' });
-    } catch (err) {
-      console.error('Error adding time slot:', err);
-      res.status(500).json({ message: 'Server error' });
-    }
-  });
-  
-  app.put('/doctor/update-time-slot/:doctorId', async (req, res) => {
-    try {
-      const { doctorId } = req.params;
-      const { date, index, time_slot } = req.body;
-  
-      let doctor = await DoctorProfile.findOne({ doctor_id: doctorId });
-      if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
-  
-      let dayAvailability = doctor.availability.find(avail => avail.date.toISOString().split('T')[0] === date);
-      if (!dayAvailability) return res.status(404).json({ message: 'No availability found for this date' });
-  
-      dayAvailability.time_slots[index] = time_slot;
-      await doctor.save();
-      res.json({ message: 'Time slot updated successfully' });
-    } catch (err) {
-      res.status(500).json({ message: 'Server Error', error: err });
-    }
-  });
-  
-  // Delete a time slot
-  app.delete('/doctor/delete-time-slot/:doctorId', async (req, res) => {
-    try {
-      const { doctorId } = req.params;
-      const { date, index } = req.body;
-  
-      let doctor = await DoctorProfile.findOne({ doctor_id: doctorId });
-      if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
-  
-      let dayAvailability = doctor.availability.find(avail => avail.date.toISOString().split('T')[0] === date);
-      if (!dayAvailability) return res.status(404).json({ message: 'No availability found for this date' });
-  
-      dayAvailability.time_slots.splice(index, 1);
-      await doctor.save();
-      res.json({ message: 'Time slot deleted successfully' });
-    } catch (err) {
-      res.status(500).json({ message: 'Server Error', error: err });
-    }
-  });
-  
 
-  // GET medical record by appointmentId
+
+// Add new time slot
+app.post('/doctor/add-time-slot/:doctorId', async (req, res) => {
+    try {
+        const { doctorId } = req.params;
+        const { date, time_slot } = req.body;
+
+        const doctor = await DoctorProfile.findOne({ doctor_id: doctorId });
+
+        if (!doctor) {
+            return res.status(404).json({ message: 'Doctor not found' });
+        }
+
+        // Find the availability entry for the selected date
+        const availabilityIndex = doctor.availability.findIndex(
+            (avail) => avail.date.toISOString().split('T')[0] === date
+        );
+
+        if (availabilityIndex > -1) {
+            // If date exists, add the time slot to the existing array
+            doctor.availability[availabilityIndex].time_slots.push(time_slot);
+        } else {
+            // If date does not exist, create a new entry
+            doctor.availability.push({ date: new Date(date), time_slots: [time_slot] });
+        }
+
+        await doctor.save();
+        res.json({ message: 'Time slot added successfully' });
+    } catch (err) {
+        console.error('Error adding time slot:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+app.put('/doctor/update-time-slot/:doctorId', async (req, res) => {
+    try {
+        const { doctorId } = req.params;
+        const { date, index, time_slot } = req.body;
+
+        let doctor = await DoctorProfile.findOne({ doctor_id: doctorId });
+        if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
+
+        let dayAvailability = doctor.availability.find(avail => avail.date.toISOString().split('T')[0] === date);
+        if (!dayAvailability) return res.status(404).json({ message: 'No availability found for this date' });
+
+        dayAvailability.time_slots[index] = time_slot;
+        await doctor.save();
+        res.json({ message: 'Time slot updated successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server Error', error: err });
+    }
+});
+
+// Delete a time slot
+app.delete('/doctor/delete-time-slot/:doctorId', async (req, res) => {
+    try {
+        const { doctorId } = req.params;
+        const { date, index } = req.body;
+
+        let doctor = await DoctorProfile.findOne({ doctor_id: doctorId });
+        if (!doctor) return res.status(404).json({ message: 'Doctor not found' });
+
+        let dayAvailability = doctor.availability.find(avail => avail.date.toISOString().split('T')[0] === date);
+        if (!dayAvailability) return res.status(404).json({ message: 'No availability found for this date' });
+
+        dayAvailability.time_slots.splice(index, 1);
+        await doctor.save();
+        res.json({ message: 'Time slot deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server Error', error: err });
+    }
+});
+
+
+// GET medical record by appointmentId
 app.get("/medicalrecords/:appointmentId", async (req, res) => {
     try {
         const appointmentId = req.params.appointmentId;
@@ -1275,7 +1298,7 @@ app.post('/appointments/:id/feedback', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
-  
+
 // Start the server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
