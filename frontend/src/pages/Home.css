@@ -1,0 +1,38 @@
+.home-container {
+    padding: 20px;
+    background-color:pink;
+    border-radius: 10px;
+    max-width: 600px;
+    margin: 20px auto;
+  }
+
+  .side-image {
+    position: absolute;
+    transition: transform 0.3s ease; /* Smooth transition */
+  }
+  
+  .left {
+    left: 20px; /* Set the initial position of the left image */
+  }
+  
+  .right {
+    right: 20px; /* Set the initial position of the right image */
+  }
+  
+  .book-now-btn {
+    position: relative;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    z-index: 1; /* Ensure the button is above the images */
+  }
+  
+  .book-now-btn:hover + .side-image.left {
+    transform: translateX(30px); /* Move the left image closer */
+  }
+  
+  .book-now-btn:hover + .side-image.right {
+    transform: translateX(-30px); /* Move the right image closer */
+  }
